@@ -12,7 +12,9 @@ I'll write this when it happens, but I envision a process that might look like t
 - Clone the repo and rename the `origin` remote to `base`.
 - Point the `origin` remote to a fresh Github repo.
 - Remove or replace the LICENSE file.
+- Update `.env.example` to the desired defaults for the new project.
 - Find and replace `base-django` with the new project name.
+- Do the "Local Installation" described below.
 - Update `SITE_CONFIG`
 - Create a Postmark server if using email
 - Deploy to Heroku
@@ -53,12 +55,13 @@ I'll write this when it happens, but I envision a process that might look like t
 ### Local Installation
 
 - Clone the repo: `git clone git@github.com:hkhanna/base-django.git`
+- Copy `.env.example` to `.env` and make any appropriate changes.
 - From within the repo directory, run `make all`
   - N.B. that the Makefile assumes or creates a folder named `../venvs/` outside of this project directory where you keep all your venvs.
 
 ### Running Locally
 
-- `make run` will load the application at `localhost:8007`.
+- `make run` will load the application at `localhost:WEB_PORT`, where `WEB_PORT` is set in your `.env` file.
   - The `django-tailwind` packages allows us to use TailwindCSS. The `make tailwind` command builds and watches the development `styles.css`. If you don't run that command (or `make run` which includes that command) and start adding classes to templates, styles randomly won't work because of the way the jit builder works.
 
 ### Testing

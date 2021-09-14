@@ -134,13 +134,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # My Additions
 # ---------------------
+PROJECT_SLUG = env.str("PROJECT_SLUG")
+ENVIRONMENT = env.str("DJANGO_SETTINGS_MODULE").split(".")[-1]
 
 # This is a good article for how to build custom users with the email as username
 # inheriting from AbstractUser rather than AbstractUserBase:
 # https://www.fomfus.com/articles/how-to-use-email-as-username-for-django-authentication-removing-the-username
 AUTH_USER_MODEL = "base.User"
 ATOMIC_REQUESTS = False
-ENVIRONMENT = env.str("DJANGO_SETTINGS_MODULE").split(".")[-1]
 
 # See https://devcenter.heroku.com/articles/http-request-id
 REQUEST_ID_HEADER = "X-Request-Id"
@@ -247,12 +248,12 @@ logging.config.dictConfig(
                 "level": "ERROR",  # Without this, it logs as a WARNING all 4xx requests.
                 "propagate": False,
             },
-            "base-django.base.middleware": {
+            f"{PROJECT_SLUG}.base.middleware": {
                 "handlers": ["request_log_handler"],
                 "level": LOGLEVEL,
                 "propagate": False,
             },
-            "base-django": {"handlers": ["console"], "level": LOGLEVEL},
+            PROJECT_SLUG: {"handlers": ["console"], "level": LOGLEVEL},
         },
     }
 )

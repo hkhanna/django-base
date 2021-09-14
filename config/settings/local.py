@@ -10,7 +10,7 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 
 DATABASES = {
     "default": env.db(
-        "DATABASE_URL", default="postgresql://postgres@localhost:5441/postgres"
+        "DATABASE_URL", default="postgresql://postgres@localhost:5432/postgres"
     )
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
