@@ -1,0 +1,14 @@
+{% load heroicons %}
+<{{el}}
+{% if href %}href={{href}}{% else %}type="{{type}}"{% endif %}
+class="{{button_class}}"
+{{disabled|yesno:" disabled,"}}
+>
+{% if left_icon %}
+  {% heroicon_solid left_icon class=left_icon_class %}
+{% endif %}
+{{text}}
+{% if right_icon %}
+  {% heroicon_solid right_icon class=right_icon_class %}
+{% endif %}
+</{{el}}>

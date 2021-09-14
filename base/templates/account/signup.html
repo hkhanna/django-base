@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load components %}
+{% load form_styles %}
+{% block content %}
+  <nav>
+    <ol role="list" class="bg-gray-50 border-b border-gray-300 divide-y divide-gray-300 md:flex md:divide-y-0 cursor-default">
+      {% include "components/steps/current.html" with name="Create Account" index="01" %}
+      {% include "components/steps/upcoming.html" with name="Choose Plan" index="02" %}
+      {% include "components/steps/upcoming.html" with name="Get Started!" index="03" last=True %}
+    </ol>
+  </nav>
+  <div class="min-h-screen antialiased flex justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-lg w-full">
+      <div>
+        <a href={%url 'index' %} class="flex justify-center">
+          {% include "logo.html" %}
+        </a>
+        <h2 class="mt-4 text-center text-3xl leading-9 font-bold text-gray-900">
+          Sign Up
+        </h2>
+      </div>
+      <form class="px-4 py-5 sm:p-6" method="POST">
+        {% csrf_token %}
+        <div class="grid grid-cols-6 gap-6">
+          <div class="col-span-6 sm:col-span-3">
+            {% include "components/form_input.html" with field=form.first_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+          </div>
+
+          <div class="col-span-6 sm:col-span-3">
+            {% include "components/form_input.html" with field=form.last_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+          </div>
+
+          <div class="col-span-6 sm:col-span-4">
+            {% include "components/form_input.html" with field=form.email input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+          </div>
+
+          <div class="col-span-6 sm:col-span-4">
+            {% include "components/form_input.html" with field=form.password1 input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+          </div>
+
+          <div class="col-span-6">
+            <div class="flex items-center">
+              {{form.accept_terms|checkbox_class}}
+              <label for="{{form.accept_terms.id_for_label}}" class="pl-2 leading-5 text-sm text-gray-600">
+                I have read and agree to the <a href="" class="text-indigo-700 hover:text-indigo-500" target="_blank">Terms of Use</a>.
+              </label>
+            </div>
+            {% if form.accept_terms.errors %}
+              <p class="mt-2 text-sm text-red-600">{{form.accept_terms.errors|join:" "}}</p>
+            {% endif %}
+
+          </div>
+          {% if form.non_field_errors %}
+            <div class="col-span-6 text-sm text-red-600">
+              {{form.non_field_errors}}
+            </div>
+          {% endif %}
+          <div class="col-span-6">
+            {% button type="submit" variant="primary" text="Create Account" extra_class="w-full flex justify-center" %}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock content%}

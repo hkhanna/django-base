@@ -1,0 +1,15 @@
+{% load form_styles %}
+<div>
+  <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+  <div class="mt-1">
+    {% if input_class %}
+      {{field|input_class:input_class}}
+    {% else %}
+      {{field|input_class}}
+    {% endif %}
+  </div>
+  {% if field.errors %}
+    <p class="mt-2 text-sm text-red-600">{{field.errors|join:" "}}</p>
+  {% endif %}
+</div>
+

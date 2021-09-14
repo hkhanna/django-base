@@ -1,0 +1,30 @@
+{% load heroicons %}
+<div class="{{class}}" x-data="{ open: true }" x-show="open">
+  <div class="rounded-md {{bg_color}} p-4">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        {% heroicon_solid icon class="h-5 w-5 "|add:icon_color %}
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium {{text_color}}">
+          {{text}}
+        </h3>
+        {% if subtext %}
+          <div class="mt-2 text-sm {{subtext_color}}">
+            <p>
+              {{ subtext }}
+            </p>
+          </div>
+        {% endif %}
+      </div>
+      <div class="ml-auto pl-3">
+        <div class="-mx-1.5 -my-1.5">
+          <button type="button" class="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 {{button_color}}" x-on:click="open = !open">
+            <span class="sr-only">Dismiss</span>
+            {% heroicon_solid "x" class="h-5 w-5" %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

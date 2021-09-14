@@ -1,0 +1,8 @@
+{% extends 'email/base.txt' %}
+{% block content %}
+Hello {{user_name}},
+
+Please confirm your email address ({{user_email}}) for {{site_name}} by navigating your web browser to this URL: {{ activate_url|safe }}
+
+If {{user_email}} is not your email address, you may safely ignore this email.
+{% endblock %}

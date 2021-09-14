@@ -1,0 +1,16 @@
+# python
+## Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+## C extensions
+*.so
+
+# django
+db.sqlite3
+*.log
+.env
+
+# tailwind
+**/dist/styles.css

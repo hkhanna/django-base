@@ -1,0 +1,11 @@
+{
+  "name": "base-django",
+  "version": "1.0.0",
+  "description": "Dummy package.json to point the Heroku buildpack at the correct one.",
+  "scripts": {
+    "postinstall": "cd base/static_src && npm install"
+  },
+  "cacheDirectories": [
+    "base/static_src/node_modules"
+  ]
+}

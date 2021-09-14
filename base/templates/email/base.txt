@@ -1,0 +1,9 @@
+{% block content %}{% endblock %}
+
+{% block signoff %}Thank you,
+The {{site_name}} team{% endblock signoff %}
+
+{{company}}
+{{company_address}}
+{{company_city_state_zip}}
+{{contact_email}}
