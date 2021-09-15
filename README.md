@@ -8,7 +8,7 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 
 I'll write this when it happens, but I envision a process that might look like this:
 
-- Pick a project name and make sure it's available on Heroku.
+- Pick a project name and make sure it's available on Heroku. START: Maybe it doesn't need to be what's on heroku. The project-slug can be what I want it to be. That's how logs will show up. I can even just hard code it in settings. It doesn't actually matter if the .env project slug and the settings project slug match, so maybe we should name the variables differently?
 - Clone the repo and rename the `origin` remote to `base`.
 - Point the `origin` remote to a fresh Github repo.
 - Remove or replace the LICENSE file.

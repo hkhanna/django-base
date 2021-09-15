@@ -134,7 +134,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # My Additions
 # ---------------------
-PROJECT_SLUG = env.str("PROJECT_SLUG")
+PROJECT_SLUG = "TODO"
 ENVIRONMENT = env.str("DJANGO_SETTINGS_MODULE").split(".")[-1]
 
 # This is a good article for how to build custom users with the email as username
