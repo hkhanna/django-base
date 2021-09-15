@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -6,9 +7,9 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
-from . import tasks, logging
+from . import tasks
 
-logger = logging.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class UserManager(BaseUserManager):

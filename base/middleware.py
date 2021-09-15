@@ -1,10 +1,10 @@
-from base import logging
+import logging
 import threading
 import uuid
 
 from django.conf import settings
 
-logger = logging.get_logger(__name__)
+logger = logging.getLogger(__name__)
 local = threading.local()
 
 

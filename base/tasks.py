@@ -1,3 +1,4 @@
+import logging
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 from django.template import TemplateDoesNotExist
@@ -7,9 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.contrib.sites.shortcuts import get_current_site
 
 
-from . import models, logging
+from . import models
 
-logger = logging.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def send_email_message(email_message_id, attachments=[]):
