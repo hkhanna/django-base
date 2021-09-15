@@ -6,10 +6,10 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 
 ## Creating a new Django project from `base-django`
 
-I'll write this when it happens, but I envision a process that might look like this:
-
-- Pick a project name and make sure it's available on Heroku. START: Maybe it doesn't need to be what's on heroku. The project-slug can be what I want it to be. That's how logs will show up. I can even just hard code it in settings. It doesn't actually matter if the .env project slug and the settings project slug match, so maybe we should name the variables differently?
-- Clone the repo and rename the `origin` remote to `base`.
+- Pick a suitable project name.
+- Clone the repo into the new project name directory. E.g., `git clone git@github.com:hkhanna/base-django.git <project_name>`
+- Rename the `origin` remote to `base`: `git remote rename origin base`
+- Create a fresh Github repo for the project.
 - Point the `origin` remote to a fresh Github repo.
 - Remove or replace the LICENSE file.
 - Update `.env.example` to the desired defaults for the new project.
@@ -18,7 +18,7 @@ I'll write this when it happens, but I envision a process that might look like t
 - Update `SITE_CONFIG`
 - Create a Postmark server if using email
 - Deploy to Heroku
-  1. Create the application in the Heroku web interface with the project name.
+  1. Create the application in the Heroku web interface. A good name for the Heroku application is is `kl-<project_name>`.
   1. Provision the postgresql add-on in the Heroku web interface
      - Note: if you didn't do this, a Heroku postgres database would be automatically provisioned and added to the `DATABASE_URL` environment variable if your app were successfully deployed. However, because deployment requires that variable to be set, a deployment will fail unless the database is provisioned first.
   1. If using celery, provision the redis add-on in the Heroku web interface which will automatically set the `REDIS_URL` environment variable used by celery.
@@ -30,18 +30,18 @@ I'll write this when it happens, but I envision a process that might look like t
        - Without this, it will use the default of `DEBUG`.
      - `STRIPE_API_KEY` if using billing.
      - `POSTMARK_API_KEY` if using email
-  1. The nodejs buildpack was added to support Tailwind CSS with `heroku buildpacks:add --index 1 heroku/nodejs --app <project_name>`. (Update this if this fails because this is being done before the first deployment, the python buildpack might not be detected yet.)
+  1. The nodejs buildpack was added to support Tailwind CSS with `heroku buildpacks:add --index 1 heroku/nodejs --app <app_name>`. (Update this if this fails because this is being done before the first deployment, the python buildpack might not be detected yet.)
   1. Connect Heroku to Github. Enable Automatic Deploys from `main` once CI has passed. You can push directly to `main` or do a PR into `main` and it will deploy once CI passes.
   1. Make sure Heroku is installed
   1. `heroku login` to log into Heroku account if you are not already logged in (check with `heroku auth:whoami`).
-  1. Set up postgres backups: `heroku pg:backups schedule --at '02:00 America/New_York' DATABASE_URL --app <project_name>`
-  1. Make sure there aren't any obvious issues in production: `heroku run python manage.py check --deploy --app <project_name>`
-  1. If using celery, give the celery worker one dyno: `heroku ps:scale main_worker=1 --app <project_name>`
-  1. If the web worker doesn't seem to be running, give it one dyno: `heroku ps:scale web=1 --app <project_name>`
+  1. Set up postgres backups: `heroku pg:backups schedule --at '02:00 America/New_York' DATABASE_URL --app <app_name>`
+  1. Make sure there aren't any obvious issues in production: `heroku run python manage.py check --deploy --app <app_name>`
+  1. If using celery, give the celery worker one dyno: `heroku ps:scale main_worker=1 --app <app_name>`
+  1. If the web worker doesn't seem to be running, give it one dyno: `heroku ps:scale web=1 --app <app_name>`
   1. Add papertrail via the Heroku interface and set up alerts as per "Deployment" below.
-  1. Create the first superuser on production: `heroku run python manage.py createsuperuser --app <project_name>`
+  1. Create the first superuser on production: `heroku run python manage.py createsuperuser --app <app_name>`
   1. Update the Site name and domain in the Django admin.
-  1. You should be good to go. If you want to poke around, you can run `heroku run python manage.py shell --app <project_name>`.
+  1. You should be good to go. If you want to poke around, you can run `heroku run python manage.py shell --app <app_name>`.
 - Update "Deployment", below, as appropriate.
 - **Delete everything in this README** until "Local Development" and add anything appropriate to the new README.
 
@@ -57,7 +57,6 @@ I'll write this when it happens, but I envision a process that might look like t
 - Clone the repo: `git clone git@github.com:hkhanna/base-django.git`
 - Copy `.env.example` to `.env` and make any appropriate changes.
 - From within the repo directory, run `make all`
-  - N.B. that the Makefile assumes or creates a folder named `../venvs/` outside of this project directory where you keep all your venvs.
 
 ### Running Locally
 
