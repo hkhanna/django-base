@@ -71,6 +71,12 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 
 - Python: `piprot` is not maintained but really useful. I'd use that for now.
 
+## Merging upstream "base" changes
+
+- Ensure that there is a `base` remote pointing at the base repo on Github.
+- `git fetch base`
+- `git merge base/origin`.
+
 # Deployment
 
 - Hosted on Heroku
