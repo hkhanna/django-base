@@ -30,10 +30,12 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
        - Without this, it will use the default of `DEBUG`.
      - `STRIPE_API_KEY` if using billing.
      - `POSTMARK_API_KEY` if using email
-  1. The nodejs buildpack was added to support Tailwind CSS with `heroku buildpacks:add --index 1 heroku/nodejs --app <app_name>`. (Update this if this fails because this is being done before the first deployment, the python buildpack might not be detected yet.)
-  1. Connect Heroku to Github. Enable Automatic Deploys from `main` once CI has passed. You can push directly to `main` or do a PR into `main` and it will deploy once CI passes.
   1. Make sure Heroku is installed
   1. `heroku login` to log into Heroku account if you are not already logged in (check with `heroku auth:whoami`).
+  1. The nodejs buildpack was added to support Tailwind CSS with `heroku buildpacks:add heroku/nodejs --app <app_name>`.
+  1. Because we are manually specifying the buildpack, we also need to specify python: `heroku buildpacks:add heroku/python --app <app_name>`.
+  1. Note that the order that you specify the buildpacks is (probably) important, so do them in that order (first node, then python).
+  1. Connect Heroku to Github. Enable Automatic Deploys from `main` once CI has passed. You can push directly to `main` or do a PR into `main` and it will deploy once CI passes.
   1. Set up postgres backups: `heroku pg:backups schedule --at '02:00 America/New_York' DATABASE_URL --app <app_name>`
   1. Make sure there aren't any obvious issues in production: `heroku run python manage.py check --deploy --app <app_name>`
   1. If using celery, give the celery worker one dyno: `heroku ps:scale main_worker=1 --app <app_name>`

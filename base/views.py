@@ -4,6 +4,8 @@ from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views.generic import TemplateView
 
+from . import forms
+
 
 @staff_member_required
 def render_template_with_params(request, template):
@@ -20,3 +22,13 @@ def render_template_with_params(request, template):
 
 class IndexView(TemplateView):
     template_name = "404.html"
+
+
+class SettingsView(TemplateView):
+    template_name = "account/settings.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["pi_form"] = forms.PersonalInformationForm()
+        context["password_form"] = forms.ChangePasswordForm()
+        return context

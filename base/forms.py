@@ -1,5 +1,6 @@
 from django import forms
 from allauth.account import forms as auth_forms
+from . import models
 
 
 class LoginForm(auth_forms.LoginForm):
@@ -23,3 +24,17 @@ class SignupForm(auth_forms.SignupForm):
         widget=forms.TextInput(attrs={"placeholder": "Last name"})
     )
     accept_terms = forms.BooleanField(required=True)
+
+
+class PersonalInformationForm(forms.Form):
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+    email = forms.EmailField()
+    oldpassword = forms.CharField(
+        label="Current password",
+        widget=forms.PasswordInput(attrs={"placeholder": "Current password"}),
+    )
+
+
+class ChangePasswordForm(auth_forms.ChangePasswordForm):
+    pass

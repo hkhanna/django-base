@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load components %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px8">
+<div>
+  <div class="md:grid md:grid-cols-3 md:gap-6">
+    <div class="md:col-span-1">
+      <div class="px-4 sm:px-0">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Personal Information</h3>
+        <p class="mt-1 text-sm text-gray-600">
+          Name, email address, that kind of thing.
+        </p>
+      </div>
+    </div>
+    <div class="mt-5 md:mt-0 md:col-span-2">
+      <form action="#" method="POST">
+        <div class="shadow sm:rounded-md sm:overflow-hidden">
+          <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+            <div class="grid grid-cols-6 gap-6">
+             <div class="col-span-6 sm:col-span-3">
+             {% include "components/form_input.html" with field=pi_form.first_name input_class="w-full" autocomplete="given-name" %}
+             </div>
+             <div class="col-span-6 sm:col-span-3">
+             {% include "components/form_input.html" with field=pi_form.last_name input_class="w-full" autocomplete="family-name" %}
+             </div>
+             <div class="col-span-6 sm:col-span-4">
+             {% include "components/form_input.html" with field=pi_form.email input_class="w-full" autocomplete="email" %}
+             </div>
+           </div>
+          </div>
+        <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
+          <div>
+          {% include "components/form_input.html" with field=pi_form.oldpassword input_class="w-full sm:w-auto" %}
+          </div>
+          {% button type="submit" variant="primary" text="Save" %}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="hidden sm:block" aria-hidden="true">
+  <div class="py-5">
+    <div class="border-t border-gray-200"></div>
+  </div>
+</div>
+
+<div class="mt-10 sm:mt-0">
+  <div class="md:grid md:grid-cols-3 md:gap-6">
+    <div class="md:col-span-1">
+      <div class="px-4 sm:px-0">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Password Management</h3>
+        <p class="mt-1 text-sm text-gray-600">
+          Change your password.
+        </p>
+      </div>
+    </div>
+    <div class="mt-5 md:mt-0 md:col-span-2">
+      <form action="#" method="POST">
+        <div class="shadow sm:rounded-md sm:overflow-hidden">
+          <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+            <div class="grid grid-cols-6 gap-6">
+             <div class="col-span-6 sm:col-span-3">
+             {% include "components/form_input.html" with field=password_form.password1 input_class="w-full" %}
+             </div>
+            <div class="col-span-6 sm:col-span-3">
+             {% include "components/form_input.html" with field=password_form.password2 input_class="w-full" %}
+             </div>
+           </div>
+          </div>
+          <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
+          <div>
+          {% include "components/form_input.html" with field=password_form.oldpassword input_class="w-full sm:w-auto" %}
+          </div>
+          {% button type="submit" variant="primary" text="Change Password" %}
+            
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="hidden sm:block" aria-hidden="true">
+  <div class="py-5">
+    <div class="border-t border-gray-200"></div>
+  </div>
+</div>
+
+<div class="mt-10 sm:mt-0">
+  <div class="md:grid md:grid-cols-3 md:gap-6">
+    <div class="md:col-span-1">
+      <div class="px-4 sm:px-0">
+        <h3 class="text-lg font-medium leading-6 text-red-700">Danger Zone</h3>
+        <p class="mt-1 text-sm text-gray-600">
+          Delete your account.
+        </p>
+      </div>
+    </div>
+    <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0">
+      <form method="POST">
+          {% button type="submit" variant="white" text="Delete Account" %} 
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock content %}
