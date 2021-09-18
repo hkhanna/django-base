@@ -1,6 +1,9 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from allauth.account import forms as auth_forms
 from . import models
+
+User = get_user_model()
 
 
 class LoginForm(auth_forms.LoginForm):
@@ -26,11 +29,19 @@ class SignupForm(auth_forms.SignupForm):
     accept_terms = forms.BooleanField(required=True)
 
 
-class PersonalInformationForm(forms.Form):
-    first_name = forms.CharField()
-    last_name = forms.CharField()
-    email = forms.EmailField()
+class PersonalInformationForm(forms.ModelForm):
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
     oldpassword = forms.CharField(
         label="Current password",
         widget=forms.PasswordInput(attrs={"placeholder": "Current password"}),
     )
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+
+    def clean_oldpassword(self):
+        if not self.instance.check_password(self.cleaned_data.get("oldpassword")):
+            raise forms.ValidationError("Please type your current password.")
+        return self.cleaned_data["oldpassword"]

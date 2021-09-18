@@ -4,13 +4,30 @@ from django.urls import reverse
 from .. import models
 
 
-@pytest.mark.skip
 def test_get_settings(client, user):
     """Settings page should contain the user's information."""
+    client.force_login(user)
     response = client.get(reverse("account_settings"))
     assert user.first_name in str(response.content)
     assert user.last_name in str(response.content)
     assert user.email in str(response.content)
+
+
+def test_change_info(client, user):
+    client.force_login(user)
+    payload = {
+        "first_name": "Rick",
+        "last_name": "Sanchez",
+        "email": "rick@example.com",
+        "oldpassword": "goodpass",
+        "form_name": "pi",
+    }
+    response = client.post(reverse("account_settings"), payload)
+    assert "Personal information saved" in str(response.content)
+    user.refresh_from_db()
+    assert "Rick" == user.first_name
+    assert "Sanchez" == user.last_name
+    assert "rick@example.com" == user.email
 
 
 def test_change_password_happy(client, user):
@@ -20,6 +37,7 @@ def test_change_password_happy(client, user):
         "oldpassword": "goodpass",
         "password1": "newpass123",
         "password2": "newpass123",
+        "form_name": "password",
     }
     response = client.post(reverse("account_settings"), payload)
     assert "Password successfully changed" in str(response.content)
@@ -34,6 +52,7 @@ def test_change_password_incorrect(client, user):
         "oldpassword": "bad",
         "password1": "newpass123",
         "password2": "newpass123",
+        "form_name": "password",
     }
     response = client.post(reverse("account_settings"), payload)
     assert "type your current password" in str(response.content)
@@ -48,6 +67,7 @@ def test_change_password_match(client, user):
         "oldpassword": "goodpass",
         "password1": "newpass123",
         "password2": "differentpass123",
+        "form_name": "password",
     }
     response = client.post(reverse("account_settings"), payload)
     assert "You must type the same password each time" in str(response.content)
