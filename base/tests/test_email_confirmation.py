@@ -1,6 +1,5 @@
 import pytest
 from django.urls import reverse
-import allauth.account.utils
 
 from .. import models
 

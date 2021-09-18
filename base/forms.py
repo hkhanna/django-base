@@ -34,7 +34,3 @@ class PersonalInformationForm(forms.Form):
         label="Current password",
         widget=forms.PasswordInput(attrs={"placeholder": "Current password"}),
     )
-
-
-class ChangePasswordForm(auth_forms.ChangePasswordForm):
-    pass

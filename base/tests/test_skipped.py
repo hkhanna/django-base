@@ -44,62 +44,6 @@ class ConfirmEmailAPITest(TestCase):
         response = self.client.post(reverse("core:resend-confirm-email"))
         self.assertEqual(response.status_code, 429)
 
-
-class UserSettingsAPITest(TestCase):
-    """Tests for user settings"""
-
-    def setUp(self):
-        self.user = factories.UserFactory()
-        self.client.force_login(self.user)
-
-    def test_settings_retrieve(self, *args):
-        """GET the user's settings"""
-        response = self.client.get(reverse("core:user"))
-        self.assertEqual(response.status_code, 200)
-        self.assertDataContains(
-            response.data,
-            {
-                "first_name": self.user.first_name,
-                "last_name": self.user.last_name,
-                "email": self.user.email,
-                "is_confirmed_email": self.user.is_confirmed_email,
-            },
-        )
-
-    def test_settings_contains_customer(self, *args):
-        """The User's settings contains the customer information."""
-        response = self.client.get(reverse("core:user"))
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(
-            json.dumps(response.data.get("customer")),
-            {
-                "current_period_end": None,
-                "payment_state": "off",
-                "cc_info": None,
-                "state": "free_default.new",
-                "plan": {
-                    "name": "Default (Free)",
-                    "display_price": 0,
-                    "type": "free_default",
-                    "limits": {},
-                },
-            },
-        )
-
-    def test_settings_update(self, *args):
-        """Update the user's settings"""
-        old_last_name = self.user.last_name
-        data = {
-            "first_name": self.user.first_name,
-            "last_name": "New Last Name",
-            "email": self.user.email,
-            "password": "goodpass",
-        }
-        response = self.client.put(reverse("core:user"), data)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotDataContains(response.data, {"last_name": old_last_name})
-        self.assertDataContains(response.data, {"last_name": "New Last Name"})
-
     def test_settings_update_email(self):
         """Updating a User's email should unconfirm their email and send them a confirmation email"""
         self.user.is_confirmed_email = True

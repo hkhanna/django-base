@@ -4,8 +4,8 @@ from . import views
 
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
+    path("accounts/settings/", views.SettingsView.as_view(), name="account_settings"),
     path("accounts/", include("allauth.urls")),
-    path("settings/", views.SettingsView.as_view(), name="settings"),
     path(
         "render-template-debug/<path:template>",
         views.render_template_with_params,
