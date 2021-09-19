@@ -179,7 +179,7 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 ACCOUNT_ADAPTER = "base.adapter.AccountAdapter"
-LOGIN_REDIRECT_URL = "/accounts/email/"
+LOGIN_REDIRECT_URL = "/accounts/settings/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True

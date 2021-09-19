@@ -92,8 +92,11 @@ class SettingsView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
-class PasswordChangeView(auth_views.PasswordChangeView):
-    success_url = reverse_lazy("account_settings")
-
-    def form_invalid(self, form):
-        return redirect("account_settings")
+class DeleteView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        with transaction.atomic():
+            request.user.is_active = False
+            request.user.save()
+            request.user.emailaddress_set.update(verified=False)
+        messages.info(request, "Your account has been deleted.")
+        return redirect("account_login")

@@ -15,7 +15,14 @@ def alert(text, subtext=None, alertClass=None, variant=SUCCESS):
             "subtext_color": "text-green-700",
             "button_color": "bg-green-100 text-green-700 hover:bg-green-100 focus:ring-green-600",
         },
-        INFO: {},
+        INFO: {
+            "bg_color": "bg-blue-100",
+            "icon": "information-circle",
+            "icon_color": "text-blue-500",
+            "text_color": "text-blue-700",
+            "subtext_color": "text-blue-600",
+            "button_color": "bg-blue-100 text-blue-700 hover:bg-blue-100 focus:ring-blue-600",
+        },
     }
     return {"text": text, "subtext": subtext, "class": alertClass, **colors[variant]}
 

@@ -1,3 +1,4 @@
+import pytest
 from django.urls import reverse
 from allauth.account import models as auth_models, utils as auth_utils
 
@@ -65,7 +66,7 @@ def test_change_email_sync(client, user):
     assert email_address.email == payload["email"]
 
 
-def test_change_email_confirm(client, user):
+def test_change_email_confirm(client, user, mailoutbox):
     """A changed User email address should send a confirmation email"""
     auth_utils.sync_user_email_addresses(user)
     client.force_login(user)
@@ -79,6 +80,7 @@ def test_change_email_confirm(client, user):
     client.post(reverse("account_settings"), payload)
     email_message = models.EmailMessage.objects.filter(created_by=user).first()
     assert email_message.to_email == payload["email"]
+    assert "Confirm Your E-Mail" in mailoutbox[0].subject
 
 
 def test_no_email_change(client, user):
@@ -130,6 +132,18 @@ def test_email_unique_iexact(client, user):
     assert other_user.email.upper() != user.email
 
 
+@pytest.mark.skip
+def test_resend_email_confirmation(self):
+    """User may request another email confirmation"""
+    self.assertEqual(models.EmailMessage.objects.count(), 0)
+    response = self.client.post(reverse("core:resend-confirm-email"))
+    self.assertEqual(response.status_code, 201)
+    email = models.EmailMessage.objects.first()
+    self.assertEqual(email.created_by, self.user)
+    self.assertEqual(1, len(mail.outbox))
+    self.assertEqual(mail.outbox[0].subject, "Confirm Your Email Address")
+
+
 def test_change_password_happy(client, user):
     """User can change their password."""
     client.login(username=user.email, password="goodpass")
@@ -174,3 +188,60 @@ def test_change_password_match(client, user):
     assert client.login(username=user.email, password="newpass123") is False
     assert client.login(username=user.email, password="differentpass123") is False
     assert client.login(username=user.email, password="goodpass") is True
+
+
+def test_user_delete(client, user):
+    """Deleting a user should disable User.is_active"""
+    assert client.login(username=user.email, password="goodpass") is True
+
+    response = client.post(reverse("account_delete"), follow=True)
+    assert "has been deleted" in str(response.content)
+    user.refresh_from_db()
+
+    assert client.login(username=user.email, password="goodpass") is False
+    assert user.is_active is False
+
+
+@pytest.mark.skip
+def test_user_create_after_delete(self):
+    """Deleted user signing up again should re-enable is_active"""
+    response = self.client.delete(reverse("core:user"))
+    self.assertEqual(204, response.status_code)
+    self.client.logout()
+    user = User.objects.filter(email=self.user.email).first()
+    self.assertFalse(user.is_active)
+    payload = {
+        "first_name": self.user.first_name,
+        "last_name": self.user.last_name,
+        "email": self.user.email,
+        "password": "a really good password!",
+        "accept_terms": True,
+    }
+    response = self.client.post(reverse("core:create-user"), payload)
+    self.assertEqual(response.status_code, 201)
+    user = User.objects.filter(email=self.user.email).first()
+    self.assertIsNotNone(user)
+    self.assertTrue(user.is_active)
+
+
+def test_deleted_user_access(client, user):
+    """If User.is_active is False, user cannot access logged in endpoints"""
+    client.force_login(user)
+    response = client.get(reverse("account_settings"))
+    user.is_active = False
+    user.save()
+    response = client.get(reverse("account_settings"))
+    assert response.status_code == 302
+
+
+def test_deleted_user_unconfirm_email(client, user):
+    """A User with a confirmed email address that gets deleted automatically unconfirms their email.
+    This is useful in case they sign up again."""
+    client.force_login(user)
+    auth_utils.sync_user_email_addresses(user)
+    email_address = auth_models.EmailAddress.objects.get(user=user)
+    email_address.verified = True
+    email_address.save()
+    client.post(reverse("account_delete"))
+    email_address.refresh_from_db()
+    assert email_address.verified is False

@@ -103,8 +103,9 @@
       </div>
     </div>
     <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0">
-      <form method="POST">
-          {% button type="submit" variant="white" text="Delete Account" %} 
+      <form action={% url 'account_delete' %} method="POST">
+        {% csrf_token %}
+        {% button type="submit" variant="white" text="Delete Account" %} 
       </form>
     </div>
   </div>

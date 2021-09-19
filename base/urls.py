@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
     path("accounts/settings/", views.SettingsView.as_view(), name="account_settings"),
+    path("accounts/delete/", views.DeleteView.as_view(), name="account_delete"),
     path("accounts/", include("allauth.urls")),
     path(
         "render-template-debug/<path:template>",
