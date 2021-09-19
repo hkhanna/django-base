@@ -28,6 +28,10 @@ class SignupForm(auth_forms.SignupForm):
     )
     accept_terms = forms.BooleanField(required=True)
 
+    def clean_email(self):
+        self.cleaned_data["email"] = self.cleaned_data["email"].lower()
+        return super().clean_email()
+
 
 class PersonalInformationForm(forms.ModelForm):
     first_name = forms.CharField(required=True)
@@ -45,3 +49,6 @@ class PersonalInformationForm(forms.ModelForm):
         if not self.instance.check_password(self.cleaned_data.get("oldpassword")):
             raise forms.ValidationError("Please type your current password.")
         return self.cleaned_data["oldpassword"]
+
+    def clean_email(self):
+        return self.cleaned_data["email"].lower()

@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib import auth
+from django.db import transaction
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import Http404
@@ -8,7 +8,11 @@ from django.urls.base import reverse_lazy
 from django.views.generic import TemplateView, View
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
-from allauth.account import views as auth_views, forms as auth_forms
+from allauth.account import (
+    views as auth_views,
+    forms as auth_forms,
+    models as auth_models,
+)
 
 from . import forms
 
@@ -41,6 +45,7 @@ class SettingsView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
+        user_email = request.user.email
         if request.POST.get("form_name") == "pi":
             pi_form = forms.PersonalInformationForm(
                 data=request.POST, instance=request.user
@@ -58,8 +63,26 @@ class SettingsView(LoginRequiredMixin, View):
         context = {"pi_form": pi_form, "password_form": password_form}
 
         if pi_form.is_valid():
-            pi_form.save()
-            messages.success(request, "Personal information saved.")
+            with transaction.atomic():
+                pi_form.save()
+                # If the email address has changed, remove all a User's email addresses
+                # (although they should only have one), and replace it with the new one.
+                if pi_form.cleaned_data["email"] != user_email:
+                    auth_models.EmailAddress.objects.filter(user=request.user).delete()
+                    email_address = auth_models.EmailAddress.objects.add_email(
+                        request,
+                        request.user,
+                        pi_form.cleaned_data["email"],
+                        confirm=True,
+                    )
+                    email_address.primary = True
+                    email_address.save()
+                    messages.success(
+                        request,
+                        "Personal information saved. A confirmation email has been sent to your new email address.",
+                    )
+                else:
+                    messages.success(request, "Personal information saved.")
 
         if password_form.is_valid():
             password_form.save()

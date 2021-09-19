@@ -64,6 +64,10 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     def clean(self):
+        # Case-insensitive email address uniqueness check
+        if User.objects.filter(email__iexact=self.email).exclude(id=self.id).exists():
+            raise ValidationError({"email": "A user with that email already exists."})
+
         if self.is_locked and not self.is_active:
             raise ValidationError(
                 {

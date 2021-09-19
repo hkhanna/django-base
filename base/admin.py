@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
+from allauth.account import models as auth_models
+from allauth.account.utils import sync_user_email_addresses
 from . import models
 
 
@@ -33,6 +35,15 @@ class UserAdmin(DefaultUserAdmin):
     search_fields = ("email", "first_name", "last_name", "previous_emails")
     ordering = ("email",)
     filter_horizontal = ("groups", "user_permissions")
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        sync_user_email_addresses(obj)
+
+        # Remove any superfluous EmailAddresses
+        auth_models.EmailAddress.objects.filter(user=obj).exclude(
+            email__iexact=obj.email
+        ).delete()
 
 
 @admin.register(models.EmailMessage)

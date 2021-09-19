@@ -11,6 +11,15 @@ def test_login_happy(client, user):
     assert response.url == settings.LOGIN_REDIRECT_URL
 
 
+def test_login_iexact(client, user):
+    """Email address is case insensitive."""
+    response = client.post(
+        reverse("account_login"), {"login": user.email.upper(), "password": "goodpass"}
+    )
+    assert response.status_code == 302
+    assert response.url == settings.LOGIN_REDIRECT_URL
+
+
 def test_login_bad(client, user):
     response = client.post(
         reverse("account_login"), {"login": user.email, "password": "badpass"}

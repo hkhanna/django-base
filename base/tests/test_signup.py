@@ -88,3 +88,34 @@ def test_disable_user_creation(client):
     response = client.post(reverse("account_signup"), payload)
     assert "Sign Up Closed" in str(response.content)
     assert 0 == models.User.objects.filter(email="harry@example.com").count()
+
+
+def test_email_lowercase(client):
+    """Email address should be stored as lowercase when signing up"""
+    payload = {
+        "first_name": "Harry",
+        "last_name": "Khanna",
+        "email": "harry@example.com".upper(),
+        "password1": "a really good password!",
+        "accept_terms": True,
+    }
+    client.post(reverse("account_signup"), payload)
+    assert models.User.objects.filter(email="harry@example.com").exists() is True
+
+
+def test_email_unique_iexact(client, user):
+    """Email addresses should be unique for users when signing up even if different case"""
+    payload = {
+        "first_name": "Harry",
+        "last_name": "Khanna",
+        "email": user.email.upper(),
+        "password1": "a really good password!",
+        "accept_terms": True,
+    }
+    response = client.post(reverse("account_signup"), payload)
+    assert "A user is already registered with this e-mail address" in str(
+        response.content
+    )
+    assert (
+        models.User.objects.filter(email="harry@example.com".upper()).exists() is False
+    )
