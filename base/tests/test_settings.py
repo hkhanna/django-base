@@ -202,26 +202,26 @@ def test_user_delete(client, user):
     assert user.is_active is False
 
 
-@pytest.mark.skip
-def test_user_create_after_delete(self):
+def test_user_create_after_delete(client, user):
     """Deleted user signing up again should re-enable is_active"""
-    response = self.client.delete(reverse("core:user"))
-    self.assertEqual(204, response.status_code)
-    self.client.logout()
-    user = User.objects.filter(email=self.user.email).first()
-    self.assertFalse(user.is_active)
+    assert client.login(username=user.email, password="goodpass") is True
+    response = client.post(reverse("account_delete"))
+    user.refresh_from_db()
+    assert user.is_active is False
+
     payload = {
-        "first_name": self.user.first_name,
-        "last_name": self.user.last_name,
-        "email": self.user.email,
-        "password": "a really good password!",
+        "first_name": "New",
+        "last_name": "Name",
+        "email": user.email,
+        "password1": "a really good password!",
         "accept_terms": True,
     }
-    response = self.client.post(reverse("core:create-user"), payload)
-    self.assertEqual(response.status_code, 201)
-    user = User.objects.filter(email=self.user.email).first()
-    self.assertIsNotNone(user)
-    self.assertTrue(user.is_active)
+    response = client.post(reverse("account_signup"), payload, follow=True)
+    assert response.status_code == 200
+    user.refresh_from_db()
+    assert user.is_active is True
+    assert user.first_name == "New"
+    assert user.last_name == "Name"
 
 
 def test_deleted_user_access(client, user):

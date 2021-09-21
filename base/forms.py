@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth import get_user_model
 from allauth.account import forms as auth_forms
 from . import models
+from allauth.account.adapter import get_adapter
+from allauth.account.utils import setup_user_email
 
 User = get_user_model()
 
@@ -31,6 +33,20 @@ class SignupForm(auth_forms.SignupForm):
     def clean_email(self):
         self.cleaned_data["email"] = self.cleaned_data["email"].lower()
         return super().clean_email()
+
+    def save(self, request):
+        adapter = get_adapter(request)
+        # Reactivate soft deleted users if they exist
+        user = models.User.objects.filter(
+            email=self.cleaned_data["email"], is_active=False
+        ).first()
+        if user:
+            user.is_active = True
+        else:
+            user = adapter.new_user(request)
+        adapter.save_user(request, user, self)
+        setup_user_email(request, user, [])
+        return user
 
 
 class PersonalInformationForm(forms.ModelForm):

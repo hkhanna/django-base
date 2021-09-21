@@ -1,10 +1,17 @@
 import waffle
 import allauth.account.adapter
+from django import forms
 
 from . import models
 
 
 class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
+    def validate_unique_email(self, email):
+        """Excludes 'inactive' user's email from blocking signup."""
+        if models.User.objects.filter(email=email, is_active=True):
+            raise forms.ValidationError(self.error_messages["email_taken"])
+        return email
+
     def is_open_for_signup(self, request):
         """
         Checks whether or not the site is open for signups.
