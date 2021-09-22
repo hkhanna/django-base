@@ -34,6 +34,14 @@ class IndexView(TemplateView):
     template_name = "404.html"
 
 
+class TermsView(TemplateView):
+    template_name = "terms.html"
+
+
+class PrivacyPolicyView(TemplateView):
+    template_name = "privacy.html"
+
+
 class SettingsView(LoginRequiredMixin, View):
     template_name = "account/settings.html"
 
