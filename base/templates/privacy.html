@@ -1,4 +1,11 @@
 {% extends 'layouts/prose.html' %}
+{% load markdown %}
 {% block title %}Privacy Policy{% endblock title%}
 {% block prosetitle %}Privacy Policy{% endblock prosetitle %}
-{% block prose %}Privacy policy will go here!{% endblock prose %}
+<!-- Update the lastmodified date whenever you update the privacy policy -->
+{% block lastmodified %}January 1, 1970{% endblock lastmodified %}
+{% block prose %}
+<!-- Privacy policy markdown goes between the markdown tags -->
+{% markdown %}
+{% endmarkdown %}
+{% endblock prose %}
