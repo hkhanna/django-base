@@ -3,6 +3,7 @@
 {% if href %}href={{href}}{% else %}type="{{type}}"{% endif %}
 {% if name %}name={{name}}{% endif %}
 {% if value %}value={{value}}{% endif %}
+{% if click %}x-on:click="{{click}}"{% endif %}
 class="{{button_class}}"
 {{disabled|yesno:" disabled,"}}
 >

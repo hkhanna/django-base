@@ -40,6 +40,7 @@ def button(
     extra_class="",
     text="Button",
     href=None,
+    click=None,
 ):
     """Versatile Button component that can be used for different Button variants. Does tooltips, confirmable states, fetching states and more.
 
@@ -68,6 +69,8 @@ def button(
         The text displayed in the button.
     href: str
         If this is passed, the button becomes an anchor element
+    click: str
+        If this is passed, the value becomes the x-on:click attribute on the button.
     """
     is_text = variant.split("-")[0] == "text"
     icon_only = not bool(text)
@@ -239,4 +242,5 @@ def button(
         "disabled": disabled,
         "text": text,
         "href": href,
+        "click": click,
     }
