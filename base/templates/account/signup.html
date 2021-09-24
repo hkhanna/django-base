@@ -42,7 +42,7 @@
             <div class="flex items-center">
               {{form.accept_terms|checkbox_class}}
               <label for="{{form.accept_terms.id_for_label}}" class="pl-2 leading-5 text-sm text-gray-600">
-                I have read and agree to the <a href="" class="text-indigo-700 hover:text-indigo-500" target="_blank">Terms of Use</a>.
+                I have read and agree to the <a href={% url 'terms' %} class="text-indigo-700 hover:text-indigo-500" target="_blank">Terms of Use</a>.
               </label>
             </div>
             {% if form.accept_terms.errors %}

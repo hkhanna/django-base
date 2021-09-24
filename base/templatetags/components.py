@@ -4,6 +4,24 @@ from django.contrib.messages.constants import SUCCESS, INFO
 register = template.Library()
 
 
+@register.inclusion_tag("components/submit_modal.html")
+def submit_modal(title, text, variant, submit_button_text):
+    variant_settings = {
+        "danger": {
+            "icon": "exclamation",
+            "icon_bg_color": "bg-red-100",
+            "icon_color": "text-red-600",
+        }
+    }
+    return {
+        "title": title,
+        "text": text,
+        "variant": variant,
+        "submit_button_text": submit_button_text,
+        **variant_settings[variant],
+    }
+
+
 @register.inclusion_tag("components/alert.html")
 def alert(text, subtext=None, alertClass=None, variant=SUCCESS):
     colors = {

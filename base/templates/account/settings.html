@@ -102,10 +102,11 @@
         </p>
       </div>
     </div>
-    <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0">
+    <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0" x-data="{ modal: false }">
+      {% button type="button" variant="white" text="Delete Account" click="modal = true" %} 
       <form action={% url 'account_delete' %} method="POST">
         {% csrf_token %}
-        {% button type="submit" variant="white" text="Delete Account" %} 
+        {% submit_modal variant="danger" title="Delete Your Account" text="Do you really want to delete your account? This action is permanent." submit_button_text="Confirm Delete" %}
       </form>
     </div>
   </div>
