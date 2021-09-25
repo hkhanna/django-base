@@ -23,10 +23,14 @@ class LoginForm(auth_forms.LoginForm):
 
 class SignupForm(auth_forms.SignupForm):
     first_name = forms.CharField(
-        widget=forms.TextInput(attrs={"placeholder": "First name"})
+        widget=forms.TextInput(
+            attrs={"placeholder": "First name", "autocomplete": "given-name"}
+        )
     )
     last_name = forms.CharField(
-        widget=forms.TextInput(attrs={"placeholder": "Last name"})
+        widget=forms.TextInput(
+            attrs={"placeholder": "Last name", "autocomplete": "family-name"}
+        )
     )
     accept_terms = forms.BooleanField(required=True)
 
@@ -50,8 +54,15 @@ class SignupForm(auth_forms.SignupForm):
 
 
 class PersonalInformationForm(forms.ModelForm):
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
+    first_name = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"autocomplete": "given-name"})
+    )
+    last_name = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"autocomplete": "family-name"})
+    )
+    email = forms.CharField(
+        required=True, widget=forms.TextInput(attrs={"autocomplete": "email"})
+    )
     oldpassword = forms.CharField(
         label="Current password",
         widget=forms.PasswordInput(attrs={"placeholder": "Current password"}),
