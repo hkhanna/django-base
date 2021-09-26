@@ -129,16 +129,18 @@ def test_email_unique_iexact(client, user):
     assert other_user.email.upper() != user.email
 
 
-@pytest.mark.skip
-def test_resend_email_confirmation(self):
+def test_resend_email_confirmation(client, user, mailoutbox):
     """User may request another email confirmation"""
-    self.assertEqual(models.EmailMessage.objects.count(), 0)
-    response = self.client.post(reverse("core:resend-confirm-email"))
-    self.assertEqual(response.status_code, 201)
+    client.force_login(user)
+    assert models.EmailMessage.objects.count() == 0
+    response = client.post(reverse("account_resend_confirmation_email"))
+    assert response.status_code == 302
+    assert response.url == reverse("account_settings")
+    assert models.EmailMessage.objects.count() == 1
     email = models.EmailMessage.objects.first()
-    self.assertEqual(email.created_by, self.user)
-    self.assertEqual(1, len(mail.outbox))
-    self.assertEqual(mail.outbox[0].subject, "Confirm Your Email Address")
+    assert email.created_by == user
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == "Please Confirm Your E-Mail Address"
 
 
 def test_change_password_happy(client, user):

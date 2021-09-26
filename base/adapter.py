@@ -6,12 +6,6 @@ from . import models
 
 
 class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
-    def login(self, request, user):
-        """Handle the edge case of a user being created outside views or the admin (like createsuperuser)
-        and we need to make sure that user's EmailAddress is eventually consistent."""
-        user.sync_changed_email()
-        return super().login(request, user)
-
     def validate_unique_email(self, email):
         """Excludes 'inactive' user's email from blocking signup."""
         if models.User.objects.filter(email=email, is_active=True):

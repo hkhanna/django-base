@@ -13,6 +13,7 @@ from allauth.account import (
     forms as auth_forms,
     models as auth_models,
 )
+from allauth.account.adapter import get_adapter
 
 from . import forms
 
@@ -88,6 +89,22 @@ class SettingsView(LoginRequiredMixin, View):
             update_session_auth_hash(request, request.user)  # Don't log the user out
 
         return render(request, self.template_name, context)
+
+
+class ResendConfirmationEmailView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        email_address = auth_models.EmailAddress.objects.filter(
+            user=request.user, verified=False
+        ).first()
+        if email_address:
+            get_adapter(request).add_message(
+                request,
+                messages.INFO,
+                "account/messages/" "email_confirmation_sent.txt",
+                {"email": email_address.email},
+            )
+            email_address.send_confirmation(request)
+        return redirect("account_settings")
 
 
 class DeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin, View):

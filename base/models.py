@@ -100,6 +100,13 @@ class User(AbstractUser):
             return None
 
     @property
+    def is_email_verified(self):
+        email_address = self.emailaddress_set.first()
+        if not email_address:
+            email_address = self.sync_changed_email()
+        return email_address.verified
+
+    @property
     def name(self):
         if self.first_name and self.last_name:
             return f"{self.first_name} {self.last_name}"

@@ -10,6 +10,11 @@ urlpatterns = [
     path("terms/", views.TermsView.as_view(), name="terms"),
     path("privacy/", views.PrivacyPolicyView.as_view(), name="privacy_policy"),
     path("accounts/settings/", views.SettingsView.as_view(), name="account_settings"),
+    path(
+        "accounts/resend-confirmation-email/",
+        views.ResendConfirmationEmailView.as_view(),
+        name="account_resend_confirmation_email",
+    ),
     path("accounts/delete/", views.DeleteView.as_view(), name="account_delete"),
     path("accounts/password/change/", page_not_found, name="account_change_password"),
     path(

@@ -1,5 +1,5 @@
 from django import template
-from django.contrib.messages.constants import SUCCESS, INFO
+from django.contrib.messages.constants import DEFAULT_LEVELS, SUCCESS, INFO
 
 register = template.Library()
 
@@ -23,7 +23,12 @@ def submit_modal(title, text, variant, submit_button_text):
 
 
 @register.inclusion_tag("components/alert.html")
-def alert(text, subtext=None, alertClass=None, variant=SUCCESS):
+def alert(text, subtext=None, dismissable=True, alertClass=None, variant=SUCCESS):
+
+    # So you can pass in "info" or "success" as a variant.
+    if isinstance(variant, str):
+        variant = DEFAULT_LEVELS[variant.upper()]
+
     colors = {
         SUCCESS: {
             "bg_color": "bg-green-100",
@@ -42,7 +47,13 @@ def alert(text, subtext=None, alertClass=None, variant=SUCCESS):
             "button_color": "bg-blue-100 text-blue-700 hover:bg-blue-100 focus:ring-blue-600",
         },
     }
-    return {"text": text, "subtext": subtext, "class": alertClass, **colors[variant]}
+    return {
+        "text": text,
+        "subtext": subtext,
+        "dismissable": dismissable,
+        "class": alertClass,
+        **colors[variant],
+    }
 
 
 @register.inclusion_tag("components/button.html")

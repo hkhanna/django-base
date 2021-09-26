@@ -1,8 +1,33 @@
 {% extends "base.html" %}
+{% load heroicons %}
 {% load components %}
 {% block content %}
 <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px8">
 <div>
+  <!-- This is an alert box, duplicated here so we can include a link. -->
+  {% if not request.user.is_email_verified %}
+    <div class="mb-6 sm:w-full">
+      <div class="rounded-md bg-blue-100 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            {% heroicon_solid "information-circle" class="h-5 w-5 text-blue-500" %}
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-blue-700">
+              Your email address is not verified.
+            </h3>
+            <div class="mt-2 text-sm text-blue-600">
+              <form action={% url 'account_resend_confirmation_email' %} method="POST">
+                {% csrf_token %}
+                If you did not receive a confirmation email, you may 
+                {% button type="submit" variant="text-normal" text="click here to request another one." %}
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
   {% for message in messages %}
     {% alert text=message variant=message.level alertClass="mb-6 sm:w-full" %}
   {% endfor %}
