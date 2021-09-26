@@ -1,6 +1,6 @@
 import pytest
 from django.urls import reverse
-from allauth.account import models as auth_models, utils as auth_utils
+from allauth.account import models as auth_models
 
 from .. import models, factories
 
@@ -52,7 +52,6 @@ def test_change_info_bad(client, user):
 
 def test_change_email_sync(client, user):
     """A changed User email address should keep EmailAddress in sync with User.email"""
-    auth_utils.sync_user_email_addresses(user)
     client.force_login(user)
     payload = {
         "first_name": factories.fake.first_name(),
@@ -68,7 +67,6 @@ def test_change_email_sync(client, user):
 
 def test_change_email_confirm(client, user, mailoutbox):
     """A changed User email address should send a confirmation email"""
-    auth_utils.sync_user_email_addresses(user)
     client.force_login(user)
     payload = {
         "first_name": factories.fake.first_name(),
@@ -86,7 +84,6 @@ def test_change_email_confirm(client, user, mailoutbox):
 def test_no_email_change(client, user):
     """A personal information update that does not update the user's email
     (case insensitive) should not send a confirmation email"""
-    auth_utils.sync_user_email_addresses(user)
     client.force_login(user)
     payload = {
         "first_name": factories.fake.first_name(),
@@ -238,7 +235,6 @@ def test_deleted_user_unconfirm_email(client, user):
     """A User with a confirmed email address that gets deleted automatically unconfirms their email.
     This is useful in case they sign up again."""
     client.force_login(user)
-    auth_utils.sync_user_email_addresses(user)
     email_address = auth_models.EmailAddress.objects.get(user=user)
     email_address.verified = True
     email_address.save()

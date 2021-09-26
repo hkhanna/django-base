@@ -46,10 +46,11 @@ class SignupForm(auth_forms.SignupForm):
         ).first()
         if user:
             user.is_active = True
+            adapter.save_user(request, user, self)
         else:
             user = adapter.new_user(request)
-        adapter.save_user(request, user, self)
-        setup_user_email(request, user, [])
+            adapter.save_user(request, user, self)
+            setup_user_email(request, user, [])
         return user
 
 

@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
