@@ -248,3 +248,24 @@ def test_deleted_user_unconfirm_email(client, user):
     client.post(reverse("account_delete"))
     email_address.refresh_from_db()
     assert email_address.verified is False
+
+
+def test_change_email_to_deleted_user(client, user):
+    """Edge case: user attempts to change their email address to the email address
+    of a deleted user. It should succeed and change the deleted user's email address."""
+    email = "harry@example.com"
+    deleted_user = factories.UserFactory(is_active=False, email=email)
+
+    client.force_login(user)
+    payload = {
+        "first_name": factories.fake.first_name(),
+        "last_name": factories.fake.last_name(),
+        "email": email,
+        "oldpassword": "goodpass",
+        "form_name": "pi",
+    }
+    client.post(reverse("account_settings"), payload)
+    user.refresh_from_db()
+    deleted_user.refresh_from_db()
+    assert user.email == email
+    assert deleted_user.email == f"harry+{deleted_user.pk}@example.com"

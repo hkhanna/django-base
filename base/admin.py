@@ -2,8 +2,6 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
-from allauth.account import models as auth_models
-from allauth.account.utils import sync_user_email_addresses
 from . import models
 
 

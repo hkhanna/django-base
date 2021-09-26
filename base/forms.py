@@ -1,9 +1,12 @@
+import logging
 from django import forms
 from django.contrib.auth import get_user_model
 from allauth.account import forms as auth_forms
 from . import models
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -79,4 +82,18 @@ class PersonalInformationForm(forms.ModelForm):
         return self.cleaned_data["oldpassword"]
 
     def clean_email(self):
-        return self.cleaned_data["email"].lower()
+        """Normalize email to lowercase and handle the edge case of a collision with a deleted user."""
+        email = self.cleaned_data["email"].lower()
+
+        # If there's a deleted user with this email, change the deleted user's email to something
+        # unique.
+        deleted_user = models.User.objects.filter(is_active=False, email=email).first()
+        if deleted_user:
+            logger.warning(f"User changing email to deleted user's email {email}")
+            name, domain = deleted_user.email.rsplit("@", 1)
+            name = name + "+" + str(deleted_user.pk)
+            deleted_user.email = "@".join([name, domain])
+            deleted_user.save()
+            deleted_user.sync_changed_email()
+
+        return email
