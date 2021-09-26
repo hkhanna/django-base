@@ -38,12 +38,7 @@ class UserAdmin(DefaultUserAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        sync_user_email_addresses(obj)
-
-        # Remove any superfluous EmailAddresses
-        auth_models.EmailAddress.objects.filter(user=obj).exclude(
-            email__iexact=obj.email
-        ).delete()
+        obj.sync_changed_email()
 
 
 @admin.register(models.EmailMessage)

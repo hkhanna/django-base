@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from allauth.account import models as auth_models
 
 from . import tasks
 
@@ -76,6 +77,27 @@ class User(AbstractUser):
                     "is_active": "A locked user must be active.",
                 }
             )
+
+    def save(self, *args, **kwargs):
+        # Normalize all emails to lowercase. This is mostly for emails saved via the admin since
+        # we already normalize in the settings/signup forms.
+        self.email = self.email.lower()
+        super().save(*args, **kwargs)
+
+    def sync_changed_email(self):
+        """If user.email has changed, remove all a User's EmailAddresses
+        (although they should only have one), and replace it with the new one.
+        Returns the EmailAddress if one was created."""
+        if not auth_models.EmailAddress.objects.filter(
+            user=self, email__iexact=self.email
+        ).exists():
+            auth_models.EmailAddress.objects.filter(user=self).delete()
+            email_address = auth_models.EmailAddress.objects.create(
+                user=self, email=self.email, primary=True, verified=False
+            )
+            return email_address
+        else:
+            return None
 
     @property
     def name(self):
