@@ -60,6 +60,12 @@ class User(AbstractUser):
     is_locked = models.BooleanField(
         "locked", default=False, help_text="Prevent the user from logging in."
     )
+    email_history = ArrayField(
+        models.EmailField(),
+        default=list,
+        blank=True,
+        help_text="Record of all email addresses the user has had.",
+    )
     objects = UserManager()
 
     USERNAME_FIELD = "email"
@@ -82,6 +88,13 @@ class User(AbstractUser):
         # Normalize all emails to lowercase. This is mostly for emails saved via the admin since
         # we already normalize in the settings/signup forms.
         self.email = self.email.lower()
+
+        # Keep a record of all email addresses
+        if len(self.email_history) == 0:
+            self.email_history.append(self.email)
+        elif self.email_history[-1] != self.email:
+            self.email_history.append(self.email)
+
         super().save(*args, **kwargs)
 
     def sync_changed_email(self):

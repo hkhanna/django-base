@@ -60,6 +60,21 @@ def test_signup_duplicate(client, user):
     assert "already registered" in str(response.content)
 
 
+def test_signup_email_history(client):
+    payload = {
+        "first_name": "Harry",
+        "last_name": "Khanna",
+        "email": "harry@example.com",
+        "password1": "a really good password!",
+        "accept_terms": True,
+    }
+    client.post(reverse("account_signup"), payload)
+    assert (
+        models.User.objects.filter(email="harry@example.com").first().email_history[0]
+        == "harry@example.com"
+    )
+
+
 def test_user_locked(client, user):
     """A locked user cannot sign up"""
     user.is_locked = True

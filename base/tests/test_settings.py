@@ -30,6 +30,7 @@ def test_change_info(client, user):
     assert payload["first_name"] == user.first_name
     assert payload["last_name"] == user.last_name
     assert payload["email"] == user.email
+    assert len(user.email_history) == 2
 
 
 def test_change_info_bad(client, user):
@@ -83,7 +84,8 @@ def test_change_email_confirm(client, user, mailoutbox):
 
 def test_no_email_change(client, user):
     """A personal information update that does not update the user's email
-    (case insensitive) should not send a confirmation email"""
+    (case insensitive) should not send a confirmation email and doesn't
+    add to the email history."""
     client.force_login(user)
     payload = {
         "first_name": factories.fake.first_name(),
@@ -94,6 +96,9 @@ def test_no_email_change(client, user):
     }
     client.post(reverse("account_settings"), payload)
     assert models.EmailMessage.objects.filter(created_by=user).exists() is False
+    user.refresh_from_db()
+    assert len(user.email_history) == 1
+    assert user.email_history[0] == user.email
 
 
 def test_email_lowercase(client, user):
