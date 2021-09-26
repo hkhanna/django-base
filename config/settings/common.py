@@ -205,7 +205,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 WAFFLE_CREATE_MISSING_SWITCHES = True
 
 # LOGGING
-LOGLEVEL = env("LOGLEVEL", default="DEBUG")
+LOGLEVEL = env("LOGLEVEL", default="INFO")
 
 # See https://www.caktusgroup.com/blog/2015/01/27/Django-Logging-Configuration-logging_config-default-settings-logger/
 # Django's default logger is painful and there's no good reason to merge with it.

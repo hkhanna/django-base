@@ -88,7 +88,10 @@ class User(AbstractUser):
             return self.email
 
     def __str__(self):
-        return f"{self.email} (#{self.id})"
+        return self.name
+
+    def __repr__(self):
+        return f"<User: {self.email} (#{self.id})>"
 
 
 class EmailMessage(models.Model):
