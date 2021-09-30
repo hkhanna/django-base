@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "waffle",
     "tailwind",
     "heroicons",
+    "django_components",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -81,6 +82,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
+            "builtins": ["django_components.templatetags.component_tags"],
         },
     },
 ]

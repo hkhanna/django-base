@@ -9,10 +9,12 @@
         <h3 class="text-sm font-medium {{text_color}}">
           {{text}}
         </h3>
-        {% if subtext %}
+        {% if has_subtext %}
           <div class="mt-2 text-sm {{subtext_color}}">
             <p>
+            {% slot subtext %}
               {{ subtext }}
+            {% endslot %}
             </p>
           </div>
         {% endif %}
