@@ -14,6 +14,7 @@
       <nav class="hidden sm:-my-px sm:ml-10 sm:flex sm:space-x-8" aria-label="Main">
         {% navlink url_name="index" name="Home Page" %}
         {% navlink url_name="account_settings" name="Settings" %}
+        {% navlink url_name="account_logout" name="Logout" %}
       </nav>
     </div>
     <div class="hidden sm:ml-6 sm:flex sm:items-center">
@@ -42,6 +43,7 @@
   <div class="pt-2 pb-3 space-y-1">
       {% navlink url_name="index" name="Home Page" mobile=True %}
       {% navlink url_name="account_settings" name="Settings" mobile=True %}
+      {% navlink url_name="account_logout" name="Logout" mobile=True %}
   </div>
   <div class="pt-4 pb-3 border-t border-gray-200">
     <div class="px-4">
@@ -53,6 +55,11 @@
   </div>
 </div>
 </div>
+<aside class="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+  {% for message in messages %}
+    {% component "alert" text=message variant=message.level alertClass="my-6 sm:w-full" %}
+  {% endfor %}
+</aside>
 {% block main %}
 {% endblock main %}
 {% endblock content %}

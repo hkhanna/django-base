@@ -2,25 +2,21 @@
 {% block title %}Settings{% endblock %}
 {% load heroicons %}
 {% block main %}
-<section class="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
-  {% include "base/page_heading.html" with heading="Settings" %}
-</section>
+
 <section class="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 mb-4">
+  {% if not request.user.is_email_verified %}
+  {% component_block "alert" variant="warning" text="Your email address is not verified." alertClass="my-6 sm:w-full" dismissable=False %}
+    {% slot subtext %}
+      <form action={% url 'account_resend_confirmation_email' %} method="POST">
+        {% csrf_token %}
+        If you did not receive a confirmation email, you may 
+        {% component "button" type="submit" variant="text-gray" text="click here to request another one." %}
+      </form>
+    {% endslot %}
+  {% endcomponent_block %}
+  {% endif %}
+    {% include "base/page_heading.html" with heading="Settings" %}
   <div>
-    {% if not request.user.is_email_verified %}
-    {% component_block "alert" variant="warning" text="Your email address is not verified." alertClass="mb-6 sm:w-full" dismissable=False %}
-      {% slot subtext %}
-        <form action={% url 'account_resend_confirmation_email' %} method="POST">
-          {% csrf_token %}
-          If you did not receive a confirmation email, you may 
-          {% component "button" type="submit" variant="text-gray" text="click here to request another one." %}
-        </form>
-      {% endslot %}
-    {% endcomponent_block %}
-    {% endif %}
-    {% for message in messages %}
-      {% component "alert" text=message variant=message.level alertClass="mb-6 sm:w-full" %}
-    {% endfor %}
     <div class="md:grid md:grid-cols-3 md:gap-6">
       <div class="md:col-span-1">
         <div class="px-4 sm:px-0">
