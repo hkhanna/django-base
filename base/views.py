@@ -36,11 +36,11 @@ class IndexView(TemplateView):
 
 
 class TermsView(TemplateView):
-    template_name = "terms.html"
+    template_name = "base/terms.html"
 
 
 class PrivacyPolicyView(TemplateView):
-    template_name = "privacy.html"
+    template_name = "base/privacy.html"
 
 
 class SettingsView(LoginRequiredMixin, View):
