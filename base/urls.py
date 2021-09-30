@@ -7,7 +7,7 @@ page_not_found = lambda request: django.views.defaults.page_not_found(request, N
 
 urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
-    path("terms/", views.TermsView.as_view(), name="terms"),
+    path("terms/", views.TermsView.as_view(), name="terms_of_use"),
     path("privacy/", views.PrivacyPolicyView.as_view(), name="privacy_policy"),
     path("accounts/settings/", views.SettingsView.as_view(), name="account_settings"),
     path(

@@ -1,5 +1,7 @@
-from django_components import component
 from django.contrib.messages.constants import DEFAULT_LEVELS, SUCCESS, WARNING, INFO
+from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
+from django_components import component
 
 
 @component.register("alert")
@@ -117,7 +119,7 @@ class Button(component.Component):
         text: str
             The text displayed in the button.
         href: str
-            If this is passed, the button becomes an anchor element
+            If this is passed, the button becomes an anchor element. Can pass url name or real url.
         click: str
             If this is passed, the value becomes the x-on:click attribute on the button.
         """
@@ -126,6 +128,10 @@ class Button(component.Component):
         el = "button"
         if href:
             el = "a"
+            try:
+                href = reverse("href")
+            except NoReverseMatch:
+                pass
 
         common = "inline-flex relative items-center font-medium focus:outline-none"
 
