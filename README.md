@@ -11,12 +11,13 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 - Rename the `origin` remote to `base`: `git remote rename origin base`
 - Create a fresh Github repo for the project.
 - Point the `origin` remote to a fresh Github repo.
+- In the `base-django` repo, add the new application as it's own remote so you can cherry-pick commits if necessary.
 - Remove or replace the LICENSE file.
 - Update `.env.example` to the desired defaults for the new project.
 - Find and replace `base-django` with the new project name.
 - Do the "Local Installation" described below.
 - Update `SITE_CONFIG`
-- Create a Postmark server if using email
+- Update the terms and privacy policy.
 - Deploy to Heroku
   1. Create the application in the Heroku web interface. A good name for the Heroku application is is `kl-<project_name>`.
   1. Provision the postgresql add-on in the Heroku web interface
@@ -41,6 +42,7 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
   1. If using celery, give the celery worker one dyno: `heroku ps:scale main_worker=1 --app <app_name>`
   1. If the web worker doesn't seem to be running, give it one dyno: `heroku ps:scale web=1 --app <app_name>`
   1. Add papertrail via the Heroku interface and set up alerts as per "Deployment" below.
+  1. Create a Postmark server if using email
   1. Create the first superuser on production: `heroku run python manage.py createsuperuser --app <app_name>`
   1. Update the Site name and domain in the Django admin.
   1. You should be good to go. If you want to poke around, you can run `heroku run python manage.py shell --app <app_name>`.

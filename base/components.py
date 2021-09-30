@@ -129,7 +129,7 @@ class Button(component.Component):
         if href:
             el = "a"
             try:
-                href = reverse("href")
+                href = reverse(href)
             except NoReverseMatch:
                 pass
 
