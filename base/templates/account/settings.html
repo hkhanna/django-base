@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load heroicons %}
-{% load components %}
 {% block content %}
 <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px8">
 <div>
@@ -10,7 +9,7 @@
       <form action={% url 'account_resend_confirmation_email' %} method="POST">
         {% csrf_token %}
         If you did not receive a confirmation email, you may 
-        {% button type="submit" variant="text-gray" text="click here to request another one." %}
+        {% component "button" type="submit" variant="text-gray" text="click here to request another one." %}
       </form>
     {% endslot %}
   {% endcomponent_block %}
@@ -48,7 +47,7 @@
           <div>
           {% include "components/form_input.html" with field=pi_form.oldpassword input_class="w-full sm:w-auto" %}
           </div>
-          {% button type="submit" name="form_name" value="pi" variant="primary" text="Save" %}
+          {% component "button" type="submit" name="form_name" value="pi" variant="primary" text="Save" %}
         </div>
       </form>
     </div>
@@ -89,7 +88,7 @@
           <div>
           {% include "components/form_input.html" with field=password_form.oldpassword input_class="w-full sm:w-auto" %}
           </div>
-          {% button type="submit" name="form_name" value="password" variant="primary" text="Change Password" %}
+          {% component "button" type="submit" name="form_name" value="password" variant="primary" text="Change Password" %}
             
           </div>
         </div>
@@ -115,10 +114,10 @@
       </div>
     </div>
     <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0" x-data="{ modal: false }">
-      {% button type="button" variant="white" text="Delete Account" click="modal = true" %} 
+      {% component "button" type="button" variant="white" text="Delete Account" click="modal = true" %} 
       <form action={% url 'account_delete' %} method="POST">
         {% csrf_token %}
-        {% submit_modal variant="danger" title="Delete Your Account" text="Do you really want to delete your account? This action is permanent." submit_button_text="Confirm Delete" %}
+        {% component "submit_modal" variant="danger" title="Delete Your Account" text="Do you really want to delete your account? This action is permanent." submit_button_text="Confirm Delete" %}
       </form>
     </div>
   </div>

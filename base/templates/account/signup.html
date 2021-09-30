@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load components %}
 {% load form_styles %}
 {% block content %}
   <nav>
@@ -56,7 +55,7 @@
             </div>
           {% endif %}
           <div class="col-span-6">
-            {% button type="submit" variant="primary" text="Create Account" extra_class="w-full flex justify-center" %}
+            {% component "button" type="submit" variant="primary" text="Create Account" extra_class="w-full flex justify-center" %}
           </div>
         </div>
       </form>
