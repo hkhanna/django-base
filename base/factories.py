@@ -8,6 +8,10 @@ fake = faker.Faker()  # This is to use faker without the factory_boy wrapper
 class PrimaryEmailAddressFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = auth_models.EmailAddress
+        django_get_or_create = (
+            "user",
+            "email",
+        )
 
     user = None
     email = factory.LazyAttribute(lambda o: o.user.email)
@@ -17,6 +21,7 @@ class PrimaryEmailAddressFactory(factory.django.DjangoModelFactory):
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = "base.User"
+        django_get_or_create = ("email",)
 
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
@@ -32,8 +37,14 @@ class UserFactory(factory.django.DjangoModelFactory):
     def _create(cls, model_class, *args, **kwargs):
         """Override the default ``_create`` with our custom call."""
         manager = cls._get_manager(model_class)
-        # The default would use ``manager.create(*args, **kwargs)``
-        return manager.create_user(*args, **kwargs)
+
+        # We have to manually implement the get_or_create functionality because we've overriden this function.
+        existing = manager.filter(email=kwargs["email"]).first()
+        if existing:
+            return existing
+        else:
+            # The default would use ``manager.create(*args, **kwargs)``
+            return manager.create_user(*args, **kwargs)
 
 
 class EmailMessageFactory(factory.django.DjangoModelFactory):
