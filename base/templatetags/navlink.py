@@ -1,3 +1,4 @@
+import re
 from django import template
 from django.urls import reverse
 
@@ -27,7 +28,9 @@ def navlink(context, url_name, name, mobile=False):
         noncurrent_class = classes["noncurrent"]
 
     link_class = base_class + " "
-    if context["request"].path == reverse(url_name):
+    # If the url_name is in the parent part of the path of the current request
+    # we say it's the current class.
+    if re.match(reverse(url_name), context["request"].path):
         link_class += current_class
     else:
         link_class += noncurrent_class

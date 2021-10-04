@@ -4,6 +4,15 @@ from django.urls.exceptions import NoReverseMatch
 from django_components import component
 
 
+@component.register("page_heading")
+class PageHeading(component.Component):
+    template_name = "components/page_heading.html"
+
+    def get_context_data(self, heading):
+        has_actions = "actions" in self.slots
+        return {"heading": heading, "has_actions": has_actions}
+
+
 @component.register("alert")
 class Alert(component.Component):
     template_name = "components/alert.html"
