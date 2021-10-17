@@ -1,11 +1,11 @@
 # -- Begin base requirements -- #
-Django==3.2.7
+Django==3.2.8
 django-allauth==0.45.0
 django-components==0.17
-django-environ==0.5.0
-django-tailwind==2.2.0
+django-environ==0.8.0
+django-tailwind==2.2.2
 django-waffle==2.2.1
-heroicons==1.1.0
+heroicons==1.3.0
 markdown==3.3.4
-git+git://github.com/hkhanna/python-postmark@backend-message-stream
+python-postmark==0.5.7
 # -- End base requirements -- #
