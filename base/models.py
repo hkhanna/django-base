@@ -207,7 +207,7 @@ class EmailMessage(models.Model):
             self.save()
             return False
         else:
-            tasks.send_email_message(self.id, attachments)
+            tasks.send_email_message.delay(self.id, attachments)
             return True
 
     def prepare(self):

@@ -19,3 +19,6 @@ DATABASES["default"]["ATOMIC_REQUESTS"] = False
 INSTALLED_APPS.append("debug_toolbar")
 MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 INTERNAL_IPS = ["127.0.0.1"]
+
+# Postmark outputs JSON in test mode. Celery should treat that as info, not warning.
+CELERY_WORKER_REDIRECT_STDOUTS_LEVEL = "INFO"

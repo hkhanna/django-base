@@ -206,6 +206,16 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 # django-waffle
 WAFFLE_CREATE_MISSING_SWITCHES = True
 
+# Celery
+CELERY_BROKER_URL = env("REDIS_URL", default=None)
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_TIME_LIMIT = 60  # Raise exception after 60 seconds.
+CELERY_WORKER_TASK_LOG_FORMAT = "[%(name)s] at=%(levelname)s timestamp=%(asctime)s processName=%(processName)s task_id=%(task_id)s task_name=%(task_name)s %(message)s"
+CELERY_WORKER_LOG_FORMAT = "[%(name)s] at=%(levelname)s timestamp=%(asctime)s processName=%(processName)s %(message)s"
+CELERY_WORKER_LOG_COLOR = False
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
 # LOGGING
 LOGLEVEL = env("LOGLEVEL", default="INFO")
 

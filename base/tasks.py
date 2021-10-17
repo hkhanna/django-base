@@ -1,18 +1,19 @@
-import logging
+from celery.utils.log import get_task_logger
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.contrib.sites.shortcuts import get_current_site
 
 
+from config.celery import app
 from . import models
 
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
 
 
+@app.task
 def send_email_message(email_message_id, attachments=[]):
     logger.info(f"EmailMessage.id={email_message_id} send_email_message task started")
     email_message = get_object_or_404(models.EmailMessage, id=email_message_id)

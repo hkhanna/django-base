@@ -24,6 +24,8 @@ logging.getLogger("base.middleware").setLevel(LOGLEVEL)
 # backend for locmem, but this is just a precaution.
 POSTMARK_TEST_MODE = True
 
+# Test environment needs celery eager mode
+CELERY_TASK_ALWAYS_EAGER = True
 
 # Reproducable randomness for tests
 factory.random.reseed_random(42)

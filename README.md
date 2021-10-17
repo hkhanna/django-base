@@ -27,9 +27,8 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
   1. Create the application in the Heroku web interface. A good name for the Heroku application is is `kl-<project_name>`.
   1. Provision the postgresql add-on in the Heroku web interface
      - Note: if you didn't do this, a Heroku postgres database would be automatically provisioned and added to the `DATABASE_URL` environment variable if your app were successfully deployed. However, because deployment requires that variable to be set, a deployment will fail unless the database is provisioned first.
-  1. If using celery, provision the redis add-on in the Heroku web interface which will automatically set the `REDIS_URL` environment variable used by celery.
   1. Set environment variables in production though the dashboard.
-  1. Make sure Heroku is installed
+  1. Make sure the heroku CLI is installed
   1. `heroku login` to log into Heroku account if you are not already logged in (check with `heroku auth:whoami`).
   1. The nodejs buildpack was added to support Tailwind CSS with `heroku buildpacks:add heroku/nodejs --app <app_name>`.
   1. Because we are manually specifying the buildpack, we also need to specify python: `heroku buildpacks:add heroku/python --app <app_name>`.
@@ -37,13 +36,20 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
   1. Connect Heroku to Github. Enable Automatic Deploys from `main` once CI has passed. You can push directly to `main` or do a PR into `main` and it will deploy once CI passes.
   1. Set up postgres backups: `heroku pg:backups schedule --at '02:00 America/New_York' DATABASE_URL --app <app_name>`
   1. Make sure there aren't any obvious issues in production: `heroku run python manage.py check --deploy --app <app_name>`
-  1. If using celery, give the celery worker one dyno: `heroku ps:scale main_worker=1 --app <app_name>`
   1. If the web worker doesn't seem to be running, give it one dyno: `heroku ps:scale web=1 --app <app_name>`
   1. Add papertrail via the Heroku interface and set up alerts as per "Deployment" below.
   1. Create a Postmark server if using email
   1. Create the first superuser on production: `heroku run python manage.py createsuperuser --app <app_name>`
   1. Update the Site name and domain in the Django admin.
   1. You should be good to go. If you want to poke around, you can run `heroku run python manage.py shell --app <app_name>`.
+- Enable Celery if desired.
+  1. Add "`REDIS_URL` is set by Heroku" to the envrionment variables list under Deployment (below).
+  1. In Heroku, provision the redis add-on in the Heroku web interface which will automatically set the `REDIS_URL` environment variable.
+  1. In production settings, uncomment the `CELERY_BROKER_URL` setting.
+  1. In production settings, add `CELERY_TASK_ALWAYS_EAGER = False`.
+  1. Uncomment the `main_worker` entry in the `Procfile`.
+  1. Do a deploy.
+  1. Give the celery worker one dyno: `heroku ps:scale main_worker=1 --app <app_name>`
 - Update "Deployment", below, as appropriate.
 - **Delete everything in this README** until "Local Development" and add anything appropriate to the new README.
 
@@ -99,3 +105,4 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 - `LOGLEVEL=INFO`
   - Without this, it will use the default of `DEBUG`.
 - `POSTMARK_API_KEY=<postmark key>`
+- `DATABASE_URL` is set by Heroku.
