@@ -1,5 +1,4 @@
 import django.views.defaults
-from django.http import Http404
 from django.urls import path, include
 from . import views
 

@@ -12,7 +12,6 @@
       </a>
       </div>
       <nav class="hidden sm:-my-px sm:ml-10 sm:flex sm:space-x-8" aria-label="Main">
-        {% navlink url_name="index" name="Home Page" %}
         {% navlink url_name="account_settings" name="Settings" %}
         {% navlink url_name="account_logout" name="Logout" %}
       </nav>
@@ -41,7 +40,6 @@
 </div>
 <div class="sm:hidden bg-white shadow-sm" x-show="navOpen">
   <div class="pt-2 pb-3 space-y-1">
-      {% navlink url_name="index" name="Home Page" mobile=True %}
       {% navlink url_name="account_settings" name="Settings" mobile=True %}
       {% navlink url_name="account_logout" name="Logout" mobile=True %}
   </div>
