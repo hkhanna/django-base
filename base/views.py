@@ -46,11 +46,21 @@ class PrivacyPolicyView(TemplateView):
 class SettingsView(LoginRequiredMixin, View):
     template_name = "account/settings.html"
 
+    def get_context_data(self, **kwargs):
+        try:
+            context = super().get_context_data(**kwargs)
+        except AttributeError:
+            context = {"billing_enabled": False}
+        return context
+
     def get(self, request, *args, **kwargs):
-        context = {
-            "pi_form": forms.PersonalInformationForm(instance=request.user),
-            "password_form": auth_forms.ChangePasswordForm(user=request.user),
-        }
+        context = self.get_context_data()
+        context.update(
+            {
+                "pi_form": forms.PersonalInformationForm(instance=request.user),
+                "password_form": auth_forms.ChangePasswordForm(user=request.user),
+            }
+        )
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -69,7 +79,13 @@ class SettingsView(LoginRequiredMixin, View):
         else:
             password_form = auth_forms.ChangePasswordForm(user=request.user)
 
-        context = {"pi_form": pi_form, "password_form": password_form}
+        context = self.get_context_data()
+        context.update(
+            {
+                "pi_form": pi_form,
+                "password_form": password_form,
+            }
+        )
 
         if pi_form.is_valid():
             pi_form.save()

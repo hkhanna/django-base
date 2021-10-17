@@ -15,8 +15,13 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 - Remove or replace the LICENSE file.
 - Update `.env.example` to the desired defaults for the new project.
 - Find and replace `base-django` with the new project name.
+- Decide if `billing` should be installed at this point.
+  - You can always install billing later, but if you know for sure you need it, do it now.
+  - To install `billing`:
+    - [Follow the instructions](https://github.com/hkhanna/billing) to install the package.
+    - Add `billing.mixins.BilingMixin` to the `SettingsView` after `LoginRequiredMixin`.
 - Do the "Local Installation" described below.
-- Update `SITE_CONFIG`
+- Update `SITE_CONFIG`.
 - Update the terms and privacy policy.
 - Deploy to Heroku
   1. Create the application in the Heroku web interface. A good name for the Heroku application is is `kl-<project_name>`.
@@ -24,13 +29,6 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
      - Note: if you didn't do this, a Heroku postgres database would be automatically provisioned and added to the `DATABASE_URL` environment variable if your app were successfully deployed. However, because deployment requires that variable to be set, a deployment will fail unless the database is provisioned first.
   1. If using celery, provision the redis add-on in the Heroku web interface which will automatically set the `REDIS_URL` environment variable used by celery.
   1. Set environment variables in production though the dashboard.
-     - `DJANGO_SETTINGS_MODULE=config.settings.production`
-     - `DJANGO_SECRET_KEY=<random key>`
-       - You can generate this random key with something like `openssl rand -base64 64`.
-     - `LOGLEVEL=INFO`
-       - Without this, it will use the default of `DEBUG`.
-     - `STRIPE_API_KEY` if using billing.
-     - `POSTMARK_API_KEY` if using email
   1. Make sure Heroku is installed
   1. `heroku login` to log into Heroku account if you are not already logged in (check with `heroku auth:whoami`).
   1. The nodejs buildpack was added to support Tailwind CSS with `heroku buildpacks:add heroku/nodejs --app <app_name>`.
@@ -100,3 +98,4 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
   - You can generate this random key with something like `openssl rand -base64 64`.
 - `LOGLEVEL=INFO`
   - Without this, it will use the default of `DEBUG`.
+- `POSTMARK_API_KEY=<postmark key>`
