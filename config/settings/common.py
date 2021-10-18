@@ -216,6 +216,9 @@ CELERY_WORKER_LOG_COLOR = False
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
+# Google Analytics
+GA_TRACKING_ID = None
+
 # LOGGING
 LOGLEVEL = env("LOGLEVEL", default="INFO")
 

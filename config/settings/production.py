@@ -39,3 +39,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # EMAIL - POSTMARK
 EMAIL_BACKEND = "postmark.django_backend.EmailBackend"
 POSTMARK_TEST_MODE = False
+
+# Google Analytics
+GA_TRACKING_ID = None  # Off by default

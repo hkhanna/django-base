@@ -1,4 +1,4 @@
-.PHONY: run api check tailwind all clean build db seed
+.PHONY: run app check tailwind all clean build db seed
 
 include .env
 SHELL := /bin/bash
@@ -6,9 +6,9 @@ DB_NAME = $(shell basename $(CURDIR))-db
 
 # RUNNING AND TESTING #
 run: 
-	make -j2 api tailwind
+	make -j2 app tailwind
 
-api:
+app:
 	@docker start ${DB_NAME}
 	source .venv/bin/activate && python manage.py runserver ${WEB_PORT}
 
