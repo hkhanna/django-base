@@ -23,6 +23,7 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 - Do the "Local Installation" described below.
 - Update `SITE_CONFIG`.
 - Update the **production** `GA_TRACKING_ID` setting if using Google Analytics. Leave as `None` to keep Google Analytics off.
+- Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
 - Update the terms and privacy policy.
 - Deploy to Heroku
   1. Create the application in the Heroku web interface. A good name for the Heroku application is is `kl-<project_name>`.

@@ -1,4 +1,8 @@
 from .common import *
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+
 
 DEBUG = env("DJANGO_DEBUG", default=False)
 
@@ -42,3 +46,14 @@ POSTMARK_TEST_MODE = False
 
 # Google Analytics
 GA_TRACKING_ID = None  # Off by default
+
+# Sentry
+SENTRY_DSN = None  # Off by default
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration(), CeleryIntegration()],
+        environment="production",
+        traces_sample_rate=1.0,
+        send_default_pii=True,
+    )
