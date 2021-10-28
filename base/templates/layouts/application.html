@@ -53,11 +53,19 @@
   </div>
 </div>
 </div>
-<section class="section-container">
+
+{% block page_heading %}
+{% endblock page_heading %}
+
+{% block messages %}
+<section class="section-container space-y-6">
   {% for message in messages %}
-    {% component "alert" text=message variant=message.level alertClass="my-6 sm:w-full" %}
+    {% component "alert" text=message variant=message.level alertClass="sm:w-full" %}
   {% endfor %}
 </section>
+{% endblock messages %}
+
 {% block main %}
 {% endblock main %}
+
 {% endblock content %}

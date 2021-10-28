@@ -1,6 +1,9 @@
 {% extends "layouts/application.html" %}
 {% block title %}Settings{% endblock %}
 {% load heroicons %}
+{% block page_heading %}
+  {% component "page_heading" heading="Settings" %}
+{% endblock page_heading %}
 {% block main %}
 
 <section class="section-container mb-20">
@@ -15,7 +18,6 @@
     {% endslot %}
   {% endcomponent_block %}
   {% endif %}
-    {% component "page_heading" heading="Settings" %}
   <div>
     <div class="md:grid md:grid-cols-3 md:gap-6">
       <div class="md:col-span-1">
