@@ -18,6 +18,8 @@ from django.conf import settings
 from django.urls import path, include
 
 
+handler403 = "base.views.permission_denied"
+
 urlpatterns = [
     path("fedora/", admin.site.urls),
     path("", include("base.urls")),

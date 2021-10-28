@@ -58,7 +58,7 @@
 {% endblock page_heading %}
 
 {% block messages %}
-<section class="section-container space-y-6">
+<section class="section-container my-4 space-y-4">
   {% for message in messages %}
     {% component "alert" text=message variant=message.level alertClass="sm:w-full" %}
   {% endfor %}

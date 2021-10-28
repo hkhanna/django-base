@@ -35,9 +35,6 @@ urlpatterns = [
         name="render_template_debug",
     ),
     path("400/", lambda request: django.views.defaults.bad_request(request, None)),
-    path(
-        "403/", lambda request: django.views.defaults.permission_denied(request, None)
-    ),
     path("404/", page_not_found),
     path("500/", django.views.defaults.server_error),
 ]
