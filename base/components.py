@@ -115,6 +115,7 @@ class Button(component.Component):
         text="Button",
         href=None,
         click=None,
+        formnovalidate=None,
     ):
         """Versatile Button component that can be used for different Button variants. Does tooltips, confirmable states, fetching states and more.
 
@@ -145,6 +146,8 @@ class Button(component.Component):
             If this is passed, the button becomes an anchor element. Can pass url name or real url.
         click: str
             If this is passed, the value becomes the x-on:click attribute on the button.
+        formnovalidate: bool
+            If this is passed, put the `formnovalidate` attribute on the button element.
         """
         is_text = variant.split("-")[0] == "text"
         icon_only = not bool(text)
@@ -321,4 +324,5 @@ class Button(component.Component):
             "text": text,
             "href": href,
             "click": click,
+            "formnovalidate": formnovalidate,
         }
