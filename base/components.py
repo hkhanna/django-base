@@ -1,4 +1,10 @@
-from django.contrib.messages.constants import DEFAULT_LEVELS, SUCCESS, WARNING, INFO
+from django.contrib.messages.constants import (
+    DEFAULT_LEVELS,
+    SUCCESS,
+    WARNING,
+    INFO,
+    ERROR,
+)
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django_components import component
@@ -49,6 +55,14 @@ class Alert(component.Component):
                 "text_color": "text-blue-700",
                 "subtext_color": "text-blue-600",
                 "button_color": "bg-blue-100 text-blue-700 hover:bg-blue-100 focus:ring-blue-600",
+            },
+            ERROR: {
+                "bg_color": "bg-red-50",
+                "icon": "x-circle",
+                "icon_color": "text-red-400",
+                "text_color": "text-red-800",
+                "subtext_color": "text-red-700",
+                "button_color": "bg-red-50 text-red-800 hover:bg-red-50 focus:ring-red-700",
             },
         }
 
