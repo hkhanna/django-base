@@ -182,28 +182,39 @@ class EmailMessage(models.Model):
         sanitized = " ".join(sanitized_lines).strip()
         return sanitized
 
-    def cooling_down(self, period, allowed):
-        """Check that this created_by/template_prefix/to_email combination hasn't been recently sent."""
+    def cooling_down(self, period, allowed, scopes):
+        """Check that this created_by/template_prefix/to_email combination hasn't been recently sent.
+        You can tighten the suppression by removing scopes. An empty list will cancel if any email
+        at all has been sent in the cooldown period."""
         cooldown_period = timedelta(seconds=period)
-        return (
-            EmailMessage.objects.filter(
-                sent_at__gt=timezone.now() - cooldown_period,
-                created_by=self.created_by,
-                template_prefix=self.template_prefix,
-                to_email=self.to_email,
-            ).count()
-            >= allowed
+        email_messages = EmailMessage.objects.filter(
+            sent_at__gt=timezone.now() - cooldown_period
         )
+        if "created_by" in scopes:
+            email_messages = email_messages.filter(created_by=self.created_by)
+        if "template_prefix" in scopes:
+            email_messages = email_messages.filter(template_prefix=self.template_prefix)
+        if "to" in scopes:
+            email_messages = email_messages.filter(to_email=self.to_email)
 
-    def send(self, attachments=[], cooldown_period=180, cooldown_allowed=1):
+        return email_messages.count() >= allowed
+
+    def send(
+        self,
+        attachments=[],
+        cooldown_period=180,
+        cooldown_allowed=1,
+        scopes=["created_by", "template_prefix", "to"],
+    ):
         if self.status != EmailMessage.Status.NEW:
             raise RuntimeError(
                 f"EmailMessage.id={self.id} EmailMessage.send() called on an email that is not status=NEW"
             )
         self.prepare()
 
-        if self.cooling_down(cooldown_period, cooldown_allowed):
+        if self.cooling_down(cooldown_period, cooldown_allowed, scopes):
             self.status = EmailMessage.Status.CANCELED
+            self.error_message = "Cooling down"
             self.save()
             return False
         else:
@@ -246,4 +257,5 @@ class EmailMessage(models.Model):
 
     def __str__(self):
         # This will return something like 'reset-password' since its the last part of the template prefix
-        return self.template_prefix.split("/")[-1]
+        template_prefix = self.template_prefix.split("/")[-1]
+        return f"{template_prefix} - {self.to_email}"

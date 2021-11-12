@@ -176,3 +176,53 @@ def test_cooldown(user, mailoutbox):
         assert len(mailoutbox) == 3
         email.refresh_from_db()
         assert email.status == models.EmailMessage.Status.SENT
+
+
+def test_cooldown_scopes(user, mailoutbox):
+    """Email cancellation can be tightened by removing scopes"""
+    email_message_args = dict(
+        created_by=user,
+        subject="A subject",
+        template_prefix="account/email/email_confirmation",
+        to_name=user.name,
+        to_email=user.email,
+        template_context={
+            "user_name": user.name,
+            "user_email": user.email,
+            "activate_url": "",
+        },
+    )
+
+    # Send the first email
+    email = models.EmailMessage.objects.create(**email_message_args)
+    assert email.send() is True
+    assert len(mailoutbox) == 1
+    email.refresh_from_db()
+    assert email.status == models.EmailMessage.Status.SENT
+
+    # Email with different recipient cancels if "to" scope is removed
+    email = models.EmailMessage.objects.create(
+        **{**email_message_args, "to_email": "someone.else@example.com"}
+    )
+    assert email.send(scopes=["created_by", "template_prefix"]) is False
+    assert len(mailoutbox) == 1
+    email.refresh_from_db()
+    assert email.status == models.EmailMessage.Status.CANCELED
+
+    # Email with different user cancels if "created_by" scope is removed
+    email = models.EmailMessage.objects.create(
+        **{**email_message_args, "created_by": factories.UserFactory()}
+    )
+    assert email.send(scopes=["template_prefix", "to"]) is False
+    assert len(mailoutbox) == 1
+    email.refresh_from_db()
+    assert email.status == models.EmailMessage.Status.CANCELED
+
+    # Email with different template cancels if "template_prefix" scope is removed
+    email = models.EmailMessage.objects.create(
+        **{**email_message_args, "template_prefix": "account/email/password_reset_key"}
+    )
+    assert email.send(scopes=["created_by", "to"]) is False
+    assert len(mailoutbox) == 1
+    email.refresh_from_db()
+    assert email.status == models.EmailMessage.Status.CANCELED
