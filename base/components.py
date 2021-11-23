@@ -76,23 +76,45 @@ class Alert(component.Component):
         }
 
 
+@component.register("modal")
+class Modal(component.Component):
+    template_name = "components/modal.html"
+
+    def get_context_data(self, show="modal"):
+        return {"show": show}
+
+
 @component.register("submit_modal")
 class SubmitModal(component.Component):
     template_name = "components/submit_modal.html"
 
-    def get_context_data(self, title, text, variant, submit_button_text):
+    def get_context_data(
+        self,
+        title,
+        variant,
+        submit_button_text,
+        show="modal",
+        text=None,
+        icon=None,
+    ):
         variant_settings = {
+            "primary": {
+                "icon": icon or "check-circle",
+                "icon_bg_color": "bg-indigo-100",
+                "icon_color": "text-indigo-700",
+            },
             "danger": {
-                "icon": "exclamation",
+                "icon": icon or "exclamation",
                 "icon_bg_color": "bg-red-100",
                 "icon_color": "text-red-600",
-            }
+            },
         }
         return {
             "title": title,
             "text": text,
             "variant": variant,
             "submit_button_text": submit_button_text,
+            "show": show,
             **variant_settings[variant],
         }
 
