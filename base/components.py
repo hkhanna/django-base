@@ -103,6 +103,11 @@ class SubmitModal(component.Component):
                 "icon_bg_color": "bg-indigo-100",
                 "icon_color": "text-indigo-700",
             },
+            "secondary": {
+                "icon": icon or "information",
+                "icon_bg_color": "bg-blue-100",
+                "icon_color": "text-blue-500",
+            },
             "danger": {
                 "icon": icon or "exclamation",
                 "icon_bg_color": "bg-red-100",
