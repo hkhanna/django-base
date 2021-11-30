@@ -1,6 +1,8 @@
 from django.contrib.messages import get_messages
 
 
-def assertMessageContains(response, message):
+def assertMessageContains(response, expected):
     messages = list(get_messages(response.wsgi_request))
-    assert message in str(messages[-1])
+    assert len(messages) > 0, "No messages found"
+    actual = str(messages[-1])
+    assert expected in actual
