@@ -6,7 +6,7 @@ DB_NAME = $(shell basename $(CURDIR))-db
 
 # RUNNING AND TESTING #
 run: 
-	make -j2 app tailwind
+	make -j2 tailwind app
 
 app:
 	@docker start ${DB_NAME}

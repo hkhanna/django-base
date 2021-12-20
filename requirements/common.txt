@@ -5,7 +5,7 @@ Django==3.2.10
 django-allauth==0.47.0
 django-components==0.17
 django-environ==0.8.1
-django-tailwind==2.2.2
+django-tailwind==3.0.1
 django-waffle==2.2.1
 heroicons==1.4.0
 markdown==3.3.6
