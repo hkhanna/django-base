@@ -50,3 +50,32 @@ class RequestIDMiddleware:
         else:
             message += f"User.id=none"
         return message
+
+
+class SetRemoteAddrFromForwardedFor(object):
+    """
+    Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the
+    latter is set.
+    This was adapted from a removed middleware in Django 1.1.
+    See https://docs.djangoproject.com/en/2.1/releases/1.1/#removed-setremoteaddrfromforwardedfor-middleware
+    It should be fine to use with Heroku since Heroku guarantees the last IP in the list is the
+    originating IP address: https://stackoverflow.com/a/37061471
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        try:
+            real_ip = request.META["HTTP_X_FORWARDED_FOR"]
+        except KeyError:
+            request.META["REMOTE_ADDR"] = None
+        else:
+            # We use the last IP because it's the only reliable one since
+            # its the one Heroku sets.
+            # In theory the first one (element 0) should be the client IP,
+            # but its not reliable since it can be spoofed.
+            real_ip = real_ip.split(",")[-1].strip()
+            request.META["REMOTE_ADDR"] = real_ip
+
+        return self.get_response(request)
