@@ -1,5 +1,6 @@
 """Tests related to EmailMessages"""
 from datetime import timedelta
+from waffle.testutils import override_switch
 from django.conf import settings
 from django.utils import timezone
 from freezegun import freeze_time
@@ -226,3 +227,26 @@ def test_cooldown_scopes(user, mailoutbox):
     assert len(mailoutbox) == 1
     email.refresh_from_db()
     assert email.status == models.EmailMessage.Status.CANCELED
+
+
+@override_switch("disable_outbound_email", True)
+def test_disable_outbound_email_waffle_switch(user, mailoutbox):
+    """disable_outbound_email waffle switch should disable all outbound emails."""
+    email_message = models.EmailMessage(
+        created_by=user,
+        subject="A subject",
+        template_prefix="account/email/email_confirmation",
+        to_name=user.name,
+        to_email=user.email,
+        template_context={
+            "user_name": user.name,
+            "user_email": user.email,
+            "activate_url": "",
+        },
+    )
+
+    email_message.send()
+    email_message.refresh_from_db()
+    assert email_message.status == models.EmailMessage.Status.ERROR
+    assert "disable_outbound_email waffle flag is True" in email_message.error_message
+    assert len(mailoutbox) == 0

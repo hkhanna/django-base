@@ -1,4 +1,5 @@
 from celery.utils.log import get_task_logger
+import waffle
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 from django.template import TemplateDoesNotExist
@@ -62,7 +63,12 @@ def send_email_message(email_message_id, attachments=[]):
             )
         if email_message.postmark_message_stream:
             django_email_message.message_stream = email_message.postmark_message_stream
-        django_email_message.send()
+
+        if waffle.switch_is_active("disable_outbound_email"):
+            raise RuntimeError("disable_outbound_email waffle flag is True")
+        else:
+            django_email_message.send()
+
     except Exception as e:
         email_message.status = models.EmailMessage.Status.ERROR
         email_message.error_message = repr(e)
