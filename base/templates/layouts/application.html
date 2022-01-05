@@ -2,70 +2,70 @@
 {% load heroicons %}
 {% load navlink %}
 {% block content %}
-<div x-data="{ navOpen: false }" x-on:keyup.document.escape="navOpen = false">
-<div class="bg-white shadow-sm">
-  <section class="section-container flex justify-between h-16">
-    <div class="flex">
-      <div class="flex-shrink-0 flex items-center">
-      <a href="{% url "index" %}">
-        {% include "base/logo.html" with small=True %}
-      </a>
+  <div x-data="{ navOpen: false }" x-on:keyup.document.escape="navOpen = false">
+    <div class="bg-white shadow-sm">
+      <section class="section-container flex justify-between h-16">
+        <div class="flex">
+          <div class="flex-shrink-0 flex items-center">
+            <a href="{% url "index" %}">
+              {% include "base/logo.html" with small=True %}
+            </a>
+          </div>
+          <nav class="hidden sm:-my-px sm:ml-10 sm:flex sm:space-x-8" aria-label="Main">
+            {% navlink url_name="account_settings" name="Settings" %}
+            {% navlink url_name="account_logout" name="Logout" %}
+          </nav>
+        </div>
+        <div class="hidden sm:ml-6 sm:flex sm:items-center">
+          <div class="ml-3 font-medium">
+            <p class="text-sm text-gray-700">{{request.user.name}}</p>
+            <p class="text-sm text-gray-500">{{request.user.email}}</p>
+          </div>
+        </div>
+        <div class="-mr-2 flex items-center sm:hidden">
+          <button
+            class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            x-on:click="navOpen = !navOpen"
+          >
+            <span class="sr-only">Open main menu</span>
+            <span x-show="!navOpen">
+              {% heroicon_outline "menu" class="h-6 w-6" %}
+            </span>
+            <span x-show="navOpen">
+              {% heroicon_outline "x" class="h-6 w-6" %}
+            </span>
+          </button>
+        </div>
+      </section>
+    </div>
+    <div class="sm:hidden bg-white shadow-sm" x-show="navOpen">
+      <div class="pt-2 pb-3 space-y-1">
+        {% navlink url_name="account_settings" name="Settings" mobile=True %}
+        {% navlink url_name="account_logout" name="Logout" mobile=True %}
       </div>
-      <nav class="hidden sm:-my-px sm:ml-10 sm:flex sm:space-x-8" aria-label="Main">
-        {% navlink url_name="account_settings" name="Settings" %}
-        {% navlink url_name="account_logout" name="Logout" %}
-      </nav>
-    </div>
-    <div class="hidden sm:ml-6 sm:flex sm:items-center">
-      <div class="ml-3 font-medium">
-        <p class="text-sm text-gray-700">{{request.user.name}}</p>
-        <p class="text-sm text-gray-500">{{request.user.email}}</p>
+      <div class="pt-4 pb-3 border-t border-gray-200">
+        <div class="px-4">
+          <div class="text-base font-medium text-gray-800">
+            {{request.user.name}}
+          </div>
+          <div class="text-sm font-medium text-gray-500">{{request.user.email}}</div>
+        </div>
       </div>
     </div>
-    <div class="-mr-2 flex items-center sm:hidden">
-      <button
-        class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        x-on:click="navOpen = !navOpen"
-      >
-        <span class="sr-only">Open main menu</span>
-        <span x-show="!navOpen">
-        {% heroicon_outline "menu" class="h-6 w-6" %}
-        </span>
-        <span x-show="navOpen">
-        {% heroicon_outline "x" class="h-6 w-6" %}
-        </span>
-      </button>
-    </div>
-  </section>
-</div>
-<div class="sm:hidden bg-white shadow-sm" x-show="navOpen">
-  <div class="pt-2 pb-3 space-y-1">
-      {% navlink url_name="account_settings" name="Settings" mobile=True %}
-      {% navlink url_name="account_logout" name="Logout" mobile=True %}
   </div>
-  <div class="pt-4 pb-3 border-t border-gray-200">
-    <div class="px-4">
-      <div class="text-base font-medium text-gray-800">
-        {{request.user.name}}
-      </div>
-      <div class="text-sm font-medium text-gray-500">{{request.user.email}}</div>
-    </div>
-  </div>
-</div>
-</div>
 
-{% block page_heading %}
-{% endblock page_heading %}
+  {% block page_heading %}
+  {% endblock page_heading %}
 
-{% block messages %}
-<section class="section-container my-4 space-y-4">
-  {% for message in messages %}
-    {% component "alert" text=message variant=message.level alertClass="sm:w-full" %}
-  {% endfor %}
-</section>
-{% endblock messages %}
+  {% block messages %}
+    <section class="section-container my-4 space-y-4">
+      {% for message in messages %}
+        {% component "alert" text=message variant=message.level alertClass="sm:w-full" %}
+      {% endfor %}
+    </section>
+  {% endblock messages %}
 
-{% block main %}
-{% endblock main %}
+  {% block main %}
+  {% endblock main %}
 
 {% endblock content %}

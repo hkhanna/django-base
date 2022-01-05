@@ -6,165 +6,165 @@
 {% endblock page_heading %}
 {% block main %}
 
-<section class="section-container mb-20">
-  {% if not request.user.is_email_verified %}
-  {% component_block "alert" variant="warning" text="Your email address is not verified." alertClass="my-6 sm:w-full" dismissable=False %}
-    {% slot subtext %}
-      <form action="{% url 'account_resend_confirmation_email' %}" method="POST">
-        {% csrf_token %}
-        If you did not receive a confirmation email, you may 
-        {% component "button" type="submit" variant="text-gray" text="click here to request another one." %}
-      </form>
-    {% endslot %}
-  {% endcomponent_block %}
-  {% endif %}
-  <div>
-    <div class="md:grid md:grid-cols-3 md:gap-6">
-      <div class="md:col-span-1">
-        <div class="px-4 sm:px-0">
-          <h3 class="text-lg font-medium leading-6 text-gray-900">Personal Information</h3>
-          <p class="mt-1 text-sm text-gray-600">
-            Name, email address, that kind of thing.
-          </p>
-        </div>
-      </div>
-      <div class="mt-5 md:mt-0 md:col-span-2">
-        <form method="POST">
-        {% csrf_token %}
-          <div class="shadow sm:rounded-md sm:overflow-hidden">
-            <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-              <div class="grid grid-cols-6 gap-6">
-              <div class="col-span-6 sm:col-span-3">
-              {% include "base/form_input.html" with field=pi_form.first_name input_class="w-full" autocomplete="given-name" %}
-              </div>
-              <div class="col-span-6 sm:col-span-3">
-              {% include "base/form_input.html" with field=pi_form.last_name input_class="w-full" autocomplete="family-name" %}
-              </div>
-              <div class="col-span-6 sm:col-span-4">
-              {% include "base/form_input.html" with field=pi_form.email input_class="w-full" autocomplete="email" %}
-              </div>
-            </div>
-            </div>
-          <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
-            <div>
-            {% include "base/form_input.html" with field=pi_form.oldpassword input_class="w-full sm:w-auto" %}
-            </div>
-            {% component "button" type="submit" name="form_name" value="pi" variant="primary" text="Save" %}
+  <section class="section-container mb-20">
+    {% if not request.user.is_email_verified %}
+      {% component_block "alert" variant="warning" text="Your email address is not verified." alertClass="my-6 sm:w-full" dismissable=False %}
+        {% slot subtext %}
+          <form action="{% url 'account_resend_confirmation_email' %}" method="POST">
+            {% csrf_token %}
+            If you did not receive a confirmation email, you may
+            {% component "button" type="submit" variant="text-gray" text="click here to request another one." %}
+          </form>
+        {% endslot %}
+      {% endcomponent_block %}
+    {% endif %}
+    <div>
+      <div class="md:grid md:grid-cols-3 md:gap-6">
+        <div class="md:col-span-1">
+          <div class="px-4 sm:px-0">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">Personal Information</h3>
+            <p class="mt-1 text-sm text-gray-600">
+              Name, email address, that kind of thing.
+            </p>
           </div>
         </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <div class="hidden sm:block" aria-hidden="true">
-    <div class="py-5">
-      <div class="border-t border-gray-200"></div>
-    </div>
-  </div>
-
-  <div class="mt-10 sm:mt-0">
-    <div class="md:grid md:grid-cols-3 md:gap-6">
-      <div class="md:col-span-1">
-        <div class="px-4 sm:px-0">
-          <h3 class="text-lg font-medium leading-6 text-gray-900">Password Management</h3>
-          <p class="mt-1 text-sm text-gray-600">
-            Change your password.
-          </p>
-        </div>
-      </div>
-      <div class="mt-5 md:mt-0 md:col-span-2">
-        <form method="POST">
-        {% csrf_token %}
-          <div class="shadow sm:rounded-md sm:overflow-hidden">
-            <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-              <div class="grid grid-cols-6 gap-6">
-                <div class="col-span-6 sm:col-span-3">
-                  {% include "base/form_input.html" with field=password_form.password1 input_class="w-full" %}
+        <div class="mt-5 md:mt-0 md:col-span-2">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="shadow sm:rounded-md sm:overflow-hidden">
+              <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                <div class="grid grid-cols-6 gap-6">
+                  <div class="col-span-6 sm:col-span-3">
+                    {% include "base/form_input.html" with field=pi_form.first_name input_class="w-full" autocomplete="given-name" %}
+                  </div>
+                  <div class="col-span-6 sm:col-span-3">
+                    {% include "base/form_input.html" with field=pi_form.last_name input_class="w-full" autocomplete="family-name" %}
+                  </div>
+                  <div class="col-span-6 sm:col-span-4">
+                    {% include "base/form_input.html" with field=pi_form.email input_class="w-full" autocomplete="email" %}
+                  </div>
                 </div>
-                <div class="col-span-6 sm:col-span-3">
-                  {% include "base/form_input.html" with field=password_form.password2 input_class="w-full" %}
+              </div>
+              <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
+                <div>
+                  {% include "base/form_input.html" with field=pi_form.oldpassword input_class="w-full sm:w-auto" %}
                 </div>
+                {% component "button" type="submit" name="form_name" value="pi" variant="primary" text="Save" %}
+              </div>
             </div>
-          </div>
-          <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
-            <div>
-              {% include "base/form_input.html" with field=password_form.oldpassword input_class="w-full sm:w-auto" %}
-            </div>
-          {% component "button" type="submit" name="form_name" value="password" variant="primary" text="Change Password" %}
-          </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  {% if billing_enabled %}
-  <div class="hidden sm:block" aria-hidden="true">
+    <div class="hidden sm:block" aria-hidden="true">
       <div class="py-5">
         <div class="border-t border-gray-200"></div>
       </div>
-  </div>
+    </div>
 
-  <div class="mt-10 sm:mt-0">
-    <div class="md:grid md:grid-cols-3 md:gap-6">
-      <div class="md:col-span-1">
-        <div class="px-4 sm:px-0">
-          <h3 class="text-lg font-medium leading-6 text-gray-900">Billing Plan</h3>
-          <p class="mt-1 text-sm text-gray-600">
-            Choose a plan, update or cancel your subscription.
-          </p>
+    <div class="mt-10 sm:mt-0">
+      <div class="md:grid md:grid-cols-3 md:gap-6">
+        <div class="md:col-span-1">
+          <div class="px-4 sm:px-0">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">Password Management</h3>
+            <p class="mt-1 text-sm text-gray-600">
+              Change your password.
+            </p>
+          </div>
+        </div>
+        <div class="mt-5 md:mt-0 md:col-span-2">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="shadow sm:rounded-md sm:overflow-hidden">
+              <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                <div class="grid grid-cols-6 gap-6">
+                  <div class="col-span-6 sm:col-span-3">
+                    {% include "base/form_input.html" with field=password_form.password1 input_class="w-full" %}
+                  </div>
+                  <div class="col-span-6 sm:col-span-3">
+                    {% include "base/form_input.html" with field=password_form.password2 input_class="w-full" %}
+                  </div>
+                </div>
+              </div>
+              <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
+                <div>
+                  {% include "base/form_input.html" with field=password_form.oldpassword input_class="w-full sm:w-auto" %}
+                </div>
+                {% component "button" type="submit" name="form_name" value="password" variant="primary" text="Change Password" %}
+              </div>
+            </div>
+          </form>
         </div>
       </div>
-      <div class="mt-5 md:mt-0 md:col-span-2">
-        <form action="{% url stripe_session_url %}" method="POST">
-        {% csrf_token %}
-          <div class="shadow sm:rounded-md sm:overflow-hidden">
-            <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-              <p class="text-sm">
-                You are currently on the <span class="font-semibold">{{current_plan.name}} (${{current_plan.display_price}}/mo)</span> plan.
+    </div>
+
+    {% if billing_enabled %}
+      <div class="hidden sm:block" aria-hidden="true">
+        <div class="py-5">
+          <div class="border-t border-gray-200"></div>
+        </div>
+      </div>
+
+      <div class="mt-10 sm:mt-0">
+        <div class="md:grid md:grid-cols-3 md:gap-6">
+          <div class="md:col-span-1">
+            <div class="px-4 sm:px-0">
+              <h3 class="text-lg font-medium leading-6 text-gray-900">Billing Plan</h3>
+              <p class="mt-1 text-sm text-gray-600">
+                Choose a plan, update or cancel your subscription.
               </p>
-              {% if billing_state_note %}
-              <p>
-                {{billing_state_note}}
-              </p>
-              {% endif %}
-                {% if paid_plan_id %}
-                <input type="hidden" name="plan_id" value="{{paid_plan_id}}" />
-                {% endif %}
-                {% component "button" type="submit" variant="primary" text=stripe_session_button_text %}
             </div>
           </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
-  <div class="hidden sm:block" aria-hidden="true">
-    <div class="py-5">
-      <div class="border-t border-gray-200"></div>
-    </div>
-  </div>
-
-  <div class="mt-10 sm:mt-0">
-    <div class="md:grid md:grid-cols-3 md:gap-6">
-      <div class="md:col-span-1">
-        <div class="px-4 sm:px-0">
-          <h3 class="text-lg font-medium leading-6 text-red-700">Danger Zone</h3>
-          <p class="mt-1 text-sm text-gray-600">
-            Delete your account.
-          </p>
+          <div class="mt-5 md:mt-0 md:col-span-2">
+            <form action="{% url stripe_session_url %}" method="POST">
+              {% csrf_token %}
+              <div class="shadow sm:rounded-md sm:overflow-hidden">
+                <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                  <p class="text-sm">
+                    You are currently on the <span class="font-semibold">{{current_plan.name}} (${{current_plan.display_price}}/mo)</span> plan.
+                  </p>
+                  {% if billing_state_note %}
+                    <p>
+                      {{billing_state_note}}
+                    </p>
+                  {% endif %}
+                  {% if paid_plan_id %}
+                    <input type="hidden" name="plan_id" value="{{paid_plan_id}}" />
+                  {% endif %}
+                  {% component "button" type="submit" variant="primary" text=stripe_session_button_text %}
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-      <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0" x-data="{ modal: false }">
-        {% component "button" type="button" variant="white" text="Delete Account" click="modal = true" %} 
-        <form action="{% url 'account_delete' %}" method="POST">
-          {% csrf_token %}
-          {% component "submit_modal" variant="danger" title="Delete Your Account" text="Do you really want to delete your account? This action is permanent." submit_button_text="Confirm Delete" %}
-        </form>
+    {% endif %}
+
+    <div class="hidden sm:block" aria-hidden="true">
+      <div class="py-5">
+        <div class="border-t border-gray-200"></div>
       </div>
     </div>
-  </div>
-</section>
+
+    <div class="mt-10 sm:mt-0">
+      <div class="md:grid md:grid-cols-3 md:gap-6">
+        <div class="md:col-span-1">
+          <div class="px-4 sm:px-0">
+            <h3 class="text-lg font-medium leading-6 text-red-700">Danger Zone</h3>
+            <p class="mt-1 text-sm text-gray-600">
+              Delete your account.
+            </p>
+          </div>
+        </div>
+        <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0" x-data="{ modal: false }">
+          {% component "button" type="button" variant="white" text="Delete Account" click="modal = true" %}
+          <form action="{% url 'account_delete' %}" method="POST">
+            {% csrf_token %}
+            {% component "submit_modal" variant="danger" title="Delete Your Account" text="Do you really want to delete your account? This action is permanent." submit_button_text="Confirm Delete" %}
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
 {% endblock main %}

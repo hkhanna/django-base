@@ -18,6 +18,9 @@ tailwind:
 check:
 	source .venv/bin/activate && py.test
 
+fmt:
+	find -name *.html -not -path "*node_modules*" -a -not -path "*.git*" -a -not -path "*.venv*" | xargs djhtml -i -t 2
+
 # BUILD STEPS #
 all: clean build seed 
 

@@ -25,7 +25,7 @@
         <form action="{% url 'account_login' %}" method="POST">
           {% csrf_token %}
           {% if redirect_field_value %}
-          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
           {% endif %}
           <div class="space-y-6">
             {% include "base/form_input.html" with field=form.login input_class="block w-full px-3 py-2 placeholder-gray-400" %}

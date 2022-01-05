@@ -1,14 +1,14 @@
 <section class="section-container">
-{% if has_actions %}
-  <div class="my-6 md:flex md:items-center md:justify-between">
-    <div class="flex-1 min-w-0">
-      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-        {{heading}}
-      </h2>
+  {% if has_actions %}
+    <div class="my-6 md:flex md:items-center md:justify-between">
+      <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+          {{heading}}
+        </h2>
+      </div>
+      <div class="mt-4 flex md:mt-0 md:ml-4 md:space-x-3">{% slot actions %}{% endslot actions %}</div>
     </div>
-    <div class="mt-4 flex md:mt-0 md:ml-4 md:space-x-3">{% slot actions %}{% endslot actions %}</div>
-  </div>
-{% else %}
-<h2 class="my-6 text-3xl font-bold leading-7 text-gray-700">{{heading}}</h2>
-{% endif %}
+  {% else %}
+    <h2 class="my-6 text-3xl font-bold leading-7 text-gray-700">{{heading}}</h2>
+  {% endif %}
 </section>
