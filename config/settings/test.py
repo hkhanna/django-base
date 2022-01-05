@@ -29,3 +29,6 @@ CELERY_TASK_ALWAYS_EAGER = True
 
 # Reproducable randomness for tests
 factory.random.reseed_random(42)
+
+# HTML validation middleware
+MIDDLEWARE.insert(1, "check_html.CheckHTMLMiddleware")

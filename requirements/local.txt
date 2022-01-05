@@ -1,5 +1,6 @@
 -r ./common.txt
 
+django-check-html-middleware==2021.10.1
 django-debug-toolbar==3.2.4
 freezegun==1.1.0
 black==21.12b0

@@ -1,5 +1,6 @@
 -r ./common.txt
 
+django-check-html-middleware==2021.10.1
 freezegun==1.1.0
 gunicorn==20.1.0
 factory_boy==3.2.1

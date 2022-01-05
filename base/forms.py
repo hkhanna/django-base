@@ -69,7 +69,9 @@ class PersonalInformationForm(forms.ModelForm):
     )
     oldpassword = forms.CharField(
         label="Current password",
-        widget=forms.PasswordInput(attrs={"placeholder": "Current password"}),
+        widget=forms.PasswordInput(
+            attrs={"placeholder": "Current password", "id": "pi_oldpassword"}
+        ),
     )
 
     class Meta:

@@ -61,6 +61,7 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 
 - Docker (for postgres).
 - Python 3.8+
+- `libtidy-dev` (e.g., `apt install libtidy-dev`)
 
 ### Local Installation
 

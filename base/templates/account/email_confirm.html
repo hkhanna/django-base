@@ -3,7 +3,7 @@
 {% block content %}
   <div class="py-14 sm:py-32 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
-      <a href={%url 'index' %} class="flex justify-center">
+      <a href="{% url 'index' %}" class="flex justify-center">
         {% include "base/logo.html" %}
       </a>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -13,7 +13,7 @@
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       {% url 'account_reset_password' as passwd_reset_url %}
       <p class="text-gray-700 text-sm text-center">
-        This e-mail confirmation link expired or is invalid. Please <a href="{% url 'account_email' %}" class="font-medium text-indigo-600 hover:text-indigo-500">issue a new e-mail confirmation request.
+        This e-mail confirmation link expired or is invalid. Please <a href="{% url 'account_email' %}" class="font-medium text-indigo-600 hover:text-indigo-500">issue a new e-mail confirmation request</a>.
         </p>
       </div>
     </div>
