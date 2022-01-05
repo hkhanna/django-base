@@ -141,30 +141,32 @@
       </div>
     {% endif %}
 
-    <div class="hidden sm:block" aria-hidden="true">
-      <div class="py-5">
-        <div class="border-t border-gray-200"></div>
+    {% if not disable_account_deletion %}
+      <div class="hidden sm:block" aria-hidden="true">
+        <div class="py-5">
+          <div class="border-t border-gray-200"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="mt-10 sm:mt-0">
-      <div class="md:grid md:grid-cols-3 md:gap-6">
-        <div class="md:col-span-1">
-          <div class="px-4 sm:px-0">
-            <h3 class="text-lg font-medium leading-6 text-red-700">Danger Zone</h3>
-            <p class="mt-1 text-sm text-gray-600">
-              Delete your account.
-            </p>
+      <div class="mt-10 sm:mt-0">
+        <div class="md:grid md:grid-cols-3 md:gap-6">
+          <div class="md:col-span-1">
+            <div class="px-4 sm:px-0">
+              <h3 class="text-lg font-medium leading-6 text-red-700">Danger Zone</h3>
+              <p class="mt-1 text-sm text-gray-600">
+                Delete your account.
+              </p>
+            </div>
+          </div>
+          <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0" x-data="{ modal: false }">
+            {% component "button" type="button" variant="white" text="Delete Account" click="modal = true" %}
+            <form action="{% url 'account_delete' %}" method="POST">
+              {% csrf_token %}
+              {% component "submit_modal" variant="danger" title="Delete Your Account" text="Do you really want to delete your account? This action is permanent." submit_button_text="Confirm Delete" %}
+            </form>
           </div>
         </div>
-        <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0" x-data="{ modal: false }">
-          {% component "button" type="button" variant="white" text="Delete Account" click="modal = true" %}
-          <form action="{% url 'account_delete' %}" method="POST">
-            {% csrf_token %}
-            {% component "submit_modal" variant="danger" title="Delete Your Account" text="Do you really want to delete your account? This action is permanent." submit_button_text="Confirm Delete" %}
-          </form>
-        </div>
       </div>
-    </div>
+    {% endif %}
   </section>
 {% endblock main %}

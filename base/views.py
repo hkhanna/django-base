@@ -1,10 +1,10 @@
+import waffle
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
-from django.urls.base import reverse_lazy
 from django.views.generic import TemplateView, View
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -65,6 +65,9 @@ class SettingsView(LoginRequiredMixin, View):
             {
                 "pi_form": forms.PersonalInformationForm(instance=request.user),
                 "password_form": auth_forms.ChangePasswordForm(user=request.user),
+                "disable_account_deletion": waffle.switch_is_active(
+                    "disable_account_deletion"
+                ),
             }
         )
         return render(request, self.template_name, context)
@@ -131,6 +134,9 @@ class ResendConfirmationEmailView(LoginRequiredMixin, View):
 
 class DeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin, View):
     def post(self, request, *args, **kwargs):
+        if waffle.switch_is_active("disable_account_deletion"):
+            raise Http404("Account deletion is disabled.")
+
         with transaction.atomic():
             request.user.is_active = False
             request.user.save()
