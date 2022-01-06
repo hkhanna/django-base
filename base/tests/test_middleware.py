@@ -1,3 +1,4 @@
+from django.test import override_settings
 from django.urls import reverse
 from django.test import Client
 from ..factories import fake
@@ -13,8 +14,9 @@ def test_setremoteaddr_middleware():
     assert request.META["REMOTE_ADDR"] == ip
 
 
+@override_settings(ENVIRONMENT="production")
 def test_setremoteaddr_middleware_none():
-    """No IP address in X-Forwarded-For makes REMOTE_ADDR None."""
+    """No IP address in X-Forwarded-For makes REMOTE_ADDR None in prod."""
     client = Client()
     response = client.get(reverse("index"))
     request = response.wsgi_request
