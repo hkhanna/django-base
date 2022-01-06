@@ -52,7 +52,7 @@ class RequestIDMiddleware:
         return message
 
 
-class SetRemoteAddrFromForwardedFor(object):
+class SetRemoteAddrFromForwardedFor:
     """
     Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the
     latter is set.
@@ -69,7 +69,11 @@ class SetRemoteAddrFromForwardedFor(object):
         try:
             real_ip = request.META["HTTP_X_FORWARDED_FOR"]
         except KeyError:
-            request.META["REMOTE_ADDR"] = None
+            # This will happen in local development. We should just make sure
+            # that we're not in prod.
+            if settings.ENVIRONMENT == "production":
+                logger.error("Heroku did not provide X-Forwarded-For header")
+                request.META["REMOTE_ADDR"] = None
         else:
             # We use the last IP because it's the only reliable one since
             # its the one Heroku sets.
