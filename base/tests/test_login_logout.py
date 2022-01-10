@@ -58,3 +58,19 @@ def test_logout(client, user):
     messages = list(response.context["messages"])
     assert len(messages) == 1
     assert "signed out" in str(messages[0])
+
+
+def test_login_detected_tz(client, user):
+    """Logging in with a detected_tz stores it in the user's session"""
+    client.post(
+        reverse("account_login"),
+        {
+            "login": user.email,
+            "password": "goodpass",
+            "detected_tz": "America/New_York",
+        },
+    )
+
+    response = client.get("account_settings")
+    session = response.wsgi_request.session
+    assert session["detected_tz"] == "America/New_York"

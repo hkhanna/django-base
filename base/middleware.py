@@ -1,8 +1,10 @@
 import logging
 import threading
 import uuid
+import pytz
 
 from django.conf import settings
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 local = threading.local()
@@ -81,5 +83,25 @@ class SetRemoteAddrFromForwardedFor:
             # but its not reliable since it can be spoofed.
             real_ip = real_ip.split(",")[-1].strip()
             request.META["REMOTE_ADDR"] = real_ip
+
+        return self.get_response(request)
+
+
+class TimezoneMiddleware:
+    """If the user has a timezone in their session, activate it."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        tz = None
+
+        if request.user.is_authenticated:
+            tz = request.session.get("detected_tz")
+
+        if tz:
+            timezone.activate(pytz.timezone(tz))
+        else:
+            timezone.deactivate()
 
         return self.get_response(request)

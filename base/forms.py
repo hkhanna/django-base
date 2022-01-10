@@ -1,6 +1,8 @@
 import logging
+import pytz
 from django import forms
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from allauth.account import forms as auth_forms
 from . import models
 from allauth.account.adapter import get_adapter
@@ -12,6 +14,10 @@ User = get_user_model()
 
 
 class LoginForm(auth_forms.LoginForm):
+    detected_tz = forms.CharField(
+        max_length=254, required=False, widget=forms.HiddenInput
+    )
+
     def clean(self):
         """Inactive users should present as no user in the system, and locked users should be disallowed."""
         cleaned_data = super().clean()
@@ -22,6 +28,23 @@ class LoginForm(auth_forms.LoginForm):
             raise forms.ValidationError("This account has been locked.")
 
         return cleaned_data
+
+    def login(self, request, redirect_url=None):
+        ret = super().login(request, redirect_url)
+
+        # Set the user's timezone in their session if it was provided
+        detected_tz = self.cleaned_data["detected_tz"]
+        if detected_tz:
+            try:
+                tz = pytz.timezone(detected_tz)
+                request.session["detected_tz"] = detected_tz
+                timezone.activate(tz)
+            except pytz.exceptions.UnknownTimeZoneError:
+                logger.warning(
+                    f"User.email={self.cleaned_data['login']} Bad timezone {detected_tz}"
+                )
+
+        return ret
 
 
 class SignupForm(auth_forms.SignupForm):
