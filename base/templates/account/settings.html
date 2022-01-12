@@ -117,25 +117,27 @@
             </div>
           </div>
           <div class="mt-5 md:mt-0 md:col-span-2">
-            <form action="{% url stripe_session_url %}" method="POST">
-              {% csrf_token %}
-              <div class="shadow sm:rounded-md sm:overflow-hidden">
-                <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+            <div class="shadow sm:rounded-md sm:overflow-hidden">
+              <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                <p class="text-sm">
+                  You are currently on the <span class="font-semibold">{{current_plan.name}} (${{current_plan.display_price}}/mo)</span> plan.
+                </p>
+                {% if billing_state_note %}
                   <p class="text-sm">
-                    You are currently on the <span class="font-semibold">{{current_plan.name}} (${{current_plan.display_price}}/mo)</span> plan.
+                    {{billing_state_note}}
                   </p>
-                  {% if billing_state_note %}
-                    <p>
-                      {{billing_state_note}}
-                    </p>
-                  {% endif %}
-                  {% if paid_plan_id %}
-                    <input type="hidden" name="plan_id" value="{{paid_plan_id}}" />
-                  {% endif %}
-                  {% component "button" type="submit" variant="primary" text=stripe_session_button_text %}
-                </div>
+                {% endif %}
+                {% if stripe_session_url %}
+                  <form action="{% url stripe_session_url %}" method="POST">
+                    {% csrf_token %}
+                    {% if paid_plan_id %}
+                      <input type="hidden" name="plan_id" value="{{paid_plan_id}}" />
+                    {% endif %}
+                    {% component "button" type="submit" variant="primary" text=stripe_session_button_text %}
+                  </form>
+                {% endif %}
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>
