@@ -96,6 +96,9 @@ class SubmitModal(component.Component):
         show="modal",
         text=None,
         icon=None,
+        name=None,
+        value=None,
+        formnovalidate=None,
     ):
         variant_settings = {
             "primary": {
@@ -120,6 +123,9 @@ class SubmitModal(component.Component):
             "variant": variant,
             "submit_button_text": submit_button_text,
             "show": show,
+            "name": name,
+            "value": value,
+            "formnovalidate": formnovalidate,
             **variant_settings[variant],
         }
 
