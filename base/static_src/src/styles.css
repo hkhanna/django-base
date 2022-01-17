@@ -2,33 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .focus-ring {
-    @apply focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none;
-  }
-}
-
 @layer components {
-  .form-input {
-    @apply rounded-md shadow-sm border border-gray-300 focus-ring sm:text-sm;
-  }
-
-  .form-input-error {
-    @apply rounded-md shadow-sm border ring-2 ring-red-300 border-red-300 focus-ring sm:text-sm;
-  }
-
-  .form-select {
-    @apply rounded-md shadow-sm border border-gray-300 focus-ring sm:text-sm;
-  }
-
-  .form-checkbox {
-    @apply rounded focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300;
-  }
-
-  .form-checkbox-error {
-    @apply rounded ring-2 ring-red-300 focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-red-300;
-  }
-
   .section-container {
     @apply max-w-6xl mx-auto px-5 sm:px-6 lg:px-8;
   }

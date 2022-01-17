@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% block title %}Signup{% endblock %}
-{% load form_styles %}
+{% load widget_class %}
 {% block content %}
   <nav>
     <ol role="list" class="bg-gray-50 border-b border-gray-300 divide-y divide-gray-300 md:flex md:divide-y-0 cursor-default">
@@ -23,19 +23,19 @@
         {% csrf_token %}
         <div class="grid grid-cols-6 gap-6">
           <div class="col-span-6 sm:col-span-3">
-            {% include "base/form_input.html" with field=form.first_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% component "input_field" field=form.first_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
           </div>
 
           <div class="col-span-6 sm:col-span-3">
-            {% include "base/form_input.html" with field=form.last_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% component "input_field" field=form.last_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
           </div>
 
           <div class="col-span-6 sm:col-span-4">
-            {% include "base/form_input.html" with field=form.email input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% component "input_field" field=form.email input_class="block w-full px-3 py-2 placeholder-gray-400" %}
           </div>
 
           <div class="col-span-6 sm:col-span-4">
-            {% include "base/form_input.html" with field=form.password1 input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% component "input_field" field=form.password1 input_class="block w-full px-3 py-2 placeholder-gray-400" %}
           </div>
 
           <div class="col-span-6">

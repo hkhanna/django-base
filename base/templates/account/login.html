@@ -1,5 +1,5 @@
 {% extends 'layouts/base.html' %}
-{% load form_styles %}
+{% load widget_class %}
 {% block title %}Login{% endblock %}
 {% block content %}
   <div class="py-14 sm:py-32 sm:px-6 lg:px-8">
@@ -29,8 +29,8 @@
           {% endif %}
           <input type="hidden" name="detected_tz" x-data="{detected_tz: Intl.DateTimeFormat().resolvedOptions().timeZone}" x-bind:value="detected_tz" />
           <div class="space-y-6">
-            {% include "base/form_input.html" with field=form.login input_class="block w-full px-3 py-2 placeholder-gray-400" %}
-            {% include "base/form_input.html" with field=form.password input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% component "input_field" field=form.login input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% component "input_field" field=form.password input_class="block w-full px-3 py-2 placeholder-gray-400" %}
 
             <div class="mt-2 text-sm text-red-600">
               {{form.non_field_errors}}

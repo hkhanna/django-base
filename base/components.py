@@ -388,13 +388,13 @@ class InputField(component.Component):
     def get_widget_class(self, style, is_error, extra_class):
         # default_class should only include borders, rings, shadows, and text size.
         default_classes = {
-            "normal": "rounded-md shadow-sm border border-gray-300 focus-ring sm:text-sm ",
-            "normal_error": "rounded-md shadow-sm border ring-2 ring-red-300 border-red-300 focus-ring sm:text-sm ",
+            "normal": "rounded-md shadow-sm border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none sm:text-sm",
+            "normal_error": "rounded-md shadow-sm border ring-2 ring-red-300 border-red-300 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none sm:text-sm",
             # For the with_overlapping_label style, the input always has to be w-full or it will
             # not work properly.
             # Note that the error state goes on the outside div, not the input, which is why
             # the two are identical here.
-            "with_overlapping_label": "w-full border-0 p-0 focus:ring-0 sm:text-sm ",
+            "with_overlapping_label": "w-full border-0 p-0 focus:ring-0 sm:text-sm",
             "with_overlapping_label_error": "w-full border-0 p-0 focus:ring-0 sm:text-sm",
         }
 
@@ -403,7 +403,7 @@ class InputField(component.Component):
         else:
             widget_class = default_classes[style + "_error"]
 
-        return (widget_class + extra_class).strip()
+        return (widget_class + " " + extra_class).strip()
 
     def get_context_data(self, field, style="normal", input_class=""):
         widget = field.field.widget
