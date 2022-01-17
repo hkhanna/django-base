@@ -1,7 +1,7 @@
 {% load heroicons %}
 <div class="{{class}}" x-data="{ open: true }" x-show="open">
   <div class="rounded-md {{bg_color}} p-4">
-    <div class="flex">
+    <div class="flex items-start">
       <div class="flex-shrink-0">
         {% heroicon_solid icon class="h-5 w-5 "|add:icon_color %}
       </div>
@@ -9,15 +9,6 @@
         <h3 class="text-sm font-medium {{text_color}}">
           {{text}}
         </h3>
-        {% if has_subtext %}
-          <div class="mt-2 text-sm {{subtext_color}}">
-            <p>
-              {% slot subtext %}
-                {{ subtext }}
-              {% endslot %}
-            </p>
-          </div>
-        {% endif %}
       </div>
       {% if dismissable %}
         <div class="ml-auto pl-3">
@@ -30,5 +21,12 @@
         </div>
       {% endif %}
     </div>
+    {% if has_subtext %}
+      <div class="ml-8 mt-2 text-sm {{subtext_color}}">
+        {% slot subtext %}
+          {{ subtext }}
+        {% endslot %}
+      </div>
+    {% endif %}
   </div>
 </div>

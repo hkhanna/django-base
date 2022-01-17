@@ -1,0 +1,14 @@
+{% if form.non_field_errors|length_is:1 %}
+  {% component "alert" text=form.non_field_errors.0 variant="warning" alertClass="sm:w-full" %}
+{% elif form.non_field_errors|length > 1 %}
+  {% component_block "alert" text="There were problems with your submission:" variant="warning" alertClass="sm:w-full" %}
+    {% slot subtext %}
+      <ul class="ml-3 space-y-1">
+        {% for error in form.non_field_errors %}
+          <li class="list-disc">{{error}}</li>
+        {% endfor %}
+      </ul>
+    {% endslot subtext %}
+  {% endcomponent_block %}
+{% endif %}
+

@@ -16,7 +16,7 @@
     <script defer src="https://unpkg.com/alpinejs@3.2.4/dist/cdn.min.js"></script>
   </head>
 
-  <body class="bg-indigo-50">
+  <body class="{% block body_class %}bg-indigo-50{% endblock body_class %}">
     {% block content %} {% endblock content %}
   </body>
 </html>
