@@ -1,3 +1,5 @@
+# DEPRECATED - Use form_field component
+# TODO - make this a widget_style filter instead
 from django import template
 
 register = template.Library()
