@@ -73,7 +73,6 @@ class SettingsView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        user_email = request.user.email
         if request.POST.get("form_name") == "pi":
             pi_form = forms.PersonalInformationForm(
                 data=request.POST, instance=request.user
@@ -107,11 +106,13 @@ class SettingsView(LoginRequiredMixin, View):
                 )
             else:
                 messages.success(request, "Personal information saved.")
+            return redirect("account_settings")
 
         if password_form.is_valid():
             password_form.save()
             messages.success(request, "Password successfully changed.")
             update_session_auth_hash(request, request.user)  # Don't log the user out
+            return redirect("account_settings")
 
         return render(request, self.template_name, context)
 
