@@ -24,7 +24,7 @@ def test_change_info(client, user):
         "oldpassword": "goodpass",
         "form_name": "pi",
     }
-    response = client.post(reverse("account_settings"), payload)
+    response = client.post(reverse("account_settings"), payload, follow=True)
     assert "Personal information saved" in str(response.content)
     user.refresh_from_db()
     assert payload["first_name"] == user.first_name
@@ -157,7 +157,7 @@ def test_change_password_happy(client, user):
         "password2": "newpass123",
         "form_name": "password",
     }
-    response = client.post(reverse("account_settings"), payload)
+    response = client.post(reverse("account_settings"), payload, follow=True)
     assert "Password successfully changed" in str(response.content)
     assert client.login(username=user.email, password="newpass123") is True
     assert client.login(username=user.email, password="goodpass") is False

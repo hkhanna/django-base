@@ -33,8 +33,18 @@ def render_template_with_params(request, template):
 
 def permission_denied(request, exception):
     """When a PermissionDenied exception is raised, redirect with a message."""
-    messages.warning(request, str(exception))
-    return redirect(settings.PERMISSION_DENIED_REDIRECT)
+    try:
+        message = str(exception.args[0])
+    except IndexError:
+        message = "Permission denied."
+    messages.warning(request, message)
+
+    try:
+        url = exception.args[1]
+    except IndexError:
+        url = settings.PERMISSION_DENIED_REDIRECT
+
+    return redirect(url)
 
 
 class IndexView(TemplateView):
