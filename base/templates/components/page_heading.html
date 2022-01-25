@@ -7,7 +7,7 @@
         </h2>
         <p class="text-sm font-medium text-gray-500">{% slot sub_heading %}{% endslot sub_heading %}</p>
       </div>
-      <div class="mt-4 flex md:mt-0 md:ml-4 md:space-x-3">{% slot actions %}{% endslot actions %}</div>
+      <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">{% slot actions %}{% endslot actions %}</div>
     </div>
   {% else %}
     <h2 class="my-6 text-3xl font-bold leading-7 text-gray-700">{{heading}}</h2>
