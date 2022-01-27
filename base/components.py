@@ -81,8 +81,8 @@ class Alert(component.Component):
 class Modal(component.Component):
     template_name = "components/modal.html"
 
-    def get_context_data(self, show="modal"):
-        return {"show": show}
+    def get_context_data(self, aria_label, show="modal"):
+        return {"aria_label": aria_label, "show": show}
 
 
 @component.register("submit_modal")
@@ -120,6 +120,7 @@ class SubmitModal(component.Component):
         }
         return {
             "title": title,
+            "aria_label": title,
             "text": text,
             "variant": variant,
             "submit_button_text": submit_button_text,
