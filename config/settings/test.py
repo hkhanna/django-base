@@ -18,7 +18,6 @@ DATABASES["default"]["ATOMIC_REQUESTS"] = False
 LOGLEVEL = env("LOGLEVEL", default="CRITICAL")
 logging.getLogger("django").setLevel(LOGLEVEL)
 logging.getLogger("").setLevel(LOGLEVEL)
-logging.getLogger("base.middleware").setLevel(LOGLEVEL)
 
 # This shouldn't be necessary since testing will substitute out the postmark
 # backend for locmem, but this is just a precaution.

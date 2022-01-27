@@ -19,14 +19,13 @@ class RequestIDMiddleware:
         request_id = self._get_request_id(request)
         request.id = request_id
         local.request_id = request_id
-
         response = self.get_response(request)
 
         # Don't log favicon
         if "favicon" not in request.path:
             # If an unhandled exception is raised in the view, this will never log.
             # But django.request will log at WARNING OR ERROR level, so it's okay.
-            logger.info(self._get_log_message(request, response))
+            self.log_request_id(request, response)
 
         if settings.REQUEST_ID_HEADER:
             response[settings.REQUEST_ID_HEADER] = request.id
@@ -34,6 +33,16 @@ class RequestIDMiddleware:
         del local.request_id
 
         return response
+
+    def log_request_id(self, request, response):
+        msg = f"method={request.method} path={request.path} status={response.status_code} "
+        user = getattr(request, "user", None)
+        if user:
+            msg += f"User.id={user.id}"
+        else:
+            msg += f"User.id=none"
+
+        logger.info(msg)
 
     def _get_request_id(self, request):
         """If there is supposed to be a header, use that or 'none' if it's not present.
@@ -43,15 +52,6 @@ class RequestIDMiddleware:
             return request.headers.get(request_id_header, "none")
         else:
             return uuid.uuid4.hex()
-
-    def _get_log_message(self, request, response):
-        message = f"method={request.method} path={request.path} status={response.status_code} "
-        user = getattr(request, "user", None)
-        if user:
-            message += f"User.id={user.id}"
-        else:
-            message += f"User.id=none"
-        return message
 
 
 class SetRemoteAddrFromForwardedFor:

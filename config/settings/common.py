@@ -236,13 +236,9 @@ logging.config.dictConfig(
         "disable_existing_loggers": False,
         "filters": {"request_id": {"()": "base.filters.RequestIDFilter"}},
         "formatters": {
-            "verbose": {
+            "default": {
                 "format": "[%(name)s] at=%(levelname)s timestamp=%(asctime)s request_id=%(request_id)s "
                 + "pathname=%(pathname)s funcname=%(funcName)s lineno=%(lineno)s %(message)s",
-                "datefmt": "%Y-%m-%dT%H:%M:%S%z",
-            },
-            "simple": {
-                "format": "[%(name)s] at=%(levelname)s timestamp=%(asctime)s request_id=%(request_id)s %(message)s",
                 "datefmt": "%Y-%m-%dT%H:%M:%S%z",
             },
         },
@@ -251,24 +247,13 @@ logging.config.dictConfig(
                 "level": "DEBUG",
                 "class": "logging.StreamHandler",
                 "filters": ["request_id"],
-                "formatter": "verbose",
-            },
-            "request_log_handler": {
-                "level": "INFO",
-                "class": "logging.StreamHandler",
-                "filters": ["request_id"],
-                "formatter": "simple",
+                "formatter": "default",
             },
         },
         "loggers": {
             "django": {
                 "handlers": ["console"],
                 "level": "ERROR",  # Without this, it logs as a WARNING all 4xx requests.
-                "propagate": False,
-            },
-            "base.middleware": {
-                "handlers": ["request_log_handler"],
-                "level": LOGLEVEL,
                 "propagate": False,
             },
             "": {"handlers": ["console"], "level": LOGLEVEL},

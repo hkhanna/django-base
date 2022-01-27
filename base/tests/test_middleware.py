@@ -4,6 +4,14 @@ from django.test import Client
 from ..factories import fake
 
 
+def test_request_id_middleware_user(client, caplog, user):
+    """The RequestIDMiddleware should set the User.id"""
+    caplog.set_level("INFO")
+    client.force_login(user)
+    client.get(reverse("index"))
+    assert f"User.id={user.pk}" in caplog.text
+
+
 def test_setremoteaddr_middleware():
     """An IP address passed in X-Forwarded-For header should end up in REMOTE_ADDR.
     We can only do this safely while using Heroku."""
