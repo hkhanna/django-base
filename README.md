@@ -30,6 +30,7 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
   1. Provision the postgresql add-on in the Heroku web interface
      - Note: if you didn't do this, a Heroku postgres database would be automatically provisioned and added to the `DATABASE_URL` environment variable if your app were successfully deployed. However, because deployment requires that variable to be set, a deployment will fail unless the database is provisioned first.
   1. Set environment variables in production though the dashboard.
+  1. If using LogRocket, set the `LOGROCKET_APP_ID` environment variable and add it to the list of production environment variables at the bottom of the README. If not using LogRocket, simply don't set the env var.
   1. Make sure the heroku CLI is installed
   1. `heroku login` to log into Heroku account if you are not already logged in (check with `heroku auth:whoami`).
   1. The nodejs buildpack was added to support Tailwind CSS with `heroku buildpacks:add heroku/nodejs --app <app_name>`.
