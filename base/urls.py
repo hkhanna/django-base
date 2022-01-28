@@ -37,4 +37,10 @@ urlpatterns = [
     path("400/", lambda request: django.views.defaults.bad_request(request, None)),
     path("404/", page_not_found),
     path("500/", django.views.defaults.server_error),
+    path(
+        "robots.txt",
+        views.TemplateView.as_view(
+            template_name="base/robots.txt", content_type="text/plain"
+        ),
+    ),
 ]
