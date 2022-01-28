@@ -30,3 +30,9 @@ def test_permission_denied_redirect(client, user, monkeypatch):
     assert response.status_code == 302
     assert response.url == url
     assertMessageContains(response, message)
+
+
+def test_404(client):
+    response = client.get("badurl/")
+    assert response.status_code == 404
+    assert "404" in str(response.content)

@@ -71,6 +71,6 @@ def test_login_detected_tz(client, user):
         },
     )
 
-    response = client.get("account_settings")
+    response = client.get(reverse("account_settings"))
     session = response.wsgi_request.session
     assert session["detected_tz"] == "America/New_York"
