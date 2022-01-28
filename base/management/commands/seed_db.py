@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from config.settings.local import env
 
 User = get_user_model()
 
@@ -27,5 +28,5 @@ class Command(BaseCommand):
         # Change initial site to localhost
         site = Site.objects.get(pk=1)
         site.name = "localhost"
-        site.domain = "localhost"
+        site.domain = "localhost:" + env("WEB_PORT")
         site.save()
