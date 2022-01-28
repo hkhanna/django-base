@@ -223,6 +223,10 @@ CELERY_TASK_SERIALIZER = "json"
 # Google Analytics
 GA_TRACKING_ID = None
 
+# LogRocket
+LOGROCKET_APP_ID = env("LOGROCKET_APP_ID", default=None)
+LOGROCKET_EXCLUDED_VIEWS = ["index"]
+
 # LOGGING
 LOGLEVEL = env("LOGLEVEL", default="INFO")
 

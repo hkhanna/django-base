@@ -1,8 +1,10 @@
 {% load static tailwind_tags %}
+{% load logrocket %}
 {% load gtag %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    {% logrocket %} 
     {# The require_title var is not set and will cause pytest to fail if not overriden by the child template. #}
     <title>{% block title %}{{require_title}}{% endblock title %} - base-django</title>
     <meta charset="UTF-8" />
