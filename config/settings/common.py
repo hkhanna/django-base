@@ -210,6 +210,13 @@ PERMISSION_DENIED_REDIRECT = LOGIN_REDIRECT_URL
 # django-waffle
 WAFFLE_CREATE_MISSING_SWITCHES = True
 
+# Create waffle flags when you use them otherwise they are silently off
+# This is because flags create cookies and are "sticky" for a user so
+# we should make sure it is intentionally configured before starting to affect
+# clients.
+WAFFLE_CREATE_MISSING_FLAGS = False  # Default
+WAFFLE_FLAG_DEFAULT = False  # Default
+
 # Celery
 CELERY_BROKER_URL = env("REDIS_URL", default=None)
 CELERY_TASK_ALWAYS_EAGER = True
