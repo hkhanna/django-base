@@ -154,7 +154,6 @@ REQUEST_ID_HEADER = "X-Request-Id"
 # Otherwise, output to the console.
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 POSTMARK_API_KEY = env("POSTMARK_API_KEY", default=None)
-POSTMARK_TRACK_OPENS = False
 if POSTMARK_API_KEY:
     EMAIL_BACKEND = "postmark.django_backend.EmailBackend"
     POSTMARK_TEST_MODE = False
