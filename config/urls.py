@@ -21,7 +21,7 @@ from django.urls import path, include
 handler403 = "base.views.permission_denied"
 
 urlpatterns = [
-    path("fedora/", admin.site.urls),
+    path(settings.ADMIN_URL_PATH, admin.site.urls),
     path("", include("base.urls")),
 ]
 

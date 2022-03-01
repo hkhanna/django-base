@@ -146,6 +146,8 @@ ENVIRONMENT = env.str("DJANGO_SETTINGS_MODULE").split(".")[-1]
 AUTH_USER_MODEL = "base.User"
 ATOMIC_REQUESTS = False
 
+ADMIN_URL_PATH = env("ADMIN_URL_PATH", default="admin/")
+
 # See https://devcenter.heroku.com/articles/http-request-id
 REQUEST_ID_HEADER = "X-Request-Id"
 
