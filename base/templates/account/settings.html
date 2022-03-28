@@ -128,7 +128,7 @@
                   </p>
                 {% endif %}
                 {% if stripe_session_url %}
-                  <form action="{% url stripe_session_url %}" method="POST">
+                  <form action="{{ stripe_session_url }}" method="POST">
                     {% csrf_token %}
                     {% if paid_plan_id %}
                       <input type="hidden" name="plan_id" value="{{paid_plan_id}}" />
