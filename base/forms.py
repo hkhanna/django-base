@@ -21,6 +21,8 @@ class LoginForm(auth_forms.LoginForm):
     def clean(self):
         """Inactive users should present as no user in the system, and locked users should be disallowed."""
         cleaned_data = super().clean()
+        if not cleaned_data:
+            return
         if not self.user.is_active:
             raise forms.ValidationError(self.error_messages["email_password_mismatch"])
 

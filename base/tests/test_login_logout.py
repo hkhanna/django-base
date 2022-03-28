@@ -74,3 +74,23 @@ def test_login_detected_tz(client, user):
     response = client.get(reverse("account_settings"))
     session = response.wsgi_request.session
     assert session["detected_tz"] == "America/New_York"
+
+
+def test_login_no_user(client):
+    """If email address doesn't exist, it should disallow login."""
+    response = client.post(
+        reverse("account_login"),
+        {"login": "bademail@example.com", "password": "badpass"},
+    )
+    assert "e-mail address and/or password you specified are not correct" in str(
+        response.content
+    )
+
+
+def test_login_weird_email(client):
+    """If email address is malformed in a certain way, it should not error."""
+    response = client.post(
+        reverse("account_login"),
+        {"login": "2@3.4", "password": "badpass"},
+    )
+    assert "Enter a valid email address." in str(response.content)
