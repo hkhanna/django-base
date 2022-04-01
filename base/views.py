@@ -47,18 +47,6 @@ def permission_denied(request, exception):
     return redirect(url)
 
 
-class IndexView(TemplateView):
-    template_name = "404.html"
-
-
-class TermsView(TemplateView):
-    template_name = "base/terms.html"
-
-
-class PrivacyPolicyView(TemplateView):
-    template_name = "base/privacy.html"
-
-
 class SettingsView(LoginRequiredMixin, View):
     template_name = "account/settings.html"
 

@@ -1,13 +1,23 @@
 import django.views.defaults
+from django.conf import settings
+from django.views.generic import TemplateView, RedirectView
 from django.urls import path, include
 from . import views
 
 page_not_found = lambda request: django.views.defaults.page_not_found(request, None)
 
 urlpatterns = [
-    path("", views.IndexView.as_view(), name="index"),
-    path("terms/", views.TermsView.as_view(), name="terms_of_use"),
-    path("privacy/", views.PrivacyPolicyView.as_view(), name="privacy_policy"),
+    path("", RedirectView.as_view(url=settings.LOGIN_URL), name="index"),
+    path(
+        "terms/",
+        TemplateView.as_view(template_name="base/terms.html"),
+        name="terms_of_use",
+    ),
+    path(
+        "privacy/",
+        TemplateView.as_view(template_name="base/privacy.html"),
+        name="privacy_policy",
+    ),
     path("accounts/settings/", views.SettingsView.as_view(), name="account_settings"),
     path(
         "accounts/resend-confirmation-email/",
