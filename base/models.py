@@ -150,6 +150,7 @@ class EmailMessage(models.Model):
     sender = models.CharField(max_length=254, blank=True)
     to_name = models.CharField(max_length=254, blank=True)
     to_email = models.EmailField()
+    reply_to = models.CharField(max_length=254, blank=True)
     subject = models.CharField(max_length=254, blank=True)
     template_prefix = models.CharField(max_length=254)
     template_context = models.JSONField()
@@ -228,6 +229,10 @@ class EmailMessage(models.Model):
         self.sender = self._sanitize_string(self.sender)
         self.to_name = self._sanitize_string(self.to_name)
         self.to_email = self._sanitize_string(self.to_email)
+
+        if not self.reply_to:
+            self.reply_to = settings.SITE_CONFIG["default_reply_to"] or ""
+        self.reply_to = self._sanitize_string(self.reply_to)
 
         default_context = {
             "logo_url": settings.SITE_CONFIG["logo_url"],

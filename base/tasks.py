@@ -49,11 +49,17 @@ def send_email_message(email_message_id, attachments=[]):
         else:
             to = [email_message.to_email]
 
+        if email_message.reply_to:
+            reply_to = [email_message.reply_to]
+        else:
+            reply_to = None
+
         django_email_message = EmailMultiAlternatives(
             subject=email_message.subject,
             from_email=email_message.sender,
             to=to,
             body=msg,
+            reply_to=reply_to,
         )
         if html_msg:
             django_email_message.attach_alternative(html_msg, "text/html")

@@ -29,6 +29,7 @@ def test_send_email(user, mailoutbox):
     assert mailoutbox[0].subject == "A subject"
     assert mailoutbox[0].to == [f"{user.name} <{user.email}>"]
     assert settings.SITE_CONFIG["default_from_email"] == mailoutbox[0].from_email
+    assert mailoutbox[0].reply_to == []
 
 
 def test_send_email_stripped(user, mailoutbox):
@@ -250,3 +251,26 @@ def test_disable_outbound_email_waffle_switch(user, mailoutbox):
     assert email_message.status == models.EmailMessage.Status.ERROR
     assert "disable_outbound_email waffle flag is True" in email_message.error_message
     assert len(mailoutbox) == 0
+
+
+def test_send_email_with_reply_to(user, mailoutbox, settings):
+    """Create and send an EmailMessage with a default reply to should work"""
+    settings.SITE_CONFIG["default_reply_to"] = "Support <support@example.com>"
+    email_message = models.EmailMessage(
+        created_by=user,
+        subject="A subject",
+        template_prefix="account/email/email_confirmation",
+        to_name=user.name,
+        to_email=user.email,
+        template_context={
+            "user_name": user.name,
+            "user_email": user.email,
+            "activate_url": "",
+        },
+    )
+
+    email_message.send()
+    email_message.refresh_from_db()
+    assert email_message.status == models.EmailMessage.Status.SENT
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].reply_to == ["Support <support@example.com>"]

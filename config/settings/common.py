@@ -168,6 +168,7 @@ SITE_CONFIG = {
     "logo_url_link": "",
     "logo_url": "",
     "default_from_email": "Jane Example <jane@example.com>",
+    "default_reply_to": None,  # Set to None to not have any reply-to
     "company": "Khanna Labs LLC",
     "company_address": "4445 Corporation Ln., Ste 264",
     "company_city_state_zip": "Virginia Beach, VA 23462",
