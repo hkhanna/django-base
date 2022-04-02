@@ -1,13 +1,12 @@
 """Tests related to EmailMessages"""
 from datetime import timedelta
 from waffle.testutils import override_switch
-from django.conf import settings
 from django.utils import timezone
 from freezegun import freeze_time
 from .. import models, factories
 
 
-def test_send_email(user, mailoutbox):
+def test_send_email(user, mailoutbox, settings):
     """Create and send an EmailMessage"""
     email_message = models.EmailMessage(
         created_by=user,
@@ -21,6 +20,10 @@ def test_send_email(user, mailoutbox):
             "activate_url": "",
         },
     )
+
+    settings.SITE_CONFIG[
+        "default_reply_to"
+    ] = None  # Override this in case an application sets it
 
     email_message.send()
     email_message.refresh_from_db()
@@ -59,7 +62,7 @@ def test_send_email_stripped(user, mailoutbox):
     assert "Bob <bob@example.com>" == mailoutbox[0].from_email
 
 
-def test_subject_limit(user, mailoutbox):
+def test_subject_limit(user, mailoutbox, settings):
     """Truncate subject lines of more than 78 characters"""
     subject = factories.fake.pystr(min_chars=100, max_chars=100)
     expected = subject[: settings.MAX_SUBJECT_LENGTH - 3] + "..."
