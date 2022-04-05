@@ -139,8 +139,6 @@ class Button(component.Component):
     def get_context_data(
         self,
         type="button",
-        name=None,
-        value=None,
         variant="primary",
         size="md",
         left_icon=None,
@@ -153,6 +151,7 @@ class Button(component.Component):
         href=None,
         click=None,
         formnovalidate=None,
+        **kwargs,
     ):
         """Versatile Button component that can be used for different Button variants. Does tooltips, confirmable states, fetching states and more.
 
@@ -161,10 +160,6 @@ class Button(component.Component):
         type : str
             The button type to be passed to the button element, e.g., "submit".
             If you pass the "href" parameter, this is ignored.
-        name: str
-            A "name" attribute passed to the button. Useful with type="submit".
-        value: str
-            A "value" attribute passed to the button. Useful with type="submit".
         variant : {"primary", "secondary", "white", "danger", "text-normal", "text-light"}
             The style of the button.
         size : {"xs", "sm", "md", "lg", "xl"}
@@ -358,8 +353,6 @@ class Button(component.Component):
         return {
             "el": el,
             "type": type,
-            "name": name,
-            "value": value,
             "button_class": button_class,
             "left_icon": left_icon,
             "right_icon": right_icon,
@@ -370,6 +363,7 @@ class Button(component.Component):
             "href": href,
             "click": click,
             "formnovalidate": formnovalidate,
+            "kwargs": kwargs,
         }
 
 

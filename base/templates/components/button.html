@@ -1,12 +1,11 @@
 {% load heroicons %}
 <{{el}}
 {% if href %}href="{{href}}"{% else %}type="{{type}}"{% endif %}
-{% if name %}name="{{name}}"{% endif %}
-{% if value %}value="{{value}}"{% endif %}
 {% if click %}x-on:click="{{click}}"{% endif %}
 {% if formnovalidate %}formnovalidate{% endif %}
 class="{{button_class}}"
 {{disabled|yesno:" disabled,"}}
+{% for arg, val in kwargs.items %}{{arg}}="{{val}}"{% endfor %}
 >
 {% if left_icon %}
   {% heroicon_solid left_icon class=left_icon_class %}
