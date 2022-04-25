@@ -111,7 +111,7 @@ def formset_post_data(formset, update=[]):
         added = len(update) - len(form_data_list)
         if added > 0:
             post_data[prefix + "TOTAL_FORMS"] = len(update)
-            empty = {key: "" for key in form_data_list[0]}
+            empty = {bound_field.name: "" for bound_field in formset.empty_form}
             form_data_list.extend([empty] * added)
 
     # add properly prefixed data form fields
