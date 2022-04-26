@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;600;700&amp;display=swap" rel="stylesheet" />
     {% vite_hmr_client %}
-    {% vite_asset 'js/main.js' %}
+    {% block vite_assets %}{% vite_asset 'js/main.js' %}{% endblock vite_assets %}
     {% gtag %}
   </head>
 

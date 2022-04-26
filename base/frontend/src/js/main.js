@@ -1,6 +1,6 @@
 import '../css/styles.css'
 // This is the entry point for any JS you want to include.
-// e.g., console.log("django_vite is working!")
+// This file should be loaded after any vite assets that are needed by Alpine.
 
 // AlpineJS
 import Alpine from 'alpinejs'
