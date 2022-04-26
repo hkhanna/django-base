@@ -23,6 +23,9 @@ logging.getLogger("").setLevel(LOGLEVEL)
 # backend for locmem, but this is just a precaution.
 POSTMARK_TEST_MODE = True
 
+# django_vite
+DJANGO_VITE_DEV_MODE = True
+
 # Test environment needs celery eager mode
 CELERY_TASK_ALWAYS_EAGER = True
 

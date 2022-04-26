@@ -1,4 +1,4 @@
-{% load static tailwind_tags %}
+{% load django_vite %}
 {% load logrocket %}
 {% load gtag %}
 <!DOCTYPE html>
@@ -13,8 +13,9 @@
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;600;700&amp;display=swap" rel="stylesheet" />
+    {% vite_hmr_client %}
+    {% vite_asset 'js/main.js' %}
     {% gtag %}
-    {% tailwind_css %}
     <script defer src="https://unpkg.com/@alpinejs/focus@3.8.1/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.8.1/dist/cdn.min.js"></script>
   </head>

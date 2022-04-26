@@ -48,9 +48,9 @@ INSTALLED_APPS = [
     "base.apps.BaseConfig",
     "django.contrib.staticfiles",
     "waffle",
-    "tailwind",
     "heroicons",
     "django_components",
+    "django_vite",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -175,10 +175,6 @@ SITE_CONFIG = {
     "contact_email": "jane@example.com",
 }
 
-# django-tailwind
-TAILWIND_APP_NAME = "base"
-INTERNAL_IPS = ["127.0.0.1"]
-
 # django-allauth
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -235,6 +231,10 @@ GA_TRACKING_ID = None
 # LogRocket
 LOGROCKET_APP_ID = env("LOGROCKET_APP_ID", default=None)
 LOGROCKET_EXCLUDED_VIEWS = ["index"]
+
+# django-vite
+DJANGO_VITE_ASSETS_PATH = BASE_DIR / "base" / "static"
+DJANGO_VITE_DEV_MODE = False
 
 # LOGGING
 LOGLEVEL = env("LOGLEVEL", default="INFO")

@@ -23,6 +23,10 @@ INTERNAL_IPS = ["127.0.0.1"]
 # Postmark outputs JSON in test mode. Celery should treat that as info, not warning.
 CELERY_WORKER_REDIRECT_STDOUTS_LEVEL = "INFO"
 
+# django_vite
+DJANGO_VITE_DEV_MODE = True
+DJANGO_VITE_DEV_SERVER_PORT = env("VITE_PORT", default=3000)
+
 # HTML validation middleware
 # There's a longer default list, which we'll keep for testing.
 CHECK_HTML_IGNORE_MESSAGES = [

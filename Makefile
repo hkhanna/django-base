@@ -1,4 +1,4 @@
-.PHONY: run app check tailwind all clean build db seed
+.PHONY: run app check vite all clean build db seed
 
 include .env
 SHELL := /bin/bash
@@ -6,14 +6,14 @@ DB_NAME = $(shell basename $(CURDIR))-db
 
 # RUNNING AND TESTING #
 run: 
-	make -j2 tailwind app
+	make -j2 vite app
 
 app:
 	@docker start ${DB_NAME}
 	source .venv/bin/activate && python manage.py runserver ${WEB_PORT}
 
-tailwind:
-	source .venv/bin/activate && python manage.py tailwind start
+vite:
+	npm run dev --prefix base/frontend/
 
 check:
 	source .venv/bin/activate && py.test
@@ -27,15 +27,15 @@ all: clean build seed
 clean:
 	@echo "Removing python virtual environment"
 	rm -rf .venv
-	@echo "Removing django-tailwind node_modules"
-	rm -rf base/static_src/node_modules
+	@echo "Removing vite node_modules"
+	rm -rf base/frontend/node_modules
 
 build:
 	@echo "Building python virtual environment"
 	python3 -m venv .venv
 	source .venv/bin/activate && pip install -r requirements/local.txt
-	@echo "Installing django-tailwind node dependencies"
-	source .venv/bin/activate && python manage.py tailwind install
+	@echo "Installing vite node dependencies"
+	npm install --prefix base/frontend/
 	
 
 db:

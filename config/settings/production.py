@@ -1,4 +1,5 @@
 from .common import *
+import re
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
@@ -39,6 +40,14 @@ MIDDLEWARE.insert(2, "whitenoise.middleware.WhiteNoiseMiddleware")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # STATIC_ROOT is where collectstatic dumps all the static files
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+# Vite generates files with 8 hash digits
+def immutable_file_test(path, url):
+    return re.match(r"^.+\.[0-9a-f]{8,12}\..+$", url)
+
+
+WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
 # EMAIL - POSTMARK
 EMAIL_BACKEND = "postmark.django_backend.EmailBackend"
