@@ -2,10 +2,10 @@
 
 django-check-html-middleware==2021.10.1
 django-debug-toolbar==3.2.4
-djhtml==1.4.11
-freezegun==1.1.0
-black==21.12b0
+djhtml==1.5.0
+freezegun==1.2.1
+black==22.3.0
 factory_boy==3.2.1
-psycopg2-binary==2.9.2
-pytest==6.2.5
+psycopg2-binary==2.9.3
+pytest==7.1.2
 pytest-django==4.5.2
