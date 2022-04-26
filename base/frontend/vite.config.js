@@ -26,7 +26,7 @@ module.exports = {
     assetsDir: '',
     manifest: true,
     emptyOutDir: true,
-    target: 'es2015',
+    target: 'es2017',
     rollupOptions: {
       input: {
         main: resolve('./src/js/main.js')
