@@ -5,7 +5,8 @@
 {% if formnovalidate %}formnovalidate{% endif %}
 class="{{button_class}}"
 {{disabled|yesno:" disabled,"}}
-{% for arg, val in kwargs.items %}{{arg}}="{{val}}"{% endfor %}
+{% for arg, val in x.items %} x-{{arg}}="{{val}}"{% endfor %}
+{% for arg, val in kwargs.items %} {{arg}}="{{val}}"{% endfor %}
 >
 {% if left_icon %}
   {% heroicon_solid left_icon class=left_icon_class %}

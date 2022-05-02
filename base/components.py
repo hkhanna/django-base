@@ -1,3 +1,4 @@
+import json
 from django.contrib.messages.constants import (
     DEFAULT_LEVELS,
     SUCCESS,
@@ -151,9 +152,10 @@ class Button(component.Component):
         href=None,
         click=None,
         formnovalidate=None,
+        x="{}",
         **kwargs,
     ):
-        """Versatile Button component that can be used for different Button variants. Does tooltips, confirmable states, fetching states and more.
+        """Versatile Button component that can be used for different Button variants.
 
         Parameters
         ----------
@@ -180,10 +182,17 @@ class Button(component.Component):
             The text displayed in the button.
         href: str
             If this is passed, the button becomes an anchor element. Can pass url name or real url.
-        click: str
-            If this is passed, the value becomes the x-on:click attribute on the button.
         formnovalidate: bool
             If this is passed, put the `formnovalidate` attribute on the button element.
+        click: str
+            If this is passed, the value becomes the x-on:click attribute on the button.
+        x: str of JSON that will parse to a dict
+            For use with AlpineJS. The keys of the dict will map to the values of the dict.
+            For example x="{'bind:disabled': 'isDisabled'}" will render x-bind:disabled="isDisabled"
+            on the button element. 'click', above, is a special case of this and is handled
+            separately for backwards compatibility reasons.
+        **kwargs:
+            Any other kwargs are rendered directly on the button element.
         """
         is_text = variant.split("-")[0] == "text"
         icon_only = not bool(text)
@@ -361,8 +370,9 @@ class Button(component.Component):
             "disabled": disabled,
             "text": text,
             "href": href,
-            "click": click,
             "formnovalidate": formnovalidate,
+            "click": click,
+            "x": json.loads(x),
             "kwargs": kwargs,
         }
 
