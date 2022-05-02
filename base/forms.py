@@ -14,6 +14,11 @@ User = get_user_model()
 
 
 class LoginForm(auth_forms.LoginForm):
+    remember = forms.BooleanField(
+        label="Remember Me",
+        required=False,
+        widget=forms.CheckboxInput(attrs={"checked": True}),
+    )
     detected_tz = forms.CharField(
         max_length=254, required=False, widget=forms.HiddenInput
     )
