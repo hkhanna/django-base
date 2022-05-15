@@ -1,0 +1,51 @@
+databases:
+  - name: fedora-base-db
+    region: ohio
+    plan: free
+    postgresMajorVersion: 14
+
+services:
+  - type: web
+    name: fedora-base
+    env: python
+    region: ohio
+    plan: free # fedora-base -- set to starter
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    healthCheckPath: /health_check/
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fedora-base
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: LOGLEVEL
+        value: INFO
+      - key: POSTMARK_API_KEY
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          name: fedora-base-redis
+          type: redis
+          property: connectionString
+      - key: LOGROCKET_APP_ID
+        value: None # Leave None to disable LogRocket, or remove this env var altogether.
+
+  - type: worker
+    name: fedora-base-celery
+    plan: free
+    region: ohio
+    env: python
+    buildCommand: "pip install -r requirements/production.txt"
+    startCommand: "celery --app=config.celery worker --loglevel=INFO"
+
+  - type: redis
+    name: fedora-base-redis
+    region: ohio
+    ipAllowList: [] # internal connections only
+    plan: free # optional (defaults to starter)

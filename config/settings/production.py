@@ -7,9 +7,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 
 DEBUG = env("DJANGO_DEBUG", default=False)
 
-# Heroku recommends this in the django-heroku package.
-# Also, Heroku apparently takes care of this security issue.
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [env("RENDER_EXTERNAL_HOSTNAME")]
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 POSTMARK_API_KEY = env("POSTMARK_API_KEY")

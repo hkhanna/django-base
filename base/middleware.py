@@ -51,7 +51,7 @@ class RequestIDMiddleware:
         if request_id_header:
             return request.headers.get(request_id_header, "none")
         else:
-            return uuid.uuid4.hex()
+            return uuid.uuid4().hex
 
 
 class SetRemoteAddrFromForwardedFor:
@@ -60,8 +60,8 @@ class SetRemoteAddrFromForwardedFor:
     latter is set.
     This was adapted from a removed middleware in Django 1.1.
     See https://docs.djangoproject.com/en/2.1/releases/1.1/#removed-setremoteaddrfromforwardedfor-middleware
-    It should be fine to use with Heroku since Heroku guarantees the last IP in the list is the
-    originating IP address: https://stackoverflow.com/a/37061471
+    It should be fine to use with Render since Render guarantees the first IP in the list is the
+    originating IP address: https://feedback.render.com/features/p/send-the-correct-xforwardedfor
     """
 
     def __init__(self, get_response):
@@ -74,14 +74,13 @@ class SetRemoteAddrFromForwardedFor:
             # This will happen in local development. We should just make sure
             # that we're not in prod.
             if settings.ENVIRONMENT == "production":
-                logger.error("Heroku did not provide X-Forwarded-For header")
+                logger.error("Render did not provide X-Forwarded-For header")
                 request.META["REMOTE_ADDR"] = None
         else:
-            # We use the last IP because it's the only reliable one since
-            # its the one Heroku sets.
-            # In theory the first one (element 0) should be the client IP,
-            # but its not reliable since it can be spoofed.
-            real_ip = real_ip.split(",")[-1].strip()
+            # We use the first IP in this list since in theory that should be
+            # the client IP. And it appears that Render guarantees that it is
+            # accurate.
+            real_ip = real_ip.split(",")[0].strip()
             request.META["REMOTE_ADDR"] = real_ip
 
         return self.get_response(request)

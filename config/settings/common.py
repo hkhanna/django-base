@@ -148,8 +148,9 @@ ATOMIC_REQUESTS = False
 
 ADMIN_URL_PATH = env("ADMIN_URL_PATH", default="admin/")
 
-# See https://devcenter.heroku.com/articles/http-request-id
-REQUEST_ID_HEADER = "X-Request-Id"
+# If someday Render passes us a request id, we can use it in the request
+# logging middleware.
+REQUEST_ID_HEADER = None
 
 # EMAIL
 # If there's a POSTMARK_API_KEY (for the Sandbox server), use the Postmark backend.
@@ -164,7 +165,7 @@ MAX_SUBJECT_LENGTH = 78
 # Site Configuration - Refactor this if >1 Site is hosted from this codebase.
 SITE_ID = 1
 SITE_CONFIG = {
-    "name": "Base Django",
+    "name": "Fedora Base",
     "logo_url_link": "",
     "logo_url": "",
     "default_from_email": "Jane Example <jane@example.com>",

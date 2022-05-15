@@ -14,7 +14,7 @@ def test_request_id_middleware_user(client, caplog, user):
 
 def test_setremoteaddr_middleware():
     """An IP address passed in X-Forwarded-For header should end up in REMOTE_ADDR.
-    We can only do this safely while using Heroku."""
+    We can only do this safely while using Render."""
     ip = fake.ipv4()
     client = Client(HTTP_X_FORWARDED_FOR=ip)
     response = client.get(reverse("index"))
@@ -32,12 +32,18 @@ def test_setremoteaddr_middleware_none():
 
 
 def test_setremoteaddr_middleware_multiple():
-    """Multiple IP addresses in X-Forwarded-For takes the last one since it is the
-    only one set by Heroku and can be trusted."""
+    """Multiple IP addresses in X-Forwarded-For takes the first one since it is
+    explicitly set by Render and can be trusted."""
     ip0 = fake.ipv4()
     ip1 = fake.ipv4()
     ip = f"{ip0}, {ip1}"
     client = Client(HTTP_X_FORWARDED_FOR=ip)
     response = client.get(reverse("index"))
     request = response.wsgi_request
-    assert request.META["REMOTE_ADDR"] == ip1
+    assert request.META["REMOTE_ADDR"] == ip0
+
+
+def test_health_check(client):
+    """Health check endpoint returns 200"""
+    response = client.get("/health_check/")
+    assert response.status_code == 200
