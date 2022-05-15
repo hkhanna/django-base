@@ -1,15 +1,15 @@
 databases:
-  - name: fedora-base-db
+  - name: base-fedora-db
     region: ohio
     plan: free
     postgresMajorVersion: 14
 
 services:
   - type: web
-    name: fedora-base
+    name: base-fedora-web
     env: python
     region: ohio
-    plan: free # fedora-base -- set to starter
+    plan: free # base-fedora -- set to starter
     buildCommand: "./build.sh"
     startCommand: "gunicorn config.wsgi:application"
     healthCheckPath: /health_check/
@@ -18,7 +18,7 @@ services:
         value: config.settings.production
       - key: DATABASE_URL
         fromDatabase:
-          name: fedora-base
+          name: base-fedora
           property: connectionString
       - key: DJANGO_SECRET_KEY
         generateValue: true
@@ -30,7 +30,7 @@ services:
         sync: false
       # - key: REDIS_URL
       #   fromService:
-      #     name: fedora-base-redis
+      #     name: base-fedora-redis
       #     type: redis
       #     property: connectionString
       - key: LOGROCKET_APP_ID
@@ -38,7 +38,7 @@ services:
 
 
   # - type: worker
-  #   name: fedora-base-celery
+  #   name: base-fedora-celery
   #   plan: free
   #   region: ohio
   #   env: python
@@ -46,7 +46,7 @@ services:
   #   startCommand: "celery --app=config.celery worker --loglevel=INFO"
 
   # - type: redis
-  #   name: fedora-base-redis
+  #   name: base-fedora-redis
   #   region: ohio
   #   ipAllowList: [] # internal connections only
   #   plan: free # optional (defaults to starter)

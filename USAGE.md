@@ -4,17 +4,17 @@ This repository is used as a template repository that I can clone for any new Dj
 
 Generally, you'll want to avoid making too many changes to the `base` app to avoid merge conflicts when you merge in updates to this base repo. In other words, put as much as you can into different apps, although some changes to the `base` app may be unavoidable.
 
-# Creating a new Django project from `fedora-base`
+# Creating a new Django project from `base-fedora`
 
 - Pick a suitable project name.
-- Clone the repo into the new project name directory. E.g., `git clone git@github.com:hkhanna/fedora-base.git <project_name>`
+- Clone the repo into the new project name directory. E.g., `git clone git@github.com:getmagistrate/base-fedora.git <project_name>`
 - Rename the `origin` remote to `base`: `git remote rename origin base`
 - Create a fresh Github repo for the project.
 - Point the `origin` remote to a fresh Github repo.
-- In the `fedora-base` repo, add the new application as it's own remote so you can cherry-pick commits if necessary.
+- In the `base-fedora` repo, add the new application as it's own remote so you can cherry-pick commits if necessary.
 - Remove or replace the LICENSE file.
 - Update `.env.example` to the desired defaults for the new project.
-- Grep for the string `fedora-base` and either replace that string with the project name or take the other described action.
+- Grep for the string `base-fedora` and either replace that string with the project name or take the other described action.
 - Decide if `billing` should be installed at this point.
   - You can always install billing later, but if you know for sure you need it, do it now.
   - To install `billing`:
