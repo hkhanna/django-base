@@ -26,6 +26,8 @@ services:
         value: 4
       - key: LOGLEVEL
         value: INFO
+      - key: ADMIN_URL_PATH
+        sync: false
       - key: POSTMARK_API_KEY
         sync: false
       # - key: REDIS_URL
