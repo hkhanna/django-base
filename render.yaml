@@ -4,6 +4,20 @@ databases:
     plan: free
     postgresMajorVersion: 14
 
+envVarGroups:
+  - name: base-fedora-env
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: LOGLEVEL
+        value: INFO
+      - key: ADMIN_URL_PATH
+        sync: false
+      - key: POSTMARK_API_KEY
+        sync: false
+
 services:
   - type: web
     name: base-fedora-web
@@ -14,30 +28,20 @@ services:
     startCommand: "gunicorn config.wsgi:application"
     healthCheckPath: /health_check/
     envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: config.settings.production
+      - fromGroup: base-fedora-env
       - key: DATABASE_URL
         fromDatabase:
           name: base-fedora-db
           property: connectionString
-      - key: DJANGO_SECRET_KEY
-        generateValue: true
       - key: WEB_CONCURRENCY
         value: 4
-      - key: LOGLEVEL
-        value: INFO
-      - key: ADMIN_URL_PATH
-        sync: false
-      - key: POSTMARK_API_KEY
-        sync: false
+      - key: LOGROCKET_APP_ID
+        value: None # Leave None to disable LogRocket, or remove this env var altogether.
       # - key: REDIS_URL
       #   fromService:
       #     name: base-fedora-redis
       #     type: redis
       #     property: connectionString
-      - key: LOGROCKET_APP_ID
-        value: None # Leave None to disable LogRocket, or remove this env var altogether.
-
 
   # - type: worker
   #   name: base-fedora-celery
@@ -46,6 +50,17 @@ services:
   #   env: python
   #   buildCommand: "pip install -r requirements/production.txt"
   #   startCommand: "celery --app=config.celery worker --loglevel=INFO"
+  #   envVars:
+  #     - fromGroup: base-fedora-env
+  #     - key: DATABASE_URL
+  #       fromDatabase:
+  #         name: base-fedora-db
+  #         property: connectionString
+  #     - key: REDIS_URL
+  #       fromService:
+  #         name: base-fedora-redis
+  #         type: redis
+  #         property: connectionString
 
   # - type: redis
   #   name: base-fedora-redis
