@@ -7,7 +7,12 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 
 DEBUG = env("DJANGO_DEBUG", default=False)
 
-ALLOWED_HOSTS = [env("RENDER_EXTERNAL_HOSTNAME")]
+ALLOWED_HOSTS = []  # Add the custom domains in use here.
+
+# Render doesn't provide an external hostname in, e.g., cron jobs.
+RENDER_EXTERNAL_HOSTNAME = env("RENDER_EXTERNAL_HOSTNAME", default=None)
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 POSTMARK_API_KEY = env("POSTMARK_API_KEY")
