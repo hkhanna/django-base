@@ -45,11 +45,11 @@ services:
 
   # - type: worker
   #   name: base-fedora-celery
-  #   plan: free
+  #   plan: free  # base-fedora -- set to starter
   #   region: ohio
   #   env: python
   #   buildCommand: "pip install -r requirements/production.txt"
-  #   startCommand: "celery --app=config.celery worker --loglevel=INFO"
+  #   startCommand: "celery --app=config.celery worker --loglevel=INFO --concurrency 4"
   #   envVars:
   #     - fromGroup: base-fedora-env
   #     - key: DATABASE_URL
