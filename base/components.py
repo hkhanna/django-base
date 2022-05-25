@@ -192,7 +192,7 @@ class Button(component.Component):
             on the button element. 'click', above, is a special case of this and is handled
             separately for backwards compatibility reasons.
         **kwargs:
-            Any other kwargs are rendered directly on the button element.
+            Any other kwargs are rendered directly on the button element, turning any underscores into dashes.
         """
         is_text = variant.split("-")[0] == "text"
         icon_only = not bool(text)
@@ -203,6 +203,11 @@ class Button(component.Component):
                 href = reverse(href)
             except NoReverseMatch:
                 pass
+
+        normalized_kwargs = {}
+        for key, value in kwargs.items():
+            new_key = key.replace("_", "-")
+            normalized_kwargs[new_key] = value
 
         common = "inline-flex relative items-center font-medium focus:outline-none"
 
@@ -373,7 +378,7 @@ class Button(component.Component):
             "formnovalidate": formnovalidate,
             "click": click,
             "x": json.loads(x),
-            "kwargs": kwargs,
+            "kwargs": normalized_kwargs,
         }
 
 
