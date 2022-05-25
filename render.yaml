@@ -35,8 +35,6 @@ services:
           property: connectionString
       - key: WEB_CONCURRENCY
         value: 4
-      - key: LOGROCKET_APP_ID
-        value: None # Leave None to disable LogRocket, or remove this env var altogether.
       # - key: REDIS_URL
       #   fromService:
       #     name: base-fedora-redis
