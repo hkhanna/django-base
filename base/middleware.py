@@ -3,6 +3,7 @@ import threading
 import uuid
 import pytz
 
+from django.urls import resolve
 from django.conf import settings
 from django.utils import timezone
 
@@ -74,8 +75,12 @@ class SetRemoteAddrFromForwardedFor:
             # This will happen in local development. We should just make sure
             # that we're not in prod.
             if settings.ENVIRONMENT == "production":
-                logger.error("Render did not provide X-Forwarded-For header")
                 request.META["REMOTE_ADDR"] = None
+
+                # Render's health check doesn't provide this header but that's okay,
+                # so don't log an error.
+                if resolve(request.path_info).url_name != "health_check":
+                    logger.error("Render did not provide X-Forwarded-For header")
         else:
             # We use the first IP in this list since in theory that should be
             # the client IP. And it appears that Render guarantees that it is

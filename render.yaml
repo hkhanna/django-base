@@ -25,7 +25,7 @@ services:
     region: ohio
     plan: free # base-fedora -- set to starter
     buildCommand: "./build.sh"
-    startCommand: "gunicorn config.wsgi:application"
+    startCommand: "gunicorn config.wsgi:application --access-logfile None"
     healthCheckPath: /health_check/
     envVars:
       - fromGroup: base-fedora-env

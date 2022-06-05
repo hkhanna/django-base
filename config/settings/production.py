@@ -7,7 +7,9 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 
 DEBUG = env("DJANGO_DEBUG", default=False)
 
-ALLOWED_HOSTS = []  # Add the custom domains in use here.
+ALLOWED_HOSTS = [
+    "localhost"
+]  # Add the custom domains in use here. Localhost is required by render during build to avoid a Sentry error.
 
 # Render doesn't provide an external hostname in, e.g., cron jobs.
 RENDER_EXTERNAL_HOSTNAME = env("RENDER_EXTERNAL_HOSTNAME", default=None)
