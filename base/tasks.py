@@ -1,4 +1,5 @@
 from celery.utils.log import get_task_logger
+from django.apps import apps
 import waffle
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
@@ -63,9 +64,25 @@ def send_email_message(email_message_id, attachments=[]):
         )
         if html_msg:
             django_email_message.attach_alternative(html_msg, "text/html")
+
         for attachment in attachments:
+            assert not (
+                "content" in attachment
+                and "content_from_instance_file_field" in attachment
+            ), "Only one of 'content' or 'content_from_instance_file_field' allowed in an attachment"
+            if "content" in attachment:
+                content = attachment["content"]
+            elif "content_from_instance_file_field" in attachment:
+                spec = attachment["content_from_instance_file_field"]
+                Model = apps.get_model(
+                    app_label=spec["app_label"], model_name=spec["model_name"]
+                )
+                instance = Model.objects.get(pk=spec["pk"])
+                file = getattr(instance, spec["field_name"])
+                content = file.read()
+
             django_email_message.attach(
-                attachment["filename"], attachment["content"], attachment["mimetype"]
+                attachment["filename"], content, attachment["mimetype"]
             )
         if email_message.postmark_message_stream:
             django_email_message.message_stream = email_message.postmark_message_stream

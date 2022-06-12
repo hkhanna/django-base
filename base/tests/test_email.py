@@ -1,4 +1,5 @@
 """Tests related to EmailMessages"""
+from unittest.mock import Mock
 from datetime import timedelta
 from waffle.testutils import override_switch
 from django.utils import timezone
@@ -102,7 +103,7 @@ def test_email_attachment(user, mailoutbox):
     )
     attachments = [
         {
-            "filename": f"test.txt",
+            "filename": "test.txt",
             "content": factories.fake.paragraph(),
             "mimetype": "text/plain",
         }
@@ -113,6 +114,50 @@ def test_email_attachment(user, mailoutbox):
     assert email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert len(mailoutbox[0].attachments) == 1
+
+
+def test_email_attachment_from_instance_file_field(monkeypatch, user, mailoutbox):
+    """Email can have attachments sourced from model instances (for binary files)"""
+    # This is required for binary files since you can't put binary files
+    # in a celery task message.
+    m = Mock()
+    m.read.return_value = b"12345"
+    models.EmailMessage.file_field = ""
+    monkeypatch.setattr(models.EmailMessage, "file_field", m)
+
+    email_message = models.EmailMessage(
+        created_by=user,
+        subject="A subject",
+        template_prefix="account/email/email_confirmation",
+        to_name=user.name,
+        to_email=user.email,
+        template_context={
+            "user_name": user.name,
+            "user_email": user.email,
+            "activate_url": "",
+        },
+    )
+    email_message.save()
+
+    attachments = [
+        {
+            "filename": "test.pdf",
+            "content_from_instance_file_field": {
+                "app_label": "base",
+                "model_name": "EmailMessage",
+                "field_name": "file_field",
+                "pk": email_message.pk,
+            },
+            "mimetype": "application/pdf",
+        },
+    ]
+
+    email_message.send(attachments)
+    email_message.refresh_from_db()
+    assert email_message.status == models.EmailMessage.Status.SENT
+    assert len(mailoutbox) == 1
+    assert len(mailoutbox[0].attachments) == 1
+    assert mailoutbox[0].attachments[0][1] == b"12345"
 
 
 def test_postmark_message_stream(user, mailoutbox):
