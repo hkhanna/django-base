@@ -23,7 +23,7 @@ class RequestIDMiddleware:
         response = self.get_response(request)
 
         # Don't log favicon
-        if "favicon" not in request.path:
+        if "favicon" not in request.path and "health_check" not in request.path:
             # If an unhandled exception is raised in the view, this will never log.
             # But django.request will log at WARNING OR ERROR level, so it's okay.
             self.log_request_id(request, response)

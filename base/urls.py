@@ -45,7 +45,7 @@ urlpatterns = [
         views.render_template_with_params,
         name="render_template_debug",
     ),
-    path("health_check/", lambda request: HttpResponse("")),
+    path("health_check/", lambda request: HttpResponse(""), name="health_check"),
     path("400/", lambda request: django.views.defaults.bad_request(request, None)),
     path("404/", page_not_found),
     path("500/", django.views.defaults.server_error),
