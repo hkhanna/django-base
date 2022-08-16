@@ -13,7 +13,7 @@ app:
 	source .venv/bin/activate && python manage.py runserver ${WEB_PORT}
 
 vite:
-	npm run dev --prefix base/frontend/
+	npm run dev --prefix frontend/
 
 check:
 	source .venv/bin/activate && py.test
@@ -28,14 +28,14 @@ clean:
 	@echo "Removing python virtual environment"
 	rm -rf .venv
 	@echo "Removing vite node_modules"
-	rm -rf base/frontend/node_modules
+	rm -rf frontend/node_modules
 
 build:
 	@echo "Building python virtual environment"
 	python3 -m venv .venv
 	source .venv/bin/activate && pip install -r requirements/local.txt
 	@echo "Installing vite node dependencies"
-	npm install --prefix base/frontend/
+	npm install --prefix frontend/
 	
 
 db:

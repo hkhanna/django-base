@@ -2,7 +2,7 @@ const { resolve } = require('path');
 const { loadEnv } = require('vite');
 
 
-process.env = {...process.env, ...loadEnv(null, process.cwd() + '/../../')};
+process.env = {...process.env, ...loadEnv(null, process.cwd() + '/../')};
 
 module.exports = {
   plugins: [],
@@ -19,10 +19,10 @@ module.exports = {
     },
   },
   resolve: {
-    extensions: ['.js', '.json'],
+    extensions: ['.js', '.json', '.ts'],
   },
   build: {
-    outDir: resolve('../static/'),
+    outDir: resolve('./dist/'),
     assetsDir: '',
     manifest: true,
     emptyOutDir: true,
