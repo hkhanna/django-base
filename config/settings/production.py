@@ -45,7 +45,7 @@ MIDDLEWARE.insert(2, "whitenoise.middleware.WhiteNoiseMiddleware")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # STATIC_ROOT is where collectstatic dumps all the static files
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
+STATICFILES_DIRS = [BASE_DIR / "frontend/dist"]
 
 # Vite generates files with 8 hash digits
 def immutable_file_test(path, url):
