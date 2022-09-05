@@ -3,6 +3,7 @@
 {% if href %}href="{{href}}"{% else %}type="{{type}}"{% endif %}
 {% if click %}x-on:click="{{click}}"{% endif %}
 {% if formnovalidate %}formnovalidate{% endif %}
+{% if formaction %}formaction="{{formaction}}"{% endif %}
 class="{{button_class}}"
 {{disabled|yesno:" disabled,"}}
 {% for arg, val in x.items %} x-{{arg}}="{{val}}"{% endfor %}

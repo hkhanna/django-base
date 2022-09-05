@@ -101,6 +101,7 @@ class SubmitModal(component.Component):
         name=None,
         value=None,
         formnovalidate=None,
+        formaction=None,
     ):
         variant_settings = {
             "primary": {
@@ -129,6 +130,7 @@ class SubmitModal(component.Component):
             "name": name,
             "value": value,
             "formnovalidate": formnovalidate,
+            "formaction": formaction,
             **variant_settings[variant],
         }
 
@@ -152,6 +154,7 @@ class Button(component.Component):
         href=None,
         click=None,
         formnovalidate=None,
+        formaction=None,
         x="{}",
         **kwargs,
     ):
@@ -376,6 +379,7 @@ class Button(component.Component):
             "text": text,
             "href": href,
             "formnovalidate": formnovalidate,
+            "formaction": formaction,
             "click": click,
             "x": json.loads(x),
             "kwargs": normalized_kwargs,

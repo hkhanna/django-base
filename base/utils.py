@@ -46,3 +46,7 @@ def formset_post_data(formset, update=[]):
                 post_data[prefix + key] = str(value)
 
     return post_data
+
+
+def form_post_data(form, update={}):
+    return {field.name: field.value() for field in form} | update
