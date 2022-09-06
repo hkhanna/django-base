@@ -46,6 +46,11 @@ urlpatterns = [
         name="render_template_debug",
     ),
     path("health_check/", lambda request: HttpResponse(""), name="health_check"),
+    path(
+        settings.EMAIL_MESSAGE_WEBHOOK_PATH,
+        views.email_message_webhook_view,
+        name="email_message_webhook",
+    ),
     path("400/", lambda request: django.views.defaults.bad_request(request, None)),
     path("404/", page_not_found),
     path("500/", django.views.defaults.server_error),
@@ -56,13 +61,3 @@ urlpatterns = [
         ),
     ),
 ]
-
-# Only enable email message webhooks if a path has been provided.
-if settings.EMAIL_MESSAGE_WEBHOOK_PATH:
-    urlpatterns += [
-        path(
-            settings.EMAIL_MESSAGE_WEBHOOK_PATH,
-            views.email_message_webhook_view,
-            name="email_message_webhook",
-        )
-    ]

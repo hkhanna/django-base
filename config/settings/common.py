@@ -162,7 +162,9 @@ if POSTMARK_API_KEY:
     POSTMARK_TEST_MODE = False
     POSTMARK_RETURN_MESSAGE_ID = True
 MAX_SUBJECT_LENGTH = 78
-EMAIL_MESSAGE_WEBHOOK_PATH = "email_message_webhook/"
+EMAIL_MESSAGE_WEBHOOK_PATH = env(
+    "EMAIL_MESSAGE_WEBHOOK_PATH", default="email_message_webhook/"
+)
 
 # Site Configuration - Refactor this if >1 Site is hosted from this codebase.
 SITE_ID = 1
