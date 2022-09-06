@@ -1,4 +1,5 @@
 import '../css/styles.css'
+import '../css/fonts.css'
 import Alpine from 'alpinejs'
 import focus from '@alpinejs/focus'
 
