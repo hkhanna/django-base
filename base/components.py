@@ -256,11 +256,11 @@ class Button(component.Component):
                 "disabled": "cursor-default text-red-300",
             },
         }
-        variant_class = variants[variant]["common"]
-        if not disabled:
-            variant_class += " " + variants[variant]["enabled"]
-        else:
-            variant_class += " " + variants[variant]["disabled"]
+
+        enabled_class = variants[variant]["common"] + " " + variants[variant]["enabled"]
+        disabled_class = (
+            variants[variant]["common"] + " " + variants[variant]["disabled"]
+        )
 
         sizes = {
             "xs": {
@@ -366,11 +366,16 @@ class Button(component.Component):
             f"{icon_size_class} {right_icon_spacing_class} {right_icon_style_class}"
         )
 
-        button_class = f"{common} {variant_class} {size_class} {extra_class}"
         return {
             "el": el,
             "type": type,
-            "button_class": button_class,
+            "classes": {
+                "common": common,
+                "enabled": enabled_class,
+                "disabled": disabled_class,
+                "size": size_class,
+                "extra": extra_class,
+            },
             "left_icon": left_icon,
             "right_icon": right_icon,
             "left_icon_class": left_icon_class,

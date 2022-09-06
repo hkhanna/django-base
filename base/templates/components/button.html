@@ -4,10 +4,17 @@
 {% if click %}x-on:click="{{click}}"{% endif %}
 {% if formnovalidate %}formnovalidate{% endif %}
 {% if formaction %}formaction="{{formaction}}"{% endif %}
-class="{{button_class}}"
-{{disabled|yesno:" disabled,"}}
 {% for arg, val in x.items %} x-{{arg}}="{{val}}"{% endfor %}
 {% for arg, val in kwargs.items %} {{arg}}="{{val}}"{% endfor %}
+{% if type == "submit" and not disabled %}
+class="{{classes.common}} {{classes.size}} {{classes.extra}}"
+x-data="{ 'submitting': false }" x-on:submit.window="$nextTick(() => submitting = true)" x-bind:disabled="submitting" 
+x-bind:class="submitting ? '{{classes.disabled}}' : '{{classes.enabled}}'"
+{% elif disabled %}
+class="{{classes.common}} {{classes.size}} {{classes.extra}} {{classes.disabled}}" disabled
+{% else %}
+class="{{classes.common}} {{classes.size}} {{classes.extra}} {{classes.enabled}}"
+{% endif %}
 >
 {% if left_icon %}
   {% heroicon_solid left_icon class=left_icon_class %}
