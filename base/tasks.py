@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
+from base import constants
 
 
 from config.celery import app
@@ -42,7 +43,12 @@ def process_email_message_webhook(webhook_id):
             ).first()
             if email_message:
                 webhook.email_message = email_message
+                if webhook.type in constants.WEBHOOK_TYPE_TO_EMAIL_STATUS:
+                    new_status = constants.WEBHOOK_TYPE_TO_EMAIL_STATUS[webhook.type]
+                    email_message.status = new_status
+                    email_message.save()
 
+        webhook.status = models.EmailMessageWebhook.Status.PROCESSED
     except Exception as e:
         logger.exception(f"EmailMessageWebhook.id={webhook_id} in error state")
         webhook.status = models.EmailMessageWebhook.Status.ERROR

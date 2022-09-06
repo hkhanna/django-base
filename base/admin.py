@@ -39,16 +39,31 @@ class UserAdmin(DefaultUserAdmin):
         obj.sync_changed_email()
 
 
+class EmailMessageWebhookAdminInline(admin.TabularInline):
+    model = models.EmailMessageWebhook
+    fields = ("__str__", "received_at", "status")
+    readonly_fields = ("__str__", "received_at", "status")
+    can_delete = False
+    show_change_link = True
+    ordering = ("-received_at",)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(models.EmailMessage)
 class EmailMessageAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at",)
     list_display = ("__str__", "created_at", "status")
+    list_filter = ("status", "template_prefix")
+    inlines = [EmailMessageWebhookAdminInline]
 
 
 @admin.register(models.EmailMessageWebhook)
 class EmailMessageWebhookAdmin(admin.ModelAdmin):
     readonly_fields = ("received_at",)
     list_display = ("__str__", "email_message", "received_at", "status")
+    list_filter = ("email_message__template_prefix",)
 
 
 admin.site.unregister(Group)

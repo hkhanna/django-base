@@ -9,6 +9,8 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from allauth.account import models as auth_models
 
+from base import constants
+
 from . import tasks
 
 logger = logging.getLogger(__name__)
@@ -166,14 +168,7 @@ class EmailMessage(models.Model):
         max_length=254, blank=True, help_text="Leave blank if not using Postmark"
     )
 
-    class Status(models.TextChoices):
-        NEW = "new"
-        READY = "ready"
-        PENDING = "pending"
-        SENT = "sent"
-        CANCELED = "canceled"
-        ERROR = "error"
-
+    Status = constants.EmailMessage.Status
     status = models.CharField(
         max_length=254, choices=Status.choices, default=Status.NEW
     )
@@ -296,6 +291,10 @@ class EmailMessageWebhook(models.Model):
     status = models.CharField(
         max_length=127, choices=Status.choices, default=Status.NEW
     )
+
+    def __str__(self):
+        if self.type:
+            return f"{self.type} ({self.id})"
 
     def process(self):
         tasks.process_email_message_webhook.delay(self.id)

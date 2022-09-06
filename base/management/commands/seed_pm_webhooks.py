@@ -1,37 +1,34 @@
-import getpass
-
+import json
+from django.test.client import Client
+from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from config.settings.local import env
+from django.db.utils import IntegrityError
+from ... import factories
 
 User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = "Seed local db for development purposes"
+    help = "Seed local db with Postmark webhooks and EmailMessages (for testing)"
 
-    @transaction.atomic
     def handle(self, *args, **options):
-        # -- Users -- #
-        # Create just one user for now that is a superuser
-        email = input("Superuser email address: ")
-        password = getpass.getpass()
-        confirm_password = getpass.getpass("Confirm password: ")
-        if password != confirm_password:
-            self.stderr.write("Passwords don't match.")
-            exit(1)
-        user = User.objects.create_superuser(email, password)
 
-        # -- Sites -- #
-        # Change initial site to localhost
-        site = Site.objects.get(pk=1)
-        site.name = "localhost"
-        site.domain = "localhost:" + env("WEB_PORT")
-        site.save()
+        # -- EmailMessage -- #
+        try:
+            factories.EmailMessageFactory(
+                template_prefix="email/base",
+                to_email="harry@example.com",
+                template_context={"some": "context"},
+                message_id="883953f4-6105-42a2-a16a-77a8eac79483",
+            )
+        except IntegrityError:
+            pass
 
-        # FIXME: To remove
+        # -- EmailMessageWebhooks -- #
+
+        # These examples were lifted directly off the Postmark Documentation
         open_wh = {
             "RecordType": "Open",
             "MessageStream": "outbound",
@@ -100,7 +97,7 @@ class Command(BaseCommand):
             "MessageStream": "outbound",
         }
 
-        spam = {
+        spam_wh = {
             "RecordType": "SpamComplaint",
             "MessageStream": "outbound",
             "ID": 42,
@@ -108,7 +105,7 @@ class Command(BaseCommand):
             "TypeCode": 512,
             "Name": "Spam complaint",
             "Tag": "Test",
-            "MessageID": "00000000-0000-0000-0000-000000000000",
+            "MessageID": "883953f4-6105-42a2-a16a-77a8eac79483",
             "Metadata": {"a_key": "a_value", "b_key": "b_value"},
             "ServerID": 1234,
             "Description": "",
@@ -122,3 +119,9 @@ class Command(BaseCommand):
             "Subject": "Test subject",
             "Content": "<Abuse report dump>",
         }
+
+        for wh in (delivery_wh, open_wh, bounce_wh, spam_wh):
+            url = reverse("email_message_webhook")
+            Client(SERVER_NAME="localhost").post(
+                url, json.dumps(wh), content_type="application/json"
+            )
