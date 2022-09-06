@@ -205,3 +205,30 @@ explicitly, e.g.
   font-style: oblique 0deg 10deg;
   src: url("/static/fonts/inter/Inter.var.woff2?v=3.19") format("woff2");
 }
+
+
+/*******************************
+
+           ROBOTO SLAB
+
+********************************/
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 500;
+  src: url("/static/fonts/roboto_slab/v24.woff2") format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 600;
+  src: url("/static/fonts/roboto_slab/v24.woff2") format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 700;
+  src: url("/static/fonts/roboto_slab/v24.woff2") format('woff2');
+}
