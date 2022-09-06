@@ -57,6 +57,8 @@ WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 # EMAIL - POSTMARK
 EMAIL_BACKEND = "postmark.django_backend.EmailBackend"
 POSTMARK_TEST_MODE = False
+POSTMARK_RETURN_MESSAGE_ID = True
+EMAIL_MESSAGE_WEBHOOK_PATH = env("EMAIL_MESSAGE_WEBHOOK_PATH", default=None)
 
 # Google Analytics
 GA_TRACKING_ID = None  # Off by default

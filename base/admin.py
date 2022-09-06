@@ -45,6 +45,12 @@ class EmailMessageAdmin(admin.ModelAdmin):
     list_display = ("__str__", "created_at", "status")
 
 
+@admin.register(models.EmailMessageWebhook)
+class EmailMessageWebhookAdmin(admin.ModelAdmin):
+    readonly_fields = ("received_at",)
+    list_display = ("__str__", "email_message", "received_at", "status")
+
+
 admin.site.unregister(Group)
 admin.site.index_title = "Index"
 admin.site.site_header = (

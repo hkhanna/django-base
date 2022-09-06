@@ -1,4 +1,6 @@
 import waffle
+import logging
+import json
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import render, redirect
@@ -8,6 +10,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.views.generic import TemplateView, View
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 from allauth.account import (
     views as auth_views,
     forms as auth_forms,
@@ -15,7 +20,9 @@ from allauth.account import (
 )
 from allauth.account.adapter import get_adapter
 
-from . import forms
+from . import forms, models
+
+logger = logging.getLogger(__name__)
 
 
 @staff_member_required
@@ -143,3 +150,32 @@ class DeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin, View):
         messages.info(request, "Your account has been deleted.")
         self.logout()
         return redirect("account_login")
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def email_message_webhook_view(request):
+    try:
+        payload = json.loads(request.body)
+    except json.decoder.JSONDecodeError as e:
+        return JsonResponse({"detail": "Invalid payload"}, status=400)
+
+    if type(payload) != dict:
+        return JsonResponse({"detail": "Invalid payload"}, status=400)
+
+    headers = {}
+    for key in request.headers:
+        value = request.headers[key]
+        if isinstance(value, str):
+            headers[key] = value
+
+    webhook = models.EmailMessageWebhook.objects.create(
+        body=payload,
+        headers=headers,
+        status=models.EmailMessageWebhook.Status.NEW,
+    )
+    logger.info(f"EmailMessageWebhook.id={webhook.id} received")
+
+    webhook.process()
+
+    return JsonResponse({"detail": "Created"}, status=201)

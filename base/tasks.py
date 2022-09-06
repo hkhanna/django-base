@@ -1,11 +1,11 @@
 from celery.utils.log import get_task_logger
 from django.apps import apps
+import traceback
 import waffle
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 
@@ -13,6 +13,43 @@ from config.celery import app
 from . import models
 
 logger = get_task_logger(__name__)
+
+
+@app.task
+def process_email_message_webhook(webhook_id):
+    """Processes a Postmark email webhook related to an outgoing email."""
+    logger.info(
+        f"EmailMessageWebhook.id={webhook_id} process_email_message_webhook task started"
+    )
+
+    try:
+        webhook = get_object_or_404(models.EmailMessageWebhook, id=webhook_id)
+        if webhook.status != models.EmailMessageWebhook.Status.NEW:
+            raise RuntimeError(
+                f"EmailMessageWebhook.id={webhook_id} process_email_message_webhook called on a webhook that is not status=NEW"
+            )
+        webhook.status = models.EmailMessageWebhook.Status.PENDING
+        webhook.save()
+
+        # Store the type
+        if "RecordType" in webhook.body:
+            webhook.type = webhook.body["RecordType"]
+
+        # Find the related EmailMessage and connect it
+        if "MessageID" in webhook.body:
+            email_message = models.EmailMessage.objects.filter(
+                message_id=webhook.body["MessageID"]
+            ).first()
+            if email_message:
+                webhook.email_message = email_message
+
+    except Exception as e:
+        logger.exception(f"EmailMessageWebhook.id={webhook_id} in error state")
+        webhook.status = models.EmailMessageWebhook.Status.ERROR
+        webhook.note = traceback.format_exc()
+    finally:
+        webhook.save()
+        logger.debug(f"Saved EmailMessageWebhook.id={webhook_id}")
 
 
 @app.task
@@ -90,7 +127,11 @@ def send_email_message(email_message_id, attachments=[]):
         if waffle.switch_is_active("disable_outbound_email"):
             raise RuntimeError("disable_outbound_email waffle flag is True")
         else:
-            django_email_message.send()
+            message_ids = django_email_message.send()
+
+            # Postmark has a setting for returning MessageIDs
+            if type(message_ids) is list and len(message_ids) == 1:
+                email_message.message_id = message_ids[0]
 
     except Exception as e:
         email_message.status = models.EmailMessage.Status.ERROR

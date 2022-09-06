@@ -56,3 +56,13 @@ urlpatterns = [
         ),
     ),
 ]
+
+# Only enable email message webhooks if a path has been provided.
+if settings.EMAIL_MESSAGE_WEBHOOK_PATH:
+    urlpatterns += [
+        path(
+            settings.EMAIL_MESSAGE_WEBHOOK_PATH,
+            views.email_message_webhook_view,
+            name="email_message_webhook",
+        )
+    ]
