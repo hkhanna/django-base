@@ -237,6 +237,9 @@ class EmailMessage(models.Model):
             self.reply_to = settings.SITE_CONFIG["default_reply_to"] or ""
         self.reply_to = self._sanitize_string(self.reply_to)
 
+        if not self.postmark_message_stream:
+            self.postmark_message_stream = settings.POSTMARK_DEFAULT_STREAM_ID
+
         default_context = {
             "logo_url": settings.SITE_CONFIG["logo_url"],
             "logo_url_link": settings.SITE_CONFIG["logo_url_link"],

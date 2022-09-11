@@ -157,6 +157,7 @@ REQUEST_ID_HEADER = None
 # Otherwise, output to the console.
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 POSTMARK_API_KEY = env("POSTMARK_API_KEY", default=None)
+POSTMARK_DEFAULT_STREAM_ID = env("POSTMARK_DEFAULT_STREAM_ID", default="outbound")
 if POSTMARK_API_KEY:
     EMAIL_BACKEND = "postmark.django_backend.EmailBackend"
     POSTMARK_TEST_MODE = False
