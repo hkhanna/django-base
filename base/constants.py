@@ -24,3 +24,12 @@ WEBHOOK_TYPE_TO_EMAIL_STATUS = {
     "Bounce": EmailMessage.Status.BOUNCED,
     "SpamComplaint": EmailMessage.Status.SPAM,
 }
+
+# Different Postmark RecordTypes have a different key for the timestamp.
+# This maps them.
+WEBHOOK_TYPE_TO_TIMESTAMP = {
+    "Delivery": "DeliveredAt",
+    "Open": "ReceivedAt",
+    "Bounce": "BouncedAt",
+    "SpamComplaint": "BouncedAt",
+}

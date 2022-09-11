@@ -1,5 +1,7 @@
 import pytest
 import json
+from datetime import timedelta
+from django.utils import timezone
 from django.urls import reverse_lazy
 
 from base import factories
@@ -69,12 +71,57 @@ Status = constants.EmailMessage.Status
 )
 def test_update_email_message_status(client, record_type, new_status):
     email_message = factories.EmailMessageFactory(message_id="id-abc123")
+    ts_key = constants.WEBHOOK_TYPE_TO_TIMESTAMP[record_type]
     payload = json.dumps(
         {
             "RecordType": record_type,
             "MessageID": email_message.message_id,
+            ts_key: timezone.now().isoformat().replace("+00:00", "Z"),
+        }
+    )
+    response = client.post(url, payload, content_type="application/json")
+    assert response.status_code == 201
+    email_message.refresh_from_db()
+    assert email_message.status == new_status
+
+
+def test_update_email_message_status_order(client):
+    """An EmailMessageWebhook that arrives out of order should not regress the status."""
+    email_message = factories.EmailMessageFactory(message_id="id-abc123")
+    delivered_at = timezone.now()
+    opened_at = delivered_at + timedelta(seconds=2)
+    spam_at = opened_at + timedelta(seconds=5)
+
+    payload = json.dumps(
+        {
+            "RecordType": "Open",
+            "MessageID": email_message.message_id,
+            "ReceivedAt": opened_at.isoformat().replace("+00:00", "Z"),
         }
     )
     client.post(url, payload, content_type="application/json")
+
+    payload = json.dumps(
+        {
+            "RecordType": "Delivery",
+            "MessageID": email_message.message_id,
+            "DeliveredAt": delivered_at.isoformat().replace("+00:00", "Z"),
+        }
+    )
+    client.post(url, payload, content_type="application/json")
+
     email_message.refresh_from_db()
-    assert email_message.status == new_status
+    assert email_message.status == constants.EmailMessage.Status.OPENED
+
+    # IN-order webhook should still update
+    payload = json.dumps(
+        {
+            "RecordType": "SpamComplaint",
+            "MessageID": email_message.message_id,
+            "BouncedAt": spam_at.isoformat().replace("+00:00", "Z"),
+        }
+    )
+    client.post(url, payload, content_type="application/json")
+
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SPAM

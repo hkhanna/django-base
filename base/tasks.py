@@ -2,6 +2,7 @@ from celery.utils.log import get_task_logger
 from django.apps import apps
 import traceback
 import waffle
+from datetime import datetime as dt
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils import timezone
 from django.template import TemplateDoesNotExist
@@ -44,9 +45,29 @@ def process_email_message_webhook(webhook_id):
             if email_message:
                 webhook.email_message = email_message
                 if webhook.type in constants.WEBHOOK_TYPE_TO_EMAIL_STATUS:
-                    new_status = constants.WEBHOOK_TYPE_TO_EMAIL_STATUS[webhook.type]
-                    email_message.status = new_status
-                    email_message.save()
+
+                    # Make sure this is the most recent webhook, in case it arrived out of order.
+                    all_ts = []
+                    for other_webhook in models.EmailMessageWebhook.objects.filter(
+                        email_message=email_message
+                    ):
+                        ts_key = constants.WEBHOOK_TYPE_TO_TIMESTAMP[other_webhook.type]
+                        ts = other_webhook.body[ts_key]
+                        ts = ts.replace("Z", "+00:00")
+                        all_ts.append(dt.fromisoformat(ts))
+                    all_ts.sort()
+
+                    ts_key = constants.WEBHOOK_TYPE_TO_TIMESTAMP[webhook.type]
+                    ts = webhook.body[ts_key]
+                    ts = ts.replace("Z", "+00:00")
+                    ts_dt = dt.fromisoformat(ts)
+                    if len(all_ts) == 0 or all_ts[-1] < ts_dt:
+                        new_status = constants.WEBHOOK_TYPE_TO_EMAIL_STATUS[
+                            webhook.type
+                        ]
+                        email_message.status = new_status
+                        email_message.status_updated_at = ts_dt
+                        email_message.save()
 
         webhook.status = models.EmailMessageWebhook.Status.PROCESSED
     except Exception as e:
