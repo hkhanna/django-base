@@ -134,3 +134,37 @@ def test_email_unique_iexact(client, user):
     assert (
         models.User.objects.filter(email="harry@example.com".upper()).exists() is False
     )
+
+
+def test_first_name_length(client, user):
+    """First name must not exceed 150 characters"""
+    payload = {
+        "first_name": "A" * 151,
+        "last_name": "Khanna",
+        "email": "a@example.com",
+        "password1": "a really good password!",
+        "accept_terms": True,
+    }
+    response = client.post(reverse("account_signup"), payload)
+    assert "first_name" in response.context["form"].errors
+    assert (
+        "has at most 150 characters" in response.context["form"].errors["first_name"][0]
+    )
+    assert "has at most 150 characters" in str(response.content)
+
+
+def test_last_name_length(client, user):
+    """Last name must not exceed 150 characters"""
+    payload = {
+        "first_name": "Harry",
+        "last_name": "A" * 151,
+        "email": "a@example.com",
+        "password1": "a really good password!",
+        "accept_terms": True,
+    }
+    response = client.post(reverse("account_signup"), payload)
+    assert "last_name" in response.context["form"].errors
+    assert (
+        "has at most 150 characters" in response.context["form"].errors["last_name"][0]
+    )
+    assert "has at most 150 characters" in str(response.content)

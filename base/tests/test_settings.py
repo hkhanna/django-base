@@ -269,3 +269,35 @@ def test_change_email_to_deleted_user(client, user):
     deleted_user.refresh_from_db()
     assert user.email == email
     assert deleted_user.email == f"harry+{deleted_user.pk}@example.com"
+
+
+def test_name_length(client, user):
+    """First and last name each must not exceed 150 characters"""
+    client.force_login(user)
+    payload = {
+        "first_name": "A" * 151,
+        "last_name": "B" * 151,
+        "email": factories.fake.safe_email(),
+        "oldpassword": "goodpass",
+        "form_name": "pi",
+    }
+    response = client.post(reverse("account_settings"), payload, follow=True)
+    assert "first_name" in response.context["pi_form"].errors
+    assert "last_name" in response.context["pi_form"].errors
+    assert (
+        "has at most 150 characters"
+        in response.context["pi_form"].errors["first_name"][0]
+    )
+    assert (
+        "has at most 150 characters"
+        in response.context["pi_form"].errors["last_name"][0]
+    )
+    assert str(response.content).count("has at most 150 characters") == 2
+    assert "Personal information saved" not in str(response.content)
+    user.refresh_from_db()
+    assert payload["first_name"] != user.first_name
+    assert payload["last_name"] != user.last_name
+    assert payload["email"] != user.email
+    assert len(user.email_history) == 1
+    assert response.wsgi_request.user.first_name != "A" * 151
+    assert response.wsgi_request.user.last_name != "B" * 151
