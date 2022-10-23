@@ -66,6 +66,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "waffle.middleware.WaffleMiddleware",
+    "base.middleware.DisableClientCacheMiddleware",
     "base.middleware.TimezoneMiddleware",
     "base.middleware.SetRemoteAddrFromForwardedFor",
 ]

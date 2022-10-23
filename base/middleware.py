@@ -6,6 +6,7 @@ import pytz
 from django.urls import resolve
 from django.conf import settings
 from django.utils import timezone
+from django.utils.cache import add_never_cache_headers
 
 logger = logging.getLogger(__name__)
 local = threading.local()
@@ -109,3 +110,13 @@ class TimezoneMiddleware:
             timezone.deactivate()
 
         return self.get_response(request)
+
+
+class DisableClientCacheMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        add_never_cache_headers(response)
+        return response
