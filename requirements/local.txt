@@ -6,6 +6,7 @@ djhtml==1.5.0
 freezegun==1.2.1
 black==22.3.0
 factory_boy==3.2.1
+pip-outdated==0.5.0
 psycopg2-binary==2.9.3
 pytest==7.1.2
 pytest-django==4.5.2

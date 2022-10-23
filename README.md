@@ -27,7 +27,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 ### Updating Packages
 
-- Python: `piprot` is not maintained but really useful. I'd use that for now.
+- Python: `pip-outdated requirements/common.txt` and `pip-oudated requirements/local.txt`.
 
 ## Merging upstream "base" changes
 
