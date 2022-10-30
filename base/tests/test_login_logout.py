@@ -53,7 +53,12 @@ def test_locked_login(client, user):
 
 def test_logout(client, user):
     client.force_login(user)
-    response = client.get(reverse("account_logout"), follow=True)
+    response = client.get(reverse("account_logout"))
+    assert "Sign Out" in str(response.content)
+    messages = list(response.context["messages"])
+    assert len(messages) == 0
+
+    response = client.post(reverse("account_logout"), follow=True)
     assert "signed out" in str(response.content)
     messages = list(response.context["messages"])
     assert len(messages) == 1
