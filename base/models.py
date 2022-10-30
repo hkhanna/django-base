@@ -1,4 +1,5 @@
 import logging
+import uuid
 from datetime import timedelta
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -53,6 +54,13 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     """Customized User model"""
 
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        verbose_name="UUID",
+        help_text="Secondary ID",
+    )
     username = None
     email = models.EmailField(
         "email address",

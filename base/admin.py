@@ -8,7 +8,7 @@ from . import models
 @admin.register(models.User)
 class UserAdmin(DefaultUserAdmin):
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
+        (None, {"fields": ("id", "uuid", "email", "password")}),
         ("Personal info", {"fields": ("first_name", "last_name", "email_history")}),
         (
             "Permissions",
@@ -33,6 +33,7 @@ class UserAdmin(DefaultUserAdmin):
     search_fields = ("email", "first_name", "last_name", "email_history")
     ordering = ("email",)
     filter_horizontal = ("groups", "user_permissions")
+    readonly_fields = ("id", "uuid")
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
