@@ -1,5 +1,14 @@
-{% extends "layouts/error.html" %}
-{% block title %}404 Not Found{% endblock %}
-{% block error_code %}404{% endblock %}
-{% block error_name %}Page Not Found{% endblock %}
-{% block error_message %}Please check the URL in the address bar and try again.{% endblock %}
+{% extends "layouts/application.html" %}
+{% load component_tags %}
+{% block title %}Logout{% endblock %}
+{% block main %}
+<form method="post" action="{% url 'account_logout' %}" x-init="$el.submit()">
+  {% csrf_token %}
+  {% if redirect_field_value %}
+  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+  {% endif %}
+  <div class="flex justify-center mt-24">
+    {% component 'button' type='submit' size="xl" text="Click to Sign Out" %}
+  </div>
+</form>
+{% endblock main %}
