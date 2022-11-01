@@ -136,6 +136,11 @@ def test_email_unique_iexact(client, user):
 
 def test_resend_email_confirmation(client, user, mailoutbox):
     """User may request another email confirmation"""
+    # Unverify email first
+    email_address = user.emailaddress_set.first()
+    email_address.verified = False
+    email_address.save()
+
     client.force_login(user)
     assert models.EmailMessage.objects.count() == 0
     response = client.post(reverse("account_resend_confirmation_email"))

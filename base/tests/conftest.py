@@ -4,7 +4,14 @@ from .. import factories
 
 @pytest.fixture
 def user():
-    return factories.UserFactory()
+    user = factories.UserFactory()
+
+    # Verify email address
+    email_address = user.emailaddress_set.first()
+    email_address.verified = True
+    email_address.save()
+
+    return user
 
 
 @pytest.fixture(autouse=True)
