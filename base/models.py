@@ -157,12 +157,10 @@ class EmailMessage(models.Model):
         on_delete=models.PROTECT,
         help_text="User that caused the EmailMessage to be created.",
     )
-    sender = models.CharField(max_length=254, blank=True)  # HACK
     sender_name = models.CharField(max_length=254, blank=True)
-    sender_email = models.EmailField(blank=True)  # HACK - noblank
+    sender_email = models.EmailField()
     to_name = models.CharField(max_length=254, blank=True)
     to_email = models.EmailField()
-    reply_to = models.CharField(max_length=254, blank=True)  # HACK
     reply_to_name = models.CharField(max_length=254, blank=True)
     reply_to_email = models.EmailField(blank=True)
     subject = models.CharField(max_length=254, blank=True)
