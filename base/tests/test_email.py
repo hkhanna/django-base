@@ -1,4 +1,5 @@
 """Tests related to EmailMessages"""
+import pytest
 from unittest.mock import Mock
 from datetime import timedelta
 from waffle.testutils import override_switch
@@ -23,7 +24,7 @@ def test_send_email(user, mailoutbox, settings):
     )
 
     settings.SITE_CONFIG[
-        "default_reply_to"
+        "default_reply_to_email"
     ] = None  # Override this in case an application sets it
 
     email_message.send()
@@ -32,24 +33,42 @@ def test_send_email(user, mailoutbox, settings):
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == "A subject"
     assert mailoutbox[0].to == [f"{user.name} <{user.email}>"]
-    assert settings.SITE_CONFIG["default_from_email"] == mailoutbox[0].from_email
+    assert (
+        mailoutbox[0].from_email
+        == f"{settings.SITE_CONFIG['default_from_name']} <{settings.SITE_CONFIG['default_from_email']}>"
+    )
     assert mailoutbox[0].reply_to == []
 
 
-def test_send_email_stripped(user, mailoutbox):
-    """Sending an email properly strips the names and emails of whitespace"""
+# FIXME:
+"""Blank reply_to_email with a non-blank reply_to_name raises an error"""
+
+
+@pytest.mark.parametrize(
+    "name,email,expected",
+    [
+        ("Bob Jones, Jr. ", "bob@example.com ", '"Bob Jones, Jr." <bob@example.com>'),
+        (" ", " bob@example.com", "bob@example.com"),
+    ],
+)
+def test_send_email_sanitize(user, name, email, expected, mailoutbox):
+    """Sending an email properly sanitizes the addresses"""
+    # FIXME what happens if we dont sanitize subject?
     email_message = models.EmailMessage(
         created_by=user,
         subject="""A subject
         
         Exciting!""",
         template_prefix="account/email/email_confirmation",
-        sender="Bob <bob@example.com> ",
-        to_name=f" ",
-        to_email=user.email,
+        sender_name=name,
+        sender_email=email,
+        to_name=name,
+        to_email=email,
+        reply_to_name=name,
+        reply_to_email=email,
         template_context={
-            "user_name": user.name,
-            "user_email": user.email,
+            "user_name": name,
+            "user_email": email,
             "activate_url": "",
         },
     )
@@ -59,12 +78,14 @@ def test_send_email_stripped(user, mailoutbox):
     assert email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == "A subject Exciting!"
-    assert mailoutbox[0].to == [user.email]
-    assert "Bob <bob@example.com>" == mailoutbox[0].from_email
+    assert mailoutbox[0].to == [expected]
+    assert mailoutbox[0].from_email == expected
+    assert mailoutbox[0].reply_to == [expected]
 
 
 def test_subject_limit(user, mailoutbox, settings):
     """Truncate subject lines of more than 78 characters"""
+    # FIXME: test subject with newlines
     subject = factories.fake.pystr(min_chars=100, max_chars=100)
     expected = subject[: settings.MAX_SUBJECT_LENGTH - 3] + "..."
     email_message = models.EmailMessage(
@@ -303,7 +324,8 @@ def test_disable_outbound_email_waffle_switch(user, mailoutbox):
 
 def test_send_email_with_reply_to(user, mailoutbox, settings):
     """Create and send an EmailMessage with a default reply to should work"""
-    settings.SITE_CONFIG["default_reply_to"] = "Support <support@example.com>"
+    settings.SITE_CONFIG["default_reply_to_name"] = "Support"
+    settings.SITE_CONFIG["default_reply_to_email"] = "support@example.com"
     email_message = models.EmailMessage(
         created_by=user,
         subject="A subject",

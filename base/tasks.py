@@ -3,7 +3,8 @@ from django.apps import apps
 import traceback
 import waffle
 from datetime import datetime as dt
-from django.core.mail.message import EmailMultiAlternatives
+from django.core.mail.message import EmailMultiAlternatives, sanitize_address
+from django.conf import settings
 from django.utils import timezone
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
@@ -109,19 +110,27 @@ def send_email_message(email_message_id, attachments=[]):
                 f"EmailMessage.id={email_message_id} template not found {html_template_name}"
             )
 
-        if email_message.to_name:
-            to = [f"{email_message.to_name} <{email_message.to_email}>"]
-        else:
-            to = [email_message.to_email]
+        encoding = settings.DEFAULT_CHARSET
+        from_email = sanitize_address(
+            (email_message.sender_name, email_message.sender_email), encoding
+        )
+        to = [
+            sanitize_address((email_message.to_name, email_message.to_email), encoding),
+        ]
 
-        if email_message.reply_to:
-            reply_to = [email_message.reply_to]
+        if email_message.reply_to_email:
+            reply_to = [
+                sanitize_address(
+                    (email_message.reply_to_name, email_message.reply_to_email),
+                    encoding,
+                )
+            ]
         else:
             reply_to = None
 
         django_email_message = EmailMultiAlternatives(
             subject=email_message.subject,
-            from_email=email_message.sender,
+            from_email=from_email,
             to=to,
             body=msg,
             reply_to=reply_to,

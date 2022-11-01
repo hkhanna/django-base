@@ -157,10 +157,14 @@ class EmailMessage(models.Model):
         on_delete=models.PROTECT,
         help_text="User that caused the EmailMessage to be created.",
     )
-    sender = models.CharField(max_length=254, blank=True)
+    sender = models.CharField(max_length=254, blank=True)  # FIXME
+    sender_name = models.CharField(max_length=254, blank=True)
+    sender_email = models.EmailField(blank=True)  # FIXME - noblank
     to_name = models.CharField(max_length=254, blank=True)
     to_email = models.EmailField()
-    reply_to = models.CharField(max_length=254, blank=True)
+    reply_to = models.CharField(max_length=254, blank=True)  # FIXME
+    reply_to_name = models.CharField(max_length=254, blank=True)
+    reply_to_email = models.EmailField(blank=True)
     subject = models.CharField(max_length=254, blank=True)
     template_prefix = models.CharField(max_length=254)
     template_context = models.JSONField()
@@ -183,7 +187,7 @@ class EmailMessage(models.Model):
     error_message = models.TextField(blank=True)
 
     @staticmethod
-    def _sanitize_string(field):
+    def _trim_string(field):
         """Remove superfluous linebreaks and whitespace"""
         lines = field.splitlines()
         sanitized_lines = []
@@ -235,15 +239,20 @@ class EmailMessage(models.Model):
 
     def prepare(self):
         """Updates the context with defaults and other sanity checking"""
-        if not self.sender:
-            self.sender = settings.SITE_CONFIG["default_from_email"]
-        self.sender = self._sanitize_string(self.sender)
-        self.to_name = self._sanitize_string(self.to_name)
-        self.to_email = self._sanitize_string(self.to_email)
-
-        if not self.reply_to:
-            self.reply_to = settings.SITE_CONFIG["default_reply_to"] or ""
-        self.reply_to = self._sanitize_string(self.reply_to)
+        self.sender_email = self._trim_string(
+            self.sender_email or settings.SITE_CONFIG["default_from_email"]
+        )
+        self.sender_name = self._trim_string(
+            self.sender_name or settings.SITE_CONFIG["default_from_name"] or ""
+        )
+        self.reply_to_email = self._trim_string(
+            self.reply_to_email or settings.SITE_CONFIG["default_reply_to_email"] or ""
+        )
+        self.reply_to_name = self._trim_string(
+            self.reply_to_name or settings.SITE_CONFIG["default_reply_to_name"] or ""
+        )
+        self.to_name = self._trim_string(self.to_name)
+        self.to_email = self._trim_string(self.to_email)
 
         if not self.postmark_message_stream:
             self.postmark_message_stream = settings.POSTMARK_DEFAULT_STREAM_ID
@@ -266,7 +275,7 @@ class EmailMessage(models.Model):
             self.subject = render_to_string(
                 "{0}_subject.txt".format(self.template_prefix), self.template_context
             )
-        self.subject = self._sanitize_string(self.subject)
+        self.subject = self._trim_string(self.subject)
         if len(self.subject) > settings.MAX_SUBJECT_LENGTH:
             self.subject = self.subject[: settings.MAX_SUBJECT_LENGTH - 3] + "..."
         self.template_context["subject"] = self.subject
