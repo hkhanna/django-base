@@ -254,6 +254,11 @@ class EmailMessage(models.Model):
         self.to_name = self._trim_string(self.to_name)
         self.to_email = self._trim_string(self.to_email)
 
+        if self.reply_to_name and not self.reply_to_email:
+            self.status = EmailMessage.Status.ERROR
+            self.save()
+            raise RuntimeError("Reply to has a name but does not have an email")
+
         if not self.postmark_message_stream:
             self.postmark_message_stream = settings.POSTMARK_DEFAULT_STREAM_ID
 

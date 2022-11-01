@@ -22,10 +22,10 @@ def test_send_email(user, mailoutbox, settings):
             "activate_url": "",
         },
     )
-
+    settings.SITE_CONFIG["default_reply_to_name"] = None
     settings.SITE_CONFIG[
         "default_reply_to_email"
-    ] = None  # Override this in case an application sets it
+    ] = None  # Override these in case an application sets it
 
     email_message.send()
     email_message.refresh_from_db()
@@ -40,10 +40,6 @@ def test_send_email(user, mailoutbox, settings):
     assert mailoutbox[0].reply_to == []
 
 
-# FIXME:
-"""Blank reply_to_email with a non-blank reply_to_name raises an error"""
-
-
 @pytest.mark.parametrize(
     "name,email,expected",
     [
@@ -53,12 +49,9 @@ def test_send_email(user, mailoutbox, settings):
 )
 def test_send_email_sanitize(user, name, email, expected, mailoutbox):
     """Sending an email properly sanitizes the addresses"""
-    # FIXME what happens if we dont sanitize subject?
     email_message = models.EmailMessage(
         created_by=user,
-        subject="""A subject
-        
-        Exciting!""",
+        subject="A subject",
         template_prefix="account/email/email_confirmation",
         sender_name=name,
         sender_email=email,
@@ -77,15 +70,37 @@ def test_send_email_sanitize(user, name, email, expected, mailoutbox):
     email_message.refresh_from_db()
     assert email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
-    assert mailoutbox[0].subject == "A subject Exciting!"
+    assert mailoutbox[0].subject == "A subject"
     assert mailoutbox[0].to == [expected]
     assert mailoutbox[0].from_email == expected
     assert mailoutbox[0].reply_to == [expected]
 
 
+def test_subject_newlines(user, mailoutbox):
+    """Subject newlines should be collapsed"""
+    email_message = models.EmailMessage(
+        created_by=user,
+        subject="""A subject
+        
+        Exciting!""",
+        template_prefix="account/email/email_confirmation",
+        to_name=user.name,
+        to_email=user.email,
+        template_context={
+            "user_name": user.name,
+            "user_email": user.email,
+            "activate_url": "",
+        },
+    )
+
+    email_message.send()
+    email_message.refresh_from_db()
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == "A subject Exciting!"
+
+
 def test_subject_limit(user, mailoutbox, settings):
     """Truncate subject lines of more than 78 characters"""
-    # FIXME: test subject with newlines
     subject = factories.fake.pystr(min_chars=100, max_chars=100)
     expected = subject[: settings.MAX_SUBJECT_LENGTH - 3] + "..."
     email_message = models.EmailMessage(
@@ -344,3 +359,31 @@ def test_send_email_with_reply_to(user, mailoutbox, settings):
     assert email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].reply_to == ["Support <support@example.com>"]
+
+
+def test_reply_to_name_no_email(user, mailoutbox, settings):
+    """Blank reply_to_email with a non-blank reply_to_name raises an error"""
+    settings.SITE_CONFIG["default_reply_to_name"] = None
+    settings.SITE_CONFIG[
+        "default_reply_to_email"
+    ] = None  # Override these in case an application sets it
+
+    email_message = models.EmailMessage(
+        created_by=user,
+        subject="A subject",
+        template_prefix="account/email/email_confirmation",
+        to_name=user.name,
+        to_email=user.email,
+        reply_to_name="Reply to name",
+        template_context={
+            "user_name": user.name,
+            "user_email": user.email,
+            "activate_url": "",
+        },
+    )
+
+    with pytest.raises(RuntimeError):
+        email_message.send()
+    email_message.refresh_from_db()
+    assert email_message.status == models.EmailMessage.Status.ERROR
+    assert len(mailoutbox) == 0
