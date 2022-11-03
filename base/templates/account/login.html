@@ -23,7 +23,8 @@
       {% component "alert" text=message variant=message.level alertClass="mt-4 sm:mx-auto sm:w-full sm:max-w-md" %}
     {% endfor %}
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 space-y-4">
+        {% if socialaccount_providers %}
        <p class="text-sm font-medium text-gray-700">Sign in with</p>
             <div class="mt-1 grid grid-cols-{{socialaccount_providers|length}} gap-3">
               {% for provider in socialaccount_providers %}
@@ -49,7 +50,8 @@
               <span class="bg-white px-2 text-gray-500">Or continue with</span>
             </div>
           </div>
-        <form action="{% url 'account_login' %}" method="POST" class="mt-4">
+          {% endif %}
+        <form action="{% url 'account_login' %}" method="POST">
           {% csrf_token %}
           {% if redirect_field_value %}
             <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />

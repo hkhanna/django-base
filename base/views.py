@@ -19,6 +19,7 @@ from allauth.account import (
     models as auth_models,
 )
 from allauth.account.adapter import get_adapter
+from allauth.socialaccount.forms import DisconnectForm
 
 from . import forms, models
 
@@ -70,11 +71,13 @@ class SettingsView(LoginRequiredMixin, View):
             {
                 "pi_form": forms.PersonalInformationForm(instance=request.user),
                 "password_form": auth_forms.ChangePasswordForm(user=request.user),
+                "disconnect_form": DisconnectForm(request=request),
                 "disable_account_deletion": waffle.switch_is_active(
                     "disable_account_deletion"
                 ),
             }
         )
+        print(context["disconnect_form"].accounts)
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -92,11 +95,17 @@ class SettingsView(LoginRequiredMixin, View):
         else:
             password_form = auth_forms.ChangePasswordForm(user=request.user)
 
+        if request.POST.get("form_name") == "disconnect":
+            disconnect_form = DisconnectForm(data=request.POST, request=request)
+        else:
+            disconnect_form = DisconnectForm(request=request)
+
         context = self.get_context_data()
         context.update(
             {
                 "pi_form": pi_form,
                 "password_form": password_form,
+                "disconnect_form": disconnect_form,
             }
         )
 
@@ -117,6 +126,11 @@ class SettingsView(LoginRequiredMixin, View):
             password_form.save()
             messages.success(request, "Password successfully changed.")
             update_session_auth_hash(request, request.user)  # Don't log the user out
+            return redirect("account_settings")
+
+        if disconnect_form.is_valid():
+            disconnect_form.save()
+            messages.info(request, "The social account has been disconnected.")
             return redirect("account_settings")
 
         return render(request, self.template_name, context)
