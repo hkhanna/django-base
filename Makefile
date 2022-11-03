@@ -32,7 +32,7 @@ clean:
 
 build:
 	@echo "Building python virtual environment"
-	python3 -m venv .venv
+	python3.10 -m venv .venv
 	source .venv/bin/activate && pip install -r requirements/local.txt
 	@echo "Installing vite node dependencies"
 	npm install --prefix frontend/

@@ -7,7 +7,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 ### Prerequisites
 
 - Docker (for postgres).
-- Python 3.8+
+- Python 3.10
 - `libtidy-dev` (e.g., `apt install libtidy-dev`)
 
 ### Local Installation
