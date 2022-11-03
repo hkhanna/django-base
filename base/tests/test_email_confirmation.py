@@ -1,7 +1,13 @@
 import pytest
 from django.urls import reverse
+from django.core.cache import cache
 
 from .. import models
+
+
+@pytest.fixture(autouse=True)
+def clear_cache():
+    cache.clear()
 
 
 @pytest.fixture
@@ -46,8 +52,10 @@ def test_user_create_confirm_email_twice(client, user):
     assert "You have confirmed" in str(response.content)
     user.refresh_from_db()
     assert user.emailaddress_set.first().verified is True
+
+    # Second attempt fails
     response = client.get(activate_url, follow=True)
-    assert "You have confirmed" in str(response.content)
+    assert "Invalid" in str(response.content)
     assert user.emailaddress_set.first().verified is True
 
 
