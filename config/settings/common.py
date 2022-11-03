@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.github",
 ]
 
 MIDDLEWARE = [
@@ -214,6 +216,20 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_PREVENT_ENUMERATION = False
 
 PERMISSION_DENIED_REDIRECT = LOGIN_REDIRECT_URL
+
+# django-allauth social
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    },
+    "github": {},
+}
 
 # django-waffle
 WAFFLE_CREATE_MISSING_SWITCHES = True
