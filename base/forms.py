@@ -67,7 +67,6 @@ class SignupForm(auth_forms.SignupForm):
             attrs={"placeholder": "Last name", "autocomplete": "family-name"}
         ),
     )
-    accept_terms = forms.BooleanField(required=True)
 
     def clean_email(self):
         self.cleaned_data["email"] = self.cleaned_data["email"].lower()

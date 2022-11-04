@@ -218,7 +218,6 @@ def test_user_create_after_delete(client, user):
         "last_name": "Name",
         "email": user.email,
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     response = client.post(reverse("account_signup"), payload, follow=True)
     assert response.status_code == 200

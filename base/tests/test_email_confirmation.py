@@ -18,7 +18,6 @@ def user(client):
         "last_name": "Khanna",
         "email": "harry@example.com",
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     client.post(reverse("account_signup"), payload)
     return models.User.objects.get(email="harry@example.com")

@@ -12,7 +12,6 @@ def test_signup_create(client):
         "last_name": "Khanna",
         "email": "harry@example.com",
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     client.post(reverse("account_signup"), payload)
     assert 1 == models.User.objects.filter(email="harry@example.com").count()
@@ -25,7 +24,6 @@ def test_signup_login(client):
         "last_name": "Khanna",
         "email": "harry@example.com",
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     response = client.post(reverse("account_signup"), payload, follow=True)
     assert (
@@ -41,7 +39,6 @@ def test_signup_weak_password(client):
         "last_name": "Khanna",
         "email": "harry@example.com",
         "password1": "the",
-        "accept_terms": True,
     }
     response = client.post(reverse("account_signup"), payload)
     assert "common" in str(response.content)
@@ -54,7 +51,6 @@ def test_signup_duplicate(client, user):
         "last_name": "Khanna",
         "email": user.email,
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     response = client.post(reverse("account_signup"), payload)
     assert "already registered" in str(response.content)
@@ -66,7 +62,6 @@ def test_signup_email_history(client):
         "last_name": "Khanna",
         "email": "harry@example.com",
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     client.post(reverse("account_signup"), payload)
     assert (
@@ -84,7 +79,6 @@ def test_user_locked(client, user):
         "last_name": "Khanna",
         "email": user.email,
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     response = client.post(reverse("account_signup"), payload)
     assert "already registered" in str(response.content)
@@ -98,7 +92,6 @@ def test_disable_user_creation(client):
         "last_name": "Khanna",
         "email": "harry@example.com",
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     response = client.post(reverse("account_signup"), payload)
     assert "Sign Up Closed" in str(response.content)
@@ -112,7 +105,6 @@ def test_email_lowercase(client):
         "last_name": "Khanna",
         "email": "harry@example.com".upper(),
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     client.post(reverse("account_signup"), payload)
     assert models.User.objects.filter(email="harry@example.com").exists() is True
@@ -125,7 +117,6 @@ def test_email_unique_iexact(client, user):
         "last_name": "Khanna",
         "email": user.email.upper(),
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     response = client.post(reverse("account_signup"), payload)
     assert "A user is already registered with this e-mail address" in str(
@@ -143,7 +134,6 @@ def test_first_name_length(client, user):
         "last_name": "Khanna",
         "email": "a@example.com",
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     response = client.post(reverse("account_signup"), payload)
     assert "first_name" in response.context["form"].errors
@@ -160,7 +150,6 @@ def test_last_name_length(client, user):
         "last_name": "A" * 151,
         "email": "a@example.com",
         "password1": "a really good password!",
-        "accept_terms": True,
     }
     response = client.post(reverse("account_signup"), payload)
     assert "last_name" in response.context["form"].errors
