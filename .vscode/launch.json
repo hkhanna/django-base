@@ -9,10 +9,7 @@
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/manage.py",
-      "args": [
-        "runserver",
-        "`source \"${workspaceFolder}/.env\"; echo ${WEB_PORT}`"
-      ],
+      "args": ["runserver"],
       "django": true,
       "justMyCode": false
     },
