@@ -1,5 +1,6 @@
 from django.urls import reverse
 from django.conf import settings
+from freezegun import freeze_time
 
 
 def test_login_happy(client, user):
@@ -99,3 +100,28 @@ def test_login_weird_email(client):
         {"login": "2@3.4", "password": "badpass"},
     )
     assert "Enter a valid email address." in str(response.content)
+
+
+def test_session_length(client, user):
+    """Session should last for the expected amount of time."""
+    expected_session_length = 15_552_000  # 180 days
+
+    with freeze_time("2022-11-04 12:00:00Z") as frozen_dt:
+        response = client.post(
+            reverse("account_login"), {"login": user.email, "password": "goodpass"}
+        )
+        response = client.get(reverse("account_settings"))
+        assert response.wsgi_request.user.is_authenticated is True
+        assert response.status_code == 200
+
+        # Still logged in with 1 second to go
+        frozen_dt.tick(delta=expected_session_length - 1)
+        response = client.get(reverse("account_settings"))
+        assert response.wsgi_request.user.is_authenticated is True
+        assert response.status_code == 200
+
+        # Session expired
+        frozen_dt.tick()
+        response = client.get(reverse("account_settings"))
+        assert response.wsgi_request.user.is_authenticated is False
+        assert response.status_code == 302

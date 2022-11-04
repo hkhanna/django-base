@@ -191,6 +191,7 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
+SESSION_COOKIE_AGE = 15_552_000  # 180 days
 ACCOUNT_ADAPTER = "base.adapter.AccountAdapter"
 LOGIN_REDIRECT_URL = "/accounts/settings/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
