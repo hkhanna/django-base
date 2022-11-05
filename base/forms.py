@@ -2,8 +2,11 @@ import logging
 import pytz
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib import messages
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from allauth.account import forms as auth_forms
+from allauth.socialaccount import forms as socialauth_forms
 from . import models
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
@@ -140,3 +143,13 @@ class PersonalInformationForm(forms.ModelForm):
             deleted_user.sync_changed_email()
 
         return email
+
+
+class DisconnectForm(socialauth_forms.DisconnectForm):
+    def clean(self):
+        try:
+            super().clean()
+        except ValidationError as e:
+            for message in e.messages:
+                messages.error(self.request, message)
+            raise

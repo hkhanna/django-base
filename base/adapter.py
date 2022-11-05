@@ -1,6 +1,8 @@
 import waffle
 import allauth.account.adapter
+import allauth.socialaccount.adapter
 from django import forms
+from django.urls import reverse
 
 from . import models
 
@@ -50,3 +52,15 @@ class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
             template_context=context,
         )
         email_message.send()
+
+
+class SocialAccountAdapter(allauth.socialaccount.adapter.DefaultSocialAccountAdapter):
+    def get_connect_redirect_url(self, request, socialaccount):
+        """
+        Returns the default URL to redirect to after successfully
+        connecting a social account.
+        """
+
+        assert request.user.is_authenticated
+        url = reverse("account_settings")
+        return url

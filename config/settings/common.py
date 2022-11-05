@@ -220,6 +220,7 @@ ACCOUNT_SESSION_REMEMBER = True
 PERMISSION_DENIED_REDIRECT = LOGIN_REDIRECT_URL
 
 # django-allauth social
+SOCIALACCOUNT_ADAPTER = "base.adapter.SocialAccountAdapter"
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": [

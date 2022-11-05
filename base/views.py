@@ -19,7 +19,6 @@ from allauth.account import (
     models as auth_models,
 )
 from allauth.account.adapter import get_adapter
-from allauth.socialaccount.forms import DisconnectForm
 
 from . import forms, models
 
@@ -76,7 +75,7 @@ class SettingsView(LoginRequiredMixin, View):
             {
                 "pi_form": forms.PersonalInformationForm(instance=request.user),
                 "password_form": password_formclass(user=request.user),
-                "disconnect_form": DisconnectForm(request=request),
+                "disconnect_form": forms.DisconnectForm(request=request),
                 "disable_account_deletion": waffle.switch_is_active(
                     "disable_account_deletion"
                 ),
@@ -103,9 +102,9 @@ class SettingsView(LoginRequiredMixin, View):
             password_form = password_formclass(user=request.user)
 
         if request.POST.get("form_name") == "disconnect":
-            disconnect_form = DisconnectForm(data=request.POST, request=request)
+            disconnect_form = forms.DisconnectForm(data=request.POST, request=request)
         else:
-            disconnect_form = DisconnectForm(request=request)
+            disconnect_form = forms.DisconnectForm(request=request)
 
         context = self.get_context_data()
         context.update(
