@@ -133,8 +133,6 @@ class SettingsView(LoginRequiredMixin, View):
             messages.success(request, "Password successfully changed.")
             update_session_auth_hash(request, request.user)  # Don't log the user out
             return redirect("account_settings")
-        else:
-            print(password_form.errors)
 
         if disconnect_form.is_valid():
             disconnect_form.save()
