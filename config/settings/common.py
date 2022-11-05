@@ -71,6 +71,7 @@ MIDDLEWARE = [
     "base.middleware.DisableClientCacheMiddleware",
     "base.middleware.TimezoneMiddleware",
     "base.middleware.SetRemoteAddrFromForwardedFor",
+    "base.middleware.BadRouteDetectMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

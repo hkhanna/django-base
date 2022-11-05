@@ -1,3 +1,4 @@
+import logging
 from django.test import override_settings
 from django.urls import reverse
 from django.test import Client
@@ -47,3 +48,14 @@ def test_health_check(client):
     """Health check endpoint returns 200"""
     response = client.get("/health_check/")
     assert response.status_code == 200
+
+
+def test_route_flag(client, caplog):
+    """If the socialaccount routes are accessed, something is wrong, so flag a Sentry error"""
+
+    with caplog.at_level(logging.ERROR):
+        client.get(reverse("socialaccount_connections"))
+    assert (
+        "A route in socialaccount was accessed that should not have been: "
+        in caplog.text
+    )

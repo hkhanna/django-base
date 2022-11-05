@@ -120,3 +120,17 @@ class DisableClientCacheMiddleware:
         response = self.get_response(request)
         add_never_cache_headers(response)
         return response
+
+
+class BadRouteDetectMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if "accounts/social/" in request.path:
+            logger.error(
+                "A route in socialaccount was accessed that should not have been: "
+                + request.path
+            )
+        response = self.get_response(request)
+        return response
