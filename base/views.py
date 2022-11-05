@@ -169,6 +169,7 @@ class DeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin, View):
             request.user.is_active = False
             request.user.save()
             request.user.emailaddress_set.update(verified=False)
+            request.user.socialaccount_set.all().delete()
         messages.info(request, "Your account has been deleted.")
         self.logout()
         return redirect("account_login")

@@ -1,6 +1,6 @@
-import pytest
 from django.urls import reverse
 from allauth.account import models as auth_models
+from allauth.socialaccount import models as socialauth_models
 
 from .. import models, factories
 
@@ -247,6 +247,27 @@ def test_deleted_user_unconfirm_email(client, user):
     client.post(reverse("account_delete"))
     email_address.refresh_from_db()
     assert email_address.verified is False
+
+
+def test_deleted_user_unconfirm_email(client, user):
+    """Deleting a user deletes all connected SocialAccounts."""
+    other_user = factories.UserFactory()
+    socialauth_models.SocialAccount.objects.create(
+        user=user, provider="Google", uid="123"
+    )
+    socialauth_models.SocialAccount.objects.create(
+        user=other_user, provider="Google", uid="456"
+    )
+    assert other_user.socialaccount_set.count() == 1
+    assert user.socialaccount_set.count() == 1
+
+    client.force_login(user)
+    client.post(reverse("account_delete"))
+
+    assert user.socialaccount_set.count() == 0
+
+    # Other user is not touched
+    assert other_user.socialaccount_set.count() == 1
 
 
 def test_change_email_to_deleted_user(client, user):
