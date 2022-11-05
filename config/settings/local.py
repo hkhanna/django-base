@@ -33,5 +33,6 @@ CHECK_HTML_IGNORE_MESSAGES = [
     "proprietary attribute",
     "inserting implicit <p>",
     "trimming empty",
+    "unescaped &",
 ]
 MIDDLEWARE.insert(1, "check_html.CheckHTMLMiddleware")

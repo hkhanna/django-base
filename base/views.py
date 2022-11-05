@@ -67,17 +67,21 @@ class SettingsView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
+        if request.user.has_usable_password():
+            password_formclass = auth_forms.ChangePasswordForm
+        else:
+            password_formclass = auth_forms.SetPasswordForm
+
         context.update(
             {
                 "pi_form": forms.PersonalInformationForm(instance=request.user),
-                "password_form": auth_forms.ChangePasswordForm(user=request.user),
+                "password_form": password_formclass(user=request.user),
                 "disconnect_form": DisconnectForm(request=request),
                 "disable_account_deletion": waffle.switch_is_active(
                     "disable_account_deletion"
                 ),
             }
         )
-        print(context["disconnect_form"].accounts)
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -88,12 +92,15 @@ class SettingsView(LoginRequiredMixin, View):
         else:
             pi_form = forms.PersonalInformationForm(instance=request.user)
 
-        if request.POST.get("form_name") == "password":
-            password_form = auth_forms.ChangePasswordForm(
-                data=request.POST, user=request.user
-            )
+        if request.user.has_usable_password():
+            password_formclass = auth_forms.ChangePasswordForm
         else:
-            password_form = auth_forms.ChangePasswordForm(user=request.user)
+            password_formclass = auth_forms.SetPasswordForm
+
+        if request.POST.get("form_name") == "password":
+            password_form = password_formclass(data=request.POST, user=request.user)
+        else:
+            password_form = password_formclass(user=request.user)
 
         if request.POST.get("form_name") == "disconnect":
             disconnect_form = DisconnectForm(data=request.POST, request=request)
@@ -127,6 +134,8 @@ class SettingsView(LoginRequiredMixin, View):
             messages.success(request, "Password successfully changed.")
             update_session_auth_hash(request, request.user)  # Don't log the user out
             return redirect("account_settings")
+        else:
+            print(password_form.errors)
 
         if disconnect_form.is_valid():
             disconnect_form.save()

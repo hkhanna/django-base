@@ -47,10 +47,12 @@
                 </div>
               </div>
               <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
+                {% if user.has_usable_password %}
                 <div>
                   {% component "input_field" field=pi_form.oldpassword input_class="w-full sm:w-auto" %}
                 </div>
-                {% component "button" type="submit" name="form_name" value="pi" variant="primary" text="Save" %}
+                {% endif %}
+                {% component "button" type="submit" name="form_name" value="pi" variant="primary" text="Save Changes" %}
               </div>
             </div>
           </form>
@@ -70,7 +72,7 @@
           <div class="px-4 sm:px-0">
             <h3 class="text-lg font-medium leading-6 text-gray-900">Password Management</h3>
             <p class="mt-1 text-sm text-gray-600">
-              Change your password.
+              {% if user.has_usable_password %}Change your password.{% else %}Set your password.{% endif %}
             </p>
           </div>
         </div>
@@ -89,10 +91,14 @@
                 </div>
               </div>
               <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
+                {% if user.has_usable_password %}
                 <div>
                   {% component "input_field" field=password_form.oldpassword input_class="w-full sm:w-auto" %}
                 </div>
                 {% component "button" type="submit" name="form_name" value="password" variant="primary" text="Change Password" %}
+                {% else %}
+                {% component "button" type="submit" name="form_name" value="password" variant="primary" text="Set Password" %}
+                {% endif %}
               </div>
             </div>
           </form>

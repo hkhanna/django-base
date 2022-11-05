@@ -113,6 +113,12 @@ class PersonalInformationForm(forms.ModelForm):
         model = User
         fields = ["first_name", "last_name", "email"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not self.instance.has_usable_password():
+            del self.fields["oldpassword"]
+
     def clean_oldpassword(self):
         if not self.instance.check_password(self.cleaned_data.get("oldpassword")):
             raise forms.ValidationError("Please type your current password.")
