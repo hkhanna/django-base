@@ -20,7 +20,8 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
   - To install `billing`:
     - [Follow the instructions](https://github.com/hkhanna/billing) to install the package.
     - Add `billing.mixins.BilingMixin` to the `SettingsView` after `LoginRequiredMixin`.
-- Do the "Local Installation" described below.
+- Either disable social auth by removing it from the installed apps or obtain the relevant secrets and add them to local `.env`.
+- Do the "Local Installation" in the README.
 - Add to `ALLOWED_HOSTS` in production settings whatever the domain is going to be.
 - Update `SITE_CONFIG`.
 - Update the **production** `GA_TRACKING_ID` setting if using Google Analytics. Leave as `None` to keep Google Analytics off.
@@ -36,6 +37,7 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
    - Create the first superuser on production: `python manage.py createsuperuser`
    - If you want to poke around, `python manage.py shell`.
 1. Update the Site name and domain in the Django admin.
+1. If you're using social auth, add the appropriate `Social Applications`.
 
 ## Render - Enable Celery if desired.
 
