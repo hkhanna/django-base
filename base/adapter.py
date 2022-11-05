@@ -1,8 +1,13 @@
 import waffle
 import allauth.account.adapter
 import allauth.socialaccount.adapter
+from allauth.account.utils import user_email
+from allauth.utils import email_address_exists
+from allauth.account import app_settings as auth_settings
+from allauth.socialaccount import app_settings as socialauth_settings
 from django import forms
 from django.urls import reverse
+from django.contrib import messages
 
 from . import models
 
@@ -64,3 +69,33 @@ class SocialAccountAdapter(allauth.socialaccount.adapter.DefaultSocialAccountAda
         assert request.user.is_authenticated
         url = reverse("account_settings")
         return url
+
+    def is_auto_signup_allowed(self, request, sociallogin):
+        # If email is specified, check for duplicate and if so, no auto signup.
+        auto_signup = socialauth_settings.AUTO_SIGNUP
+        if auto_signup:
+            email = user_email(sociallogin.user)
+            # Let's check if auto_signup is really possible...
+            if email:
+                if auth_settings.UNIQUE_EMAIL:
+                    if email_address_exists(email):
+                        # Oops, another user already has this address.
+                        # We cannot simply connect this social account
+                        # to the existing user. Reason is that the
+                        # email adress may not be verified, meaning,
+                        # the user may be a hacker that has added your
+                        # email address to their account in the hope
+                        # that you fall in their trap.  We cannot
+                        # check on 'email_address.verified' either,
+                        # because 'email_address' is not guaranteed to
+                        # be verified.
+                        auto_signup = False
+                        messages.error(
+                            request,
+                            self.error_messages["email_taken"]
+                            % sociallogin.account.get_provider().name,
+                        )
+            elif socialauth_settings.EMAIL_REQUIRED:
+                # Nope, email is required and we don't have it yet...
+                auto_signup = False
+        return auto_signup

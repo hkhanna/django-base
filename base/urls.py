@@ -4,6 +4,7 @@ from django.conf import settings
 from django.views.generic import TemplateView, RedirectView
 from django.urls import path, include
 from . import views
+from allauth.account import views as auth_views
 
 page_not_found = lambda request: django.views.defaults.page_not_found(request, None)
 
@@ -40,6 +41,9 @@ urlpatterns = [
         name="account_email_verification_sent",
     ),
     path("accounts/", include("allauth.urls")),
+    # This intercepts the page when a social signup fails because the email belongs to someone else.
+    # For whatever reason, reverse resolves the name backwards...
+    path("accounts/login/", auth_views.signup, name="socialaccount_signup"),
     path(
         "render-template-debug/<path:template>",
         views.render_template_with_params,
