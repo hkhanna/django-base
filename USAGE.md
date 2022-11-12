@@ -24,7 +24,6 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 - Do the "Local Installation" in the README.
 - Add to `ALLOWED_HOSTS` in production settings whatever the domain is going to be.
 - Update `SITE_CONFIG`.
-- Update the **production** `GA_TRACKING_ID` setting if using Google Analytics. Leave as `None` to keep Google Analytics off.
 - Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
 
 # Deploy to Render

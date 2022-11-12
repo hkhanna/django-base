@@ -1,6 +1,5 @@
 {% load django_vite %}
 {% load logrocket %}
-{% load gtag %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,7 +11,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     {% vite_hmr_client %}
     {% block vite_assets %}{% vite_asset 'js/main.js' %}{% endblock vite_assets %}
-    {% gtag %}
   </head>
 
   <body class="{% block body_class %}bg-indigo-50{% endblock body_class %}">

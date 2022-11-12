@@ -59,9 +59,6 @@ EMAIL_BACKEND = "postmark.django_backend.EmailBackend"
 POSTMARK_TEST_MODE = False
 POSTMARK_RETURN_MESSAGE_ID = True
 
-# Google Analytics
-GA_TRACKING_ID = None  # Off by default
-
 # Sentry
 SENTRY_DSN = None  # Off by default
 if SENTRY_DSN:
