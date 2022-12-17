@@ -14,11 +14,6 @@ DATABASES = {
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
-# Prevent log spew during testing
-LOGLEVEL = env("LOGLEVEL", default="CRITICAL")
-logging.getLogger("django").setLevel(LOGLEVEL)
-logging.getLogger("").setLevel(LOGLEVEL)
-
 # This shouldn't be necessary since testing will substitute out the postmark
 # backend for locmem, but this is just a precaution.
 POSTMARK_TEST_MODE = True
