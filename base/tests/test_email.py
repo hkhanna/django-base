@@ -22,10 +22,6 @@ def test_send_email(user, mailoutbox, settings):
             "activate_url": "",
         },
     )
-    settings.SITE_CONFIG["default_reply_to_name"] = None
-    settings.SITE_CONFIG[
-        "default_reply_to_email"
-    ] = None  # Override these in case an application sets it
 
     email_message.send()
     email_message.refresh_from_db()
@@ -338,15 +334,15 @@ def test_disable_outbound_email_waffle_switch(user, mailoutbox):
 
 
 def test_send_email_with_reply_to(user, mailoutbox, settings):
-    """Create and send an EmailMessage with a default reply to should work"""
-    settings.SITE_CONFIG["default_reply_to_name"] = "Support"
-    settings.SITE_CONFIG["default_reply_to_email"] = "support@example.com"
+    """Create and send an EmailMessage with a reply to should work"""
     email_message = models.EmailMessage(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",
         to_name=user.name,
         to_email=user.email,
+        reply_to_name="Support",
+        reply_to_email="support@example.com",
         template_context={
             "user_name": user.name,
             "user_email": user.email,
@@ -363,11 +359,6 @@ def test_send_email_with_reply_to(user, mailoutbox, settings):
 
 def test_reply_to_name_no_email(user, mailoutbox, settings):
     """Blank reply_to_email with a non-blank reply_to_name raises an error"""
-    settings.SITE_CONFIG["default_reply_to_name"] = None
-    settings.SITE_CONFIG[
-        "default_reply_to_email"
-    ] = None  # Override these in case an application sets it
-
     email_message = models.EmailMessage(
         created_by=user,
         subject="A subject",

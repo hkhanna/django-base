@@ -179,8 +179,6 @@ SITE_CONFIG = {
     "logo_url": "",
     "default_from_name": "Jane Example",
     "default_from_email": "jane@example.com",
-    "default_reply_to_name": None,
-    "default_reply_to_email": None,  # Set to None to not have any reply-to
     "account_from_name": "Account Management",
     "account_from_email": "accounts@example.com",
     "account_reply_to_name": None,

@@ -243,12 +243,8 @@ class EmailMessage(models.Model):
         self.sender_name = self._trim_string(
             self.sender_name or settings.SITE_CONFIG["default_from_name"] or ""
         )
-        self.reply_to_email = self._trim_string(
-            self.reply_to_email or settings.SITE_CONFIG["default_reply_to_email"] or ""
-        )
-        self.reply_to_name = self._trim_string(
-            self.reply_to_name or settings.SITE_CONFIG["default_reply_to_name"] or ""
-        )
+        self.reply_to_email = self._trim_string(self.reply_to_email or "")
+        self.reply_to_name = self._trim_string(self.reply_to_name or "")
         self.to_name = self._trim_string(self.to_name)
         self.to_email = self._trim_string(self.to_email)
 
