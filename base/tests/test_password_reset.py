@@ -101,3 +101,43 @@ def test_reset_inactive(client, user, mailoutbox):
     assert response.status_code == 200
     assert len(mailoutbox) == 0
     assert "not assigned to any user account" in str(response.content)
+
+
+def test_reset_email_no_reply_to(client, user, mailoutbox, settings):
+    """Password reset email with no account_reply_to has no reply to"""
+    settings.SITE_CONFIG["account_reply_to_name"] = None
+    settings.SITE_CONFIG["account_reply_to_email"] = None
+    settings.SITE_CONFIG["default_reply_to_name"] = "Support"  # This should be ignored.
+    settings.SITE_CONFIG[
+        "default_reply_to_email"
+    ] = "support@example.com"  # This should be ignored.
+
+    client.post(reverse("account_reset_password"), {"email": user.email}, follow=True)
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].reply_to == []
+
+
+def test_reset_email_reply_to(client, user, mailoutbox, settings):
+    """Password reset emails use the account_reply_to_email"""
+    settings.SITE_CONFIG["account_reply_to_name"] = "Support"
+    settings.SITE_CONFIG["account_reply_to_email"] = "support@example.com"
+
+    client.post(reverse("account_reset_password"), {"email": user.email}, follow=True)
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].reply_to == ["Support <support@example.com>"]
+
+
+def test_reset_email_from(client, user, mailoutbox, settings):
+    """Password reset emails use the account_from_email"""
+    settings.SITE_CONFIG["account_from_name"] = "Support"
+    settings.SITE_CONFIG["account_from_email"] = "support@example.com"
+    settings.SITE_CONFIG[
+        "default_from_name"
+    ] = "Something Else"  # This should be ignored.
+    settings.SITE_CONFIG[
+        "default_from_email"
+    ] = "somethingelse@example.com"  # This should be ignored.
+
+    client.post(reverse("account_reset_password"), {"email": user.email}, follow=True)
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].from_email == "Support <support@example.com>"

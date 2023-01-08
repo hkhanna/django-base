@@ -6,6 +6,7 @@ from allauth.utils import email_address_exists
 from allauth.account import app_settings as auth_settings
 from allauth.socialaccount import app_settings as socialauth_settings
 from django import forms
+from django.conf import settings
 from django.urls import reverse
 from django.contrib import messages
 
@@ -53,6 +54,10 @@ class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
             created_by=user,
             to_name=name,
             to_email=email,
+            sender_name=settings.SITE_CONFIG["account_from_name"],
+            sender_email=settings.SITE_CONFIG["account_from_email"],
+            reply_to_name=settings.SITE_CONFIG["account_reply_to_name"] or "",
+            reply_to_email=settings.SITE_CONFIG["account_reply_to_email"] or "",
             template_prefix=template_prefix,
             template_context=context,
         )
