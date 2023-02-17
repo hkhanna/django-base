@@ -74,7 +74,7 @@
                   <tr>
                     <td style="font-size: 12px; padding-left: 24px; padding-right: 24px; text-align: center; color: #475569;">
                       <p style="margin: 0; margin-bottom: 4px; text-transform: uppercase;">{{company}}</p>
-                      <p style="margin: 0; font-style: italic;">{{company_address}}, {{company_city_state_zip}}</p>
+                      {% if company_address %}<p style="margin: 0; font-style: italic;">{{company_address}}, {{company_city_state_zip}}</p>{% endif %}
                       <p>If you're not sure why you received this email,
                         please <a href="mailto:{{contact_email}}" class="hover-underline" style="color: #0284c7; text-decoration: none;">let us know</a>.
                       </p>

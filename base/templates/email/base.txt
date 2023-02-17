@@ -4,6 +4,6 @@
 The {{site_name}} team{% endblock signoff %}
 
 {{company}}
-{{company_address}}
+{% if company_address %}{{company_address}}
 {{company_city_state_zip}}
-{{contact_email}}
+{{contact_email}}{% endif %}
