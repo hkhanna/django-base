@@ -1,14 +1,6 @@
 from django.db import models
 
 
-class OrgUser:
-    class Role(models.TextChoices):
-        # Add any desired roles for OrgUsers here.
-
-        OWNER = "owner"  # This is the only required role.
-        # MEMBER = "member"
-
-
 class EmailMessage:
     class Status(models.TextChoices):
         NEW = "new"

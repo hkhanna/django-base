@@ -2,10 +2,10 @@ import logging
 import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from allauth.account import models as auth_models
-
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +91,30 @@ class User(AbstractUser):
         elif self.email_history[-1] != self.email:
             self.email_history.append(self.email)
 
+        adding = False
+        if self._state.adding is True:
+            # If we don't set this now, self._state.adding doesn't work
+            # properly once we have saved the user.
+            adding = True
+
         super().save(*args, **kwargs)
+
+        if adding:
+            Org = apps.get_model("base", "Org")
+            OrgUser = apps.get_model("base", "OrgUser")
+
+            org = Org(
+                owner=self,
+                is_personal=True,
+                is_active=True,
+                name=self.name,
+            )
+            org.full_clean()
+            org.save()
+
+            ou = OrgUser(user=self, org=org, role="owner")
+            ou.full_clean()
+            ou.save()
 
     def clean(self):
         # Case-insensitive email address uniqueness check
@@ -105,6 +128,13 @@ class User(AbstractUser):
                     "is_active": "A locked user must be active.",
                 }
             )
+
+        if not self._state.adding:
+            # Don't require an Org for a brand new user
+            if self.orgs.count() == 0:
+                raise ValidationError(
+                    "A user must belong to at least one organization."
+                )
 
     def sync_changed_email(self):
         """If user.email has changed, remove all a User's EmailAddresses
