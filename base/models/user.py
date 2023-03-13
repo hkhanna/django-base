@@ -74,18 +74,11 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    def clean(self):
-        # Case-insensitive email address uniqueness check
-        if User.objects.filter(email__iexact=self.email).exclude(id=self.id).exists():
-            raise ValidationError({"email": "A user with that email already exists."})
+    def __str__(self):
+        return self.name
 
-        if self.is_locked and not self.is_active:
-            raise ValidationError(
-                {
-                    "is_locked": "A locked user must be active.",
-                    "is_active": "A locked user must be active.",
-                }
-            )
+    def __repr__(self):
+        return f"<User: {self.email} (#{self.id})>"
 
     def save(self, *args, **kwargs):
         # Normalize all emails to lowercase. This is mostly for emails saved via the admin since
@@ -99,6 +92,19 @@ class User(AbstractUser):
             self.email_history.append(self.email)
 
         super().save(*args, **kwargs)
+
+    def clean(self):
+        # Case-insensitive email address uniqueness check
+        if User.objects.filter(email__iexact=self.email).exclude(id=self.id).exists():
+            raise ValidationError({"email": "A user with that email already exists."})
+
+        if self.is_locked and not self.is_active:
+            raise ValidationError(
+                {
+                    "is_locked": "A locked user must be active.",
+                    "is_active": "A locked user must be active.",
+                }
+            )
 
     def sync_changed_email(self):
         """If user.email has changed, remove all a User's EmailAddresses
@@ -132,9 +138,3 @@ class User(AbstractUser):
             return self.last_name
         else:
             return self.email
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return f"<User: {self.email} (#{self.id})>"
