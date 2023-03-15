@@ -158,23 +158,9 @@ class OrgMiddleware:
                 if org:
                     request.org = org
 
-            # If the user has a personal org, use that.
             if request.org is None:
-                request.org = Org.objects.filter(
-                    owner=request.user, is_personal=True, is_active=True
-                ).first()
-
-            # If there's no personal org, use the most recently updated org.
-            if request.org is None:
-                request.org = (
-                    Org.objects.filter(users=request.user, is_active=True)
-                    .order_by("-updated_at")
-                    .first()
-                )
-
-            # If there's still nothing, that's a problem. There should always be an Org.
-            if request.org is None:
-                logger.error(f"User.id={request.user.id} No active Org found for user")
+                # Otherwise, use the user's default org.
+                request.org = request.user.default_org
 
         response = self.get_response(request)
         return response

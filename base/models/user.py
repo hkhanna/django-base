@@ -163,3 +163,15 @@ class User(AbstractUser):
             return self.last_name
         else:
             return self.email
+
+    @property
+    def default_org(self):
+        # If the user has a personal org, use that.
+        org = self.orgs.filter(owner=self, is_personal=True, is_active=True).first()
+
+        # If there's no personal org, use the most recently updated org.
+        if org is None:
+            org = self.orgs.filter(is_active=True).order_by("-updated_at").first()
+
+        assert org is not None, "User does not have any Orgs"
+        return org

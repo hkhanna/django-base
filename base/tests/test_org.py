@@ -9,6 +9,48 @@ import base.factories
 User = get_user_model()
 
 
+def test_switch_org(client, user, org):
+    """Switching an org simply sets request.org and persists that information to the session."""
+    client.force_login(user)
+    response = client.get(reverse("index"))
+    assert user.default_org != org
+    assert response.wsgi_request.org == user.default_org
+
+    response = client.post(reverse("org_switch"), {"slug": org.slug})
+    assert response.wsgi_request.org == org
+    assert response.wsgi_request.session["org_slug"] == org.slug
+
+
+def test_switch_inactive_org(client, user, org):
+    """A user may not switch to an inactive org"""
+    org.is_active = False
+    org.full_clean()
+    org.save()
+
+    client.force_login(user)
+    response = client.get(reverse("index"))
+    assert user.default_org != org
+    assert response.wsgi_request.org == user.default_org
+
+    response = client.post(reverse("org_switch"), {"slug": org.slug})
+    assert response.wsgi_request.org == user.default_org
+    assert response.wsgi_request.session["org_slug"] == user.default_org.slug
+
+
+def test_switch_inactive_unauthorized(client, user):
+    """A user may not switch to an org that they don't belong to."""
+    org = base.factories.OrgFactory()  # Different owner
+
+    client.force_login(user)
+    response = client.get(reverse("index"))
+    assert user.default_org != org
+    assert response.wsgi_request.org == user.default_org
+
+    response = client.post(reverse("org_switch"), {"slug": org.slug})
+    assert response.wsgi_request.org == user.default_org
+    assert response.wsgi_request.session["org_slug"] == user.default_org.slug
+
+
 def test_one_org(user):
     """A user must belong to at least one Org."""
     user.orgs.clear()
@@ -85,7 +127,7 @@ def test_maximum_personal(user):
     org.save()  # OK
 
     org = Org(owner=user, is_personal=True, name=user.name)
-    with assertRaisesMessage(IntegrityError, "unique_personal_org"):
+    with assertRaisesMessage(IntegrityError, "unique_personal_active_org"):
         org.full_clean()
         org.save()
 
@@ -149,24 +191,14 @@ def test_org_in_session_bad(client, user):
     assert response.wsgi_request.org != other_org
 
 
-def test_switch_org():
-    """Switching an org simply sets request.org and persists that information to the session."""
-    assert False
-
-
-def test_switch_inactive_org():
-    """A user may not switch to an inactive org"""
-    assert False
-
-
-def test_email_message_track_org():
-    """EmailMessage should track the active org when sent"""
-    assert False
-
-
-def test_change_user_name_org_name():
+def test_change_user_name_org_name(user):
     """Changing a user's name should change the name of the user's personal org."""
-    assert False
+    user.first_name = "Kipp"
+    user.full_clean()
+    user.save()
+
+    assert user.default_org.is_personal is True
+    assert user.default_org.name == user.name
 
 
 # DREAM: Org views
