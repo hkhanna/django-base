@@ -43,9 +43,8 @@ def test_owner_org_user(user, settings):
     ).exists()
 
 
-def test_owner_org_user_role(user, settings):
+def test_owner_org_user_role(user, org, settings):
     """Setting an Org owner automatically updates an OrgUser's role to settings.DEFAULT_ORG_OWNER_ROLE"""
-    org = Org.objects.create(name="Example Org", owner=user, is_personal=False)
     ou = org.org_users.filter(org=org, role=settings.DEFAULT_ORG_OWNER_ROLE)
     assert len(ou) == 1
     assert ou.first().user == user
@@ -106,7 +105,7 @@ def test_no_org_in_session(client, user):
     assert response.wsgi_request.org == personal_org
 
     # Add a non-personal Org
-    other_org = Org.objects.create(owner=user, is_personal=False, is_active=True)
+    other_org = base.factories.OrgFactory(owner=user, is_personal=False, is_active=True)
     response = client.get(reverse("index"))
     assert response.wsgi_request.org == personal_org
 
@@ -121,15 +120,13 @@ def test_no_org_in_session(client, user):
 def test_org_in_session(client, user):
     """If there's an org in the session, set request.org to that org."""
     client.force_login(user)
-    other_org = Org.objects.create(
-        name="Example Org",
-        slug="example-org",
+    other_org = base.factories.OrgFactory(
         owner=user,
         is_personal=False,
         is_active=True,
     )
     session = client.session
-    session["org_slug"] = "example-org"
+    session["org_slug"] = other_org.slug
     session.save()
 
     response = client.get(reverse("index"))
@@ -139,15 +136,13 @@ def test_org_in_session(client, user):
 def test_org_in_session_bad(client, user):
     """If there's an org in the session, but it doesn't match the user, don't use it."""
     client.force_login(user)
-    other_org = Org.objects.create(
-        name="Example Org",
-        slug="example-org",
+    other_org = base.factories.OrgFactory(
         owner=base.factories.UserFactory(),
         is_personal=False,
         is_active=True,
     )
     session = client.session
-    session["org_slug"] = "example-org"
+    session["org_slug"] = other_org.slug
     session.save()
 
     response = client.get(reverse("index"))

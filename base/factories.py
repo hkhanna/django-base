@@ -53,3 +53,12 @@ class EmailMessageFactory(factory.django.DjangoModelFactory):
 
     created_by = factory.SubFactory(UserFactory)
     template_context = {}
+
+
+class OrgFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "base.Org"
+
+    name = factory.Faker("company")
+    owner = factory.SubFactory(UserFactory)
+    is_personal = False
