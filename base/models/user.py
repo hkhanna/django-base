@@ -101,7 +101,6 @@ class User(AbstractUser):
 
         if adding:
             Org = apps.get_model("base", "Org")
-            OrgUser = apps.get_model("base", "OrgUser")
 
             org = Org(
                 owner=self,
@@ -111,10 +110,6 @@ class User(AbstractUser):
             )
             org.full_clean()
             org.save()
-
-            ou = OrgUser(user=self, org=org, role="owner")
-            ou.full_clean()
-            ou.save()
 
     def clean(self):
         # Case-insensitive email address uniqueness check

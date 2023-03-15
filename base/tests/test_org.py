@@ -3,7 +3,8 @@ from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from ..models import Org, OrgUser
+from ..models import Org
+import base.factories
 
 User = get_user_model()
 
@@ -32,16 +33,42 @@ def test_auto_create_org():
     assert list(org.users.all()) == [user]
 
 
-def test_owner_org_user(user):
-    """The owner must also be an OrgUser"""
-    # FIXME: Maybe make it auto-create?
-    org = user.orgs.first()
-    ou = OrgUser.objects.get(org=org, user=org.owner)
-    ou.delete()
-    with assertRaisesMessage(
-        ValidationError, "Organization owner must be a member of the organization."
-    ):
-        org.full_clean()
+def test_owner_org_user(user, settings):
+    """Setting an Org owner automatically adds an OrgUser"""
+    org = Org(name="Example Org", owner=user, is_personal=False)
+    org.full_clean()
+    org.save()
+    assert org.org_users.filter(
+        user=user, org=org, role=settings.DEFAULT_ORG_OWNER_ROLE
+    ).exists()
+
+
+def test_owner_org_user_role(user, settings):
+    """Setting an Org owner automatically updates an OrgUser's role to settings.DEFAULT_ORG_OWNER_ROLE"""
+    org = Org.objects.create(name="Example Org", owner=user, is_personal=False)
+    ou = org.org_users.filter(org=org, role=settings.DEFAULT_ORG_OWNER_ROLE)
+    assert len(ou) == 1
+    assert ou.first().user == user
+
+    # Create a new user and add them to the Org as a member
+    new_user = base.factories.UserFactory()
+    org.users.add(new_user, through_defaults={"role": settings.DEFAULT_ORG_ROLE})
+    assert org.org_users.filter(user=new_user).count() == 1
+    assert (
+        org.org_users.filter(user=new_user, role=settings.DEFAULT_ORG_ROLE).count() == 1
+    )
+
+    # Transfer ownership to a new user
+    org.owner = new_user
+    org.full_clean()
+    org.save()
+    assert org.org_users.filter(user=new_user).count() == 1
+    assert (
+        org.org_users.filter(
+            user=new_user, role=settings.DEFAULT_ORG_OWNER_ROLE
+        ).count()
+        == 1
+    )
 
 
 def test_maximum_personal(user):
@@ -64,14 +91,67 @@ def test_maximum_personal(user):
         org.save()
 
 
-def test_no_org_in_session():
+def test_no_org_in_session(client, user):
     """If there's no org in the session, set the org to the user's personal org, or if none, the most recently updated org."""
-    assert False
+    client.force_login(user)
+
+    # There's only 1 Org and it's the user's personal Org
+    assert Org.objects.count() == 1
+    personal_org = Org.objects.filter(
+        owner=user, is_personal=True, is_active=True
+    ).first()
+    assert personal_org is not None
+
+    response = client.get(reverse("index"))
+    assert response.wsgi_request.org == personal_org
+
+    # Add a non-personal Org
+    other_org = Org.objects.create(owner=user, is_personal=False, is_active=True)
+    response = client.get(reverse("index"))
+    assert response.wsgi_request.org == personal_org
+
+    # Deactivate the personal Org
+    personal_org.is_active = False
+    personal_org.full_clean()
+    personal_org.save()
+    response = client.get(reverse("index"))
+    assert response.wsgi_request.org == other_org
 
 
-def test_org_in_session():
+def test_org_in_session(client, user):
     """If there's an org in the session, set request.org to that org."""
-    assert False
+    client.force_login(user)
+    other_org = Org.objects.create(
+        name="Example Org",
+        slug="example-org",
+        owner=user,
+        is_personal=False,
+        is_active=True,
+    )
+    session = client.session
+    session["org_slug"] = "example-org"
+    session.save()
+
+    response = client.get(reverse("index"))
+    assert response.wsgi_request.org == other_org
+
+
+def test_org_in_session_bad(client, user):
+    """If there's an org in the session, but it doesn't match the user, don't use it."""
+    client.force_login(user)
+    other_org = Org.objects.create(
+        name="Example Org",
+        slug="example-org",
+        owner=base.factories.UserFactory(),
+        is_personal=False,
+        is_active=True,
+    )
+    session = client.session
+    session["org_slug"] = "example-org"
+    session.save()
+
+    response = client.get(reverse("index"))
+    assert response.wsgi_request.org != other_org
 
 
 def test_switch_org():
@@ -103,7 +183,7 @@ def test_change_user_name_org_name():
 # - invitations
 #   - If you created your user account because you were invited, don't create a personal org automatically.
 #   - If you don't have a personal org, there should be a way to create one.
-# - Removing a user from an org creates a personal org for them if they would otherwise have no orgs.
+# - Removing a user from an org creates a personal org for them if they would otherwise have no active orgs.
 
 # Tests related to deleting a User
 """Can't delete your account if you own an org, unless its your personal Org"""

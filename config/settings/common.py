@@ -72,6 +72,7 @@ MIDDLEWARE = [
     "base.middleware.TimezoneMiddleware",
     "base.middleware.SetRemoteAddrFromForwardedFor",
     "base.middleware.BadRouteDetectMiddleware",
+    "base.middleware.OrgMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -236,6 +237,10 @@ SOCIALACCOUNT_PROVIDERS = {
     },
     "github": {},
 }
+
+# Orgs
+DEFAULT_ORG_OWNER_ROLE = "admin"
+DEFAULT_ORG_ROLE = "member"
 
 # django-waffle
 WAFFLE_CREATE_MISSING_SWITCHES = True

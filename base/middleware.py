@@ -4,6 +4,7 @@ import uuid
 import pytz
 
 from django.urls import resolve
+from django.apps import apps
 from django.conf import settings
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
@@ -132,5 +133,48 @@ class BadRouteDetectMiddleware:
                 "A route in socialaccount was accessed that should not have been: "
                 + request.path
             )
+        response = self.get_response(request)
+        return response
+
+
+class OrgMiddleware:
+    """If there's no org in the session, set the org to the user's personal org, or if none, the most recently updated org."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        Org = apps.get_model("base", "Org")
+        request.org = None
+
+        # Only assign Orgs for authenticated users
+        if request.user.is_authenticated:
+            # If there's an org in the session and it's not invalid, use it.
+            slug = request.session.get("org_slug")
+            if slug:
+                org = Org.objects.filter(
+                    slug=slug, users=request.user, is_active=True
+                ).first()
+                if org:
+                    request.org = org
+
+            # If the user has a personal org, use that.
+            if request.org is None:
+                request.org = Org.objects.filter(
+                    owner=request.user, is_personal=True, is_active=True
+                ).first()
+
+            # If there's no personal org, use the most recently updated org.
+            if request.org is None:
+                request.org = (
+                    Org.objects.filter(users=request.user, is_active=True)
+                    .order_by("-updated_at")
+                    .first()
+                )
+
+            # If there's still nothing, that's a problem. There should always be an Org.
+            if request.org is None:
+                logger.error(f"User.id={request.user.id} No active Org found for user")
+
         response = self.get_response(request)
         return response

@@ -47,15 +47,18 @@ class Org(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # If owner isn't an OrgUser, create one.
+        OrgUser.objects.update_or_create(
+            user=self.owner,
+            org=self,
+            defaults={"role": settings.DEFAULT_ORG_OWNER_ROLE},
+        )
+
     def clean(self):
         if self._state.adding is False:
-
-            # The owner must be an OrgUser
-            if not self.org_users.filter(user=self.owner).exists():
-                raise ValidationError(
-                    "Organization owner must be a member of the organization."
-                )
-
             # The only time a blank slug is allowed is if it's a brand new Org,
             # because AutoSlugField only triggers when saved.
             if not self.slug:
