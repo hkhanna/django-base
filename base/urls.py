@@ -21,7 +21,10 @@ urlpatterns = [
         name="privacy_policy",
     ),
     path("org/switch/", views.OrgSwitchView.as_view(), name="org_switch"),
-    path("accounts/settings/", views.SettingsView.as_view(), name="account_settings"),
+    path("org/detail/", views.OrgDetailView.as_view(), name="org_detail"),
+    path(
+        "accounts/settings/", views.UserSettingsView.as_view(), name="account_settings"
+    ),
     path(
         "accounts/resend-confirmation-email/",
         views.ResendConfirmationEmailView.as_view(),

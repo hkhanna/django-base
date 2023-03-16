@@ -1,0 +1,82 @@
+{% extends "layouts/application.html" %}
+{% load socialaccount %}
+{% block title %}Organization Settings{% endblock %}
+{% load heroicons %}
+{% block page_heading %}
+  {% component "page_heading" heading="Organization Settings" %}
+{% endblock page_heading %}
+{% block main %}
+  <section class="section-container mb-20">
+    {% if not org.is_personal %}
+     <div class="my-4 lg:my-8 px-3 lg:px-0">
+      <nav class="relative flex space-x-4" aria-label="Tabs">
+          <a href="{% url 'account_settings' %}" class="text-gray-500 hover:text-gray-700 px-3 py-2 font-medium text-sm rounded-md">User Settings</a>
+          <a href="{% url 'org_detail' %}" class="bg-indigo-100 text-indigo-700 px-3 py-2 font-medium text-sm rounded-md">Organization Settings</a>
+      </nav>
+    </div>
+    {% endif %}
+    <div>
+      <div class="md:grid md:grid-cols-3 md:gap-6">
+        <div class="md:col-span-1">
+          <div class="px-4 sm:px-0">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">Basic Information</h3>
+            <p class="mt-1 text-sm text-gray-600">
+              The name of the organization.
+            </p>
+          </div>
+        </div>
+        <div class="mt-5 md:mt-0 md:col-span-2">
+            <div class="shadow sm:rounded-md sm:overflow-hidden">
+              <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                <span class="text-2xl text-gray-900 font-semibold">{{ org.name }}</span>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hidden sm:block" aria-hidden="true">
+      <div class="py-5">
+        <div class="border-t border-gray-200"></div>
+      </div>
+    </div>
+
+    <div class="mt-10 sm:mt-0">
+      <div class="md:grid md:grid-cols-3 md:gap-6">
+        <div class="md:col-span-1">
+          <div class="px-4 sm:px-0">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">Members</h3>
+            <p class="mt-1 text-sm text-gray-600">
+              A list of the members in this organization.
+            </p>
+          </div>
+        </div>
+        <div class="mt-5 md:mt-0 md:col-span-2">
+            <div class="shadow sm:rounded-md sm:overflow-hidden">
+              <div class="px-4 py-5 bg-white sm:p-6 space-y-6">
+                <div class="flow-root">
+                  <ul role="list" class="divide-y divide-gray-200">
+                    {% for ou in org.org_users.all %}
+                    <li class="py-4">
+                      <div class="flex items-center space-x-4">
+                        <div class="min-w-0 flex-1">
+                          <p class="truncate text-sm font-medium text-gray-900">{{ou.user.name}} {% if org.owner == ou.user %}<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">Owner</span>{% endif %}</p>
+                          <p class="truncate text-sm text-gray-500">{{ou.user.email}}</p>
+                        </div>
+                        <div>
+                          {% if org.owner != ou.user %}
+                          <a href="#" class="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Remove</a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock main %}

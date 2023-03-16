@@ -252,6 +252,19 @@ def test_ou_last_accessed(client, user, org):
         )
 
 
+def test_org_detail(client, user, org):
+    """Org detail page shows members"""
+    client.force_login(user)
+    assert user.default_org == org
+    other_user = base.factories.UserFactory()
+    org.users.add(other_user)
+
+    response = client.get(reverse("org_detail"))
+    assert response.status_code == 200
+    assert user.name in str(response.content)
+    assert "Owner" in str(response.content)
+    assert other_user.name in str(response.content)
+
 # DREAM: Org views
 # - creating an org
 # - deleting an org

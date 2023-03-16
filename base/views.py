@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView, View, DetailView
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.http import require_http_methods
@@ -70,7 +70,14 @@ class OrgSwitchView(LoginRequiredMixin, View):
         return redirect("index")
 
 
-class SettingsView(LoginRequiredMixin, View):
+class OrgDetailView(LoginRequiredMixin, DetailView):
+    template_name = "base/org_detail.html"
+
+    def get_object(self, *args, **kwargs):
+        return self.request.org
+
+
+class UserSettingsView(LoginRequiredMixin, View):
     template_name = "account/settings.html"
 
     def get_context_data(self, **kwargs):

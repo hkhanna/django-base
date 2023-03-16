@@ -1,13 +1,22 @@
 {% extends "layouts/application.html" %}
 {% load socialaccount %}
-{% block title %}Settings{% endblock %}
+{% block title %}User Settings{% endblock %}
 {% load heroicons %}
 {% block page_heading %}
-  {% component "page_heading" heading="Settings" %}
+  {% component "page_heading" heading="User Settings" %}
 {% endblock page_heading %}
 {% block main %}
   {% get_providers as socialaccount_providers %}
   <section class="section-container mb-20">
+    {% if not request.org.is_personal %}
+     <div class="my-4 lg:my-8 px-3 lg:px-0">
+      <nav class="relative flex space-x-4" aria-label="Tabs">
+          <a href="{% url 'account_settings' %}" class="bg-indigo-100 text-indigo-700 px-3 py-2 font-medium text-sm rounded-md">User Settings</a>
+          <a href="{% url 'org_detail' %}" class="text-gray-500 hover:text-gray-700 px-3 py-2 font-medium text-sm rounded-md">Organization Settings</a>
+      </nav>
+    </div>
+    {% endif %}
+
     {% if not request.user.is_email_verified %}
       {% component_block "alert" variant="warning" text="Your email address is not verified." alertClass="my-6 sm:w-full" dismissable=False %}
         {% slot subtext %}
