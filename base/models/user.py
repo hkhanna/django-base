@@ -99,15 +99,15 @@ class User(AbstractUser):
 
         super().save(*args, **kwargs)
 
-        if adding:
-            Org = apps.get_model("base", "Org")
+        Org = apps.get_model("base", "Org")
+        org, _ = Org.objects.get_or_create(
+            owner=self,
+            is_personal=True,
+            defaults={"name": self.name, "is_active": True},
+        )
 
-            org = Org(
-                owner=self,
-                is_personal=True,
-                is_active=True,
-                name=self.name,
-            )
+        if not adding:
+            org.name = self.name
             org.full_clean()
             org.save()
 
@@ -165,11 +165,15 @@ class User(AbstractUser):
             return self.email
 
     @property
+    def personal_org(self):
+        return self.orgs.filter(owner=self, is_personal=True, is_active=True).first()
+
+    @property
     def default_org(self):
         # If the user has a personal org, use that.
         org = self.orgs.filter(owner=self, is_personal=True, is_active=True).first()
 
-        # If there's no personal org, use the most recently updated org.
+        # If there's no personal org, use the most recently accessed (FIXME) org.
         if org is None:
             org = self.orgs.filter(is_active=True).order_by("-updated_at").first()
 
