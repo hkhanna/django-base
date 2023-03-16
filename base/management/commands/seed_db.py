@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from config.settings.local import env
 from allauth.socialaccount.models import SocialApp
+from base.models import Org
 
 User = get_user_model()
 
@@ -24,6 +25,10 @@ class Command(BaseCommand):
             self.stderr.write("Passwords don't match.")
             exit(1)
         user = User.objects.create_superuser(email, password)
+
+        # -- Orgs -- #
+        # Create an additional Org for the user with the user as the owner.
+        Org.objects.create(name="Example LLC", owner=user, is_personal=False)
 
         # -- Sites -- #
         # Change initial site to localhost

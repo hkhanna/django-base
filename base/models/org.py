@@ -3,7 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django_extensions.db.fields import AutoSlugField
-
+from django.utils.encoding import force_str
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,10 @@ class Org(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        # If this is a personal org, update the slug.
+        if self.is_personal:
+            self.slug = force_str(Org._meta.get_field("slug").create_slug(self, True))
+
         super().save(*args, **kwargs)
 
         # If owner isn't an OrgUser, create one.

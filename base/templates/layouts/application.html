@@ -1,6 +1,7 @@
 {% extends "layouts/base.html" %}
 {% load heroicons %}
 {% load navlink %}
+{% load org %}
 {% block content %}
   <div x-data="{ navOpen: false }" x-on:keyup.document.escape="navOpen = false">
     <div class="bg-white shadow-sm">
@@ -17,10 +18,7 @@
           </nav>
         </div>
         <div class="hidden sm:ml-6 sm:flex sm:items-center">
-          <div class="ml-3 font-medium">
-            <p class="text-sm text-gray-700">{{request.user.name}}</p>
-            <p class="text-sm text-gray-500">{{request.user.email}}</p>
-          </div>
+          {% org_switcher %} 
         </div>
         <div class="-mr-2 flex items-center sm:hidden">
           <button
@@ -44,12 +42,7 @@
         {% navlink url_name="account_logout" name="Logout" mobile=True %}
       </div>
       <div class="pt-4 pb-3 border-t border-gray-200">
-        <div class="px-4">
-          <div class="text-base font-medium text-gray-800">
-            {{request.user.name}}
-          </div>
-          <div class="text-sm font-medium text-gray-500">{{request.user.email}}</div>
-        </div>
+       {% org_switcher %} 
       </div>
     </div>
   </div>

@@ -201,6 +201,30 @@ def test_change_user_name_org_name(user):
     assert user.default_org.name == user.name
 
 
+def test_change_name_slug_personal(user, org):
+    """Change an Org's slug when its name changes only if it's a personal Org."""
+    personal = user.personal_org
+    slug = personal.slug
+
+    # No change to personal org name
+    personal.full_clean()
+    personal.save()
+    assert personal.slug == slug
+
+    # Change to personal org name
+    personal.name = "Example 123"
+    personal.full_clean()
+    personal.save()
+    assert personal.slug == "example-123"
+
+    # Change to non-personal org name
+    slug = org.slug
+    org.name = "Example 456"
+    org.full_clean()
+    org.save()
+    assert org.slug == slug
+
+
 # DREAM: Org views
 # - creating an org
 # - deleting an org

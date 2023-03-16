@@ -63,9 +63,10 @@ class OrgSwitchView(LoginRequiredMixin, View):
             ).first()
             if org:
                 request.org = org
-            messages.warning(
-                request, f"You do not have access to {slug} or it does not exist."
-            )
+            else:
+                messages.warning(
+                    request, f"You do not have access to {slug} or it does not exist."
+                )
         return redirect("index")
 
 

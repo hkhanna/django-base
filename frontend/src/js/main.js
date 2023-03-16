@@ -1,6 +1,7 @@
 import "../css/styles.css";
 import "../css/fonts.css";
 import Alpine from "alpinejs";
+import alpineui from "@alpinejs/ui";
 import focus from "@alpinejs/focus";
 import "htmx.org";
 
@@ -10,5 +11,6 @@ import "htmx.org";
 
 // AlpineJS
 Alpine.plugin(focus);
+Alpine.plugin(alpineui);
 window.Alpine = Alpine;
 Alpine.start();
