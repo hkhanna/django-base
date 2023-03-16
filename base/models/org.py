@@ -168,8 +168,8 @@ class OverriddenOrgSetting(models.Model):
         return self.setting.slug
 
 
-class OrgUserSetting(models.Model):
-    """Settings for members of an Org"""
+class OUSetting(models.Model):
+    """Settings for members of an Org, i.e., OrgUsers"""
 
     slug = models.SlugField(max_length=254, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -177,18 +177,18 @@ class OrgUserSetting(models.Model):
     default = models.IntegerField(default=0)
 
 
-class OrgUserOrgUserSetting(models.Model):
-    """The specific mapping of an OrgUser to an OrgUserSetting."""
+class OrgUserOUSetting(models.Model):
+    """The specific mapping of an OrgUser to an OUSetting."""
 
     org_user = models.ForeignKey(
         "base.OrgUser",
         on_delete=models.CASCADE,
-        related_name="org_user_org_user_settings",
+        related_name="org_user_ou_settings",
     )
     setting = models.ForeignKey(
-        "base.OrgUserSetting",
+        "base.OUSetting",
         on_delete=models.CASCADE,
-        related_name="org_user_org_user_settings",
+        related_name="org_user_ou_settings",
     )
     value = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -197,7 +197,7 @@ class OrgUserOrgUserSetting(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["org_user", "setting"], name="unique_org_user_setting"
+                fields=["org_user", "setting"], name="unique_org_user_ou_setting"
             )
         ]
 
@@ -205,16 +205,16 @@ class OrgUserOrgUserSetting(models.Model):
         return self.setting.slug
 
 
-class OrgUserSettingDefaults(models.Model):
+class OUSettingDefaults(models.Model):
     """An Org can set defaults for its OrgUsers that have not specifically set certain settings."""
 
     org = models.ForeignKey(
-        "base.Org", on_delete=models.CASCADE, related_name="org_user_setting_defaults"
+        "base.Org", on_delete=models.CASCADE, related_name="ou_setting_defaults"
     )
     setting = models.ForeignKey(
-        "base.OrgUserSetting",
+        "base.OUSetting",
         on_delete=models.CASCADE,
-        related_name="org_user_setting_defaults",
+        related_name="ou_setting_defaults",
     )
     value = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -223,7 +223,7 @@ class OrgUserSettingDefaults(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["org", "setting"], name="unique_org_user_setting_defaults"
+                fields=["org", "setting"], name="unique_ou_setting_defaults"
             )
         ]
 
