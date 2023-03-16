@@ -206,6 +206,7 @@ def test_change_user_name_org_name(user):
 # - deleting an org
 # - transfer org ownership
 #   - A user may not transfer ownership of a personal org
+# - leave org
 # - Convert personal org into a non-personal org
 # - invitations
 #   - If you created your user account because you were invited, don't create a personal org automatically.

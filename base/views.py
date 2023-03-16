@@ -54,6 +54,21 @@ def permission_denied(request, exception):
     return redirect(url)
 
 
+class OrgSwitchView(LoginRequiredMixin, View):
+    def post(self, request):
+        slug = request.POST.get("slug")
+        if slug:
+            org = models.Org.objects.filter(
+                slug=slug, users=request.user, is_active=True
+            ).first()
+            if org:
+                request.org = org
+            messages.warning(
+                request, f"You do not have access to {slug} or it does not exist."
+            )
+        return redirect("index")
+
+
 class SettingsView(LoginRequiredMixin, View):
     template_name = "account/settings.html"
 

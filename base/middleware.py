@@ -163,4 +163,8 @@ class OrgMiddleware:
                 request.org = request.user.default_org
 
         response = self.get_response(request)
+
+        if request.org is not None:
+            request.session["org_slug"] = request.org.slug
+
         return response

@@ -20,6 +20,7 @@ urlpatterns = [
         TemplateView.as_view(template_name="base/privacy.html"),
         name="privacy_policy",
     ),
+    path("org/switch/", views.OrgSwitchView.as_view(), name="org_switch"),
     path("accounts/settings/", views.SettingsView.as_view(), name="account_settings"),
     path(
         "accounts/resend-confirmation-email/",
