@@ -164,7 +164,20 @@ class OrgMiddleware:
 
         response = self.get_response(request)
 
+        # If there's no longer a user (e.g., on logout or user delete),
+        # remove the org.
+        if not request.user.is_authenticated:
+            request.org = None
+            request.session["org_slug"] = None
+
         if request.org is not None:
+            # Set it on the session
             request.session["org_slug"] = request.org.slug
+
+            # Set the last accessed time
+            ou = request.org.org_users.get(user=request.user)
+            ou.last_accessed_at = timezone.now()
+            ou.full_clean()
+            ou.save()
 
         return response

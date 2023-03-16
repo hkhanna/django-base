@@ -1,6 +1,8 @@
 from pytest_django.asserts import assertRaisesMessage
+from freezegun import freeze_time
 from django.urls import reverse
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 from ..models import Org
@@ -13,28 +15,27 @@ def test_switch_org(client, user, org):
     """Switching an org simply sets request.org and persists that information to the session."""
     client.force_login(user)
     response = client.get(reverse("index"))
-    assert user.default_org != org
-    assert response.wsgi_request.org == user.default_org
-
-    response = client.post(reverse("org_switch"), {"slug": org.slug})
     assert response.wsgi_request.org == org
-    assert response.wsgi_request.session["org_slug"] == org.slug
+
+    response = client.post(reverse("org_switch"), {"slug": user.personal_org.slug})
+    assert response.wsgi_request.org == user.personal_org
+    assert response.wsgi_request.session["org_slug"] == user.personal_org.slug
 
 
 def test_switch_inactive_org(client, user, org):
     """A user may not switch to an inactive org"""
-    org.is_active = False
-    org.full_clean()
-    org.save()
+    personal = user.personal_org
+    personal.is_active = False
+    personal.full_clean()
+    personal.save()
 
     client.force_login(user)
     response = client.get(reverse("index"))
-    assert user.default_org != org
-    assert response.wsgi_request.org == user.default_org
+    assert response.wsgi_request.org == org
 
-    response = client.post(reverse("org_switch"), {"slug": org.slug})
-    assert response.wsgi_request.org == user.default_org
-    assert response.wsgi_request.session["org_slug"] == user.default_org.slug
+    response = client.post(reverse("org_switch"), {"slug": personal.slug})
+    assert response.wsgi_request.org == org
+    assert response.wsgi_request.session["org_slug"] == org.slug
 
 
 def test_switch_inactive_unauthorized(client, user):
@@ -43,12 +44,11 @@ def test_switch_inactive_unauthorized(client, user):
 
     client.force_login(user)
     response = client.get(reverse("index"))
-    assert user.default_org != org
-    assert response.wsgi_request.org == user.default_org
+    assert response.wsgi_request.org == user.personal_org
 
     response = client.post(reverse("org_switch"), {"slug": org.slug})
-    assert response.wsgi_request.org == user.default_org
-    assert response.wsgi_request.session["org_slug"] == user.default_org.slug
+    assert response.wsgi_request.org == user.personal_org
+    assert response.wsgi_request.session["org_slug"] == user.personal_org.slug
 
 
 def test_one_org(user):
@@ -132,31 +132,45 @@ def test_maximum_personal(user):
         org.save()
 
 
-def test_no_org_in_session(client, user):
-    """If there's no org in the session, set the org to the user's personal org, or if none, the most recently updated org."""
+def test_no_org_in_session(client, user, org):
+    """If there's no org in the session, set the org to the most recently accessed, active org."""
+    client.force_login(user)
+    personal = user.personal_org
+    personal_ou = personal.org_users.get(user=user)
+    ou = org.org_users.get(user=user)
+
+    assert ou.last_accessed_at > personal_ou.last_accessed_at
+
+    response = client.get(reverse("index"))
+    assert response.wsgi_request.org == org
+
+    # More recently access the personal org
+    personal_ou.last_accessed_at = timezone.now()
+    personal_ou.full_clean()
+    personal_ou.save()
+
+    assert ou.last_accessed_at < personal_ou.last_accessed_at
+
+    session = client.session
+    session.clear()
+    session.save()
     client.force_login(user)
 
-    # There's only 1 Org and it's the user's personal Org
-    assert Org.objects.count() == 1
-    personal_org = Org.objects.filter(
-        owner=user, is_personal=True, is_active=True
-    ).first()
-    assert personal_org is not None
-
     response = client.get(reverse("index"))
-    assert response.wsgi_request.org == personal_org
-
-    # Add a non-personal Org
-    other_org = base.factories.OrgFactory(owner=user, is_personal=False, is_active=True)
-    response = client.get(reverse("index"))
-    assert response.wsgi_request.org == personal_org
+    assert response.wsgi_request.org == personal
 
     # Deactivate the personal Org
-    personal_org.is_active = False
-    personal_org.full_clean()
-    personal_org.save()
+    personal.is_active = False
+    personal.full_clean()
+    personal.save()
+
+    session = client.session
+    session.clear()
+    session.save()
+    client.force_login(user)
+
     response = client.get(reverse("index"))
-    assert response.wsgi_request.org == other_org
+    assert response.wsgi_request.org == org
 
 
 def test_org_in_session(client, user):
@@ -197,8 +211,7 @@ def test_change_user_name_org_name(user):
     user.full_clean()
     user.save()
 
-    assert user.default_org.is_personal is True
-    assert user.default_org.name == user.name
+    assert user.personal_org.name == user.name
 
 
 def test_change_name_slug_personal(user, org):
@@ -223,6 +236,20 @@ def test_change_name_slug_personal(user, org):
     org.full_clean()
     org.save()
     assert org.slug == slug
+
+
+def test_ou_last_accessed(client, user, org):
+    client.force_login(user)
+    assert user.default_org == org
+
+    with freeze_time("2023-03-16 12:00:00Z") as frozen_dt:
+        response = client.get(reverse("index"))
+        assert response.wsgi_request.org == org
+        ou = org.org_users.get(user=user)
+        assert ou.last_accessed_at == timezone.now()
+        assert (
+            user.org_users.get(org=user.personal_org).last_accessed_at != timezone.now()
+        )
 
 
 # DREAM: Org views

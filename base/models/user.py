@@ -170,12 +170,12 @@ class User(AbstractUser):
 
     @property
     def default_org(self):
-        # If the user has a personal org, use that.
-        org = self.orgs.filter(owner=self, is_personal=True, is_active=True).first()
+        # Use the most recently accessed org.
+        ou = (
+            self.org_users.filter(org__is_active=True)
+            .order_by("-last_accessed_at")
+            .first()
+        )
 
-        # If there's no personal org, use the most recently accessed (FIXME) org.
-        if org is None:
-            org = self.orgs.filter(is_active=True).order_by("-updated_at").first()
-
-        assert org is not None, "User does not have any Orgs"
-        return org
+        assert ou is not None, "User does not have any Orgs"
+        return ou.org

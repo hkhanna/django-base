@@ -115,13 +115,14 @@ def test_session_length(client, user):
         assert response.status_code == 200
 
         # Still logged in with 1 second to go
+        # Accessing extends the session expiry because we modify the session.
         frozen_dt.tick(delta=expected_session_length - 1)
         response = client.get(reverse("account_settings"))
         assert response.wsgi_request.user.is_authenticated is True
         assert response.status_code == 200
 
         # Session expired
-        frozen_dt.tick()
+        frozen_dt.tick(delta=expected_session_length)
         response = client.get(reverse("account_settings"))
         assert response.wsgi_request.user.is_authenticated is False
         assert response.status_code == 302

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django_extensions.db.fields import AutoSlugField
 from django.utils.encoding import force_str
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +75,9 @@ class OrgUser(models.Model):
         settings.AUTH_USER_MODEL, related_name="org_users", on_delete=models.CASCADE
     )
     org = models.ForeignKey(Org, related_name="org_users", on_delete=models.CASCADE)
+    joined_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    last_accessed_at = models.DateTimeField(default=timezone.now)
 
     # Recommend defining constants somewhere.  We don't set it as a 'choice' field
     # because we don't want to generate unnecessary migrations.
