@@ -10,5 +10,5 @@ from .org import (
     OrgSetting,
     OUSetting,
     OrgUserOUSetting,
-    OUSettingDefaults,
+    OUSettingDefault,
 )

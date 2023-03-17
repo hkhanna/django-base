@@ -19,6 +19,11 @@ def org(user):
     return factories.OrgFactory(owner=user)
 
 
+@pytest.fixture
+def ou(user, org):
+    return user.org_users.get(org=org)
+
+
 @pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):
     pass

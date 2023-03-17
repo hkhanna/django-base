@@ -134,6 +134,31 @@ class OrgUser(models.Model):
             models.UniqueConstraint(fields=["user", "org"], name="unique_user_org")
         ]
 
+    def get_setting(self, slug):
+        # See test_org_settings.py for an explanation of how this works.
+
+        setting, _ = OUSetting.objects.get_or_create(
+            slug=slug, defaults={"type": constants.SettingType.BOOL, "default": 0}
+        )
+
+        best = setting.default  # FIXME
+
+        org_user_ou_setting = OrgUserOUSetting.objects.filter(
+            org_user=self, setting=setting
+        ).first()
+        if org_user_ou_setting:
+            best = org_user_ou_setting.value
+        else:
+            ou_setting_default, _ = OUSettingDefault.objects.get_or_create(
+                org=self.org, setting=setting, defaults={"value": setting.default}
+            )
+            best = ou_setting_default.value
+
+        if setting.type == constants.SettingType.BOOL:
+            return bool(best)
+
+        return best
+
 
 class Plan(models.Model):
     """Represents a group of OrgSettings. Often tied to billing."""
@@ -238,6 +263,10 @@ class OUSetting(models.Model):
     type = models.CharField(max_length=127, choices=constants.SettingType.choices)
     default = models.IntegerField(default=0)
 
+    def clean(self):
+        if self.type == constants.SettingType.BOOL and self.default not in (0, 1):
+            raise ValidationError("Boolean OUSetting must have a default of 0 or 1.")
+
 
 class OrgUserOUSetting(models.Model):
     """The specific mapping of an OrgUser to an OUSetting."""
@@ -266,8 +295,14 @@ class OrgUserOUSetting(models.Model):
     def __str__(self):
         return self.setting.slug
 
+    def clean(self):
+        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError(
+                "Boolean OrgUserOUSetting must have a default of 0 or 1."
+            )
 
-class OUSettingDefaults(models.Model):
+
+class OUSettingDefault(models.Model):
     """An Org can set defaults for its OrgUsers that have not specifically set certain settings."""
 
     org = models.ForeignKey(
@@ -291,3 +326,9 @@ class OUSettingDefaults(models.Model):
 
     def __str__(self):
         return self.setting.slug
+
+    def clean(self):
+        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError(
+                "Boolean OUSettingDefault must have a default of 0 or 1."
+            )

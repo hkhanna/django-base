@@ -5,7 +5,14 @@ from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from datetime import timedelta
 from freezegun import freeze_time
-from ..models import OrgSetting, PlanOrgSetting, OverriddenOrgSetting
+from ..models import (
+    OrgSetting,
+    PlanOrgSetting,
+    OverriddenOrgSetting,
+    OUSetting,
+    OUSettingDefault,
+    OrgUserOUSetting,
+)
 from base import constants
 
 # The general philosophy is this.
@@ -24,6 +31,13 @@ from base import constants
 @pytest.fixture
 def org_setting():
     return OrgSetting.objects.create(
+        slug="for-test", default=5, type=constants.SettingType.INT
+    )
+
+
+@pytest.fixture
+def ou_setting():
+    return OUSetting.objects.create(
         slug="for-test", default=5, type=constants.SettingType.INT
     )
 
@@ -141,13 +155,86 @@ def test_org_setting_boolean(org):
 
 # -- OUSettings -- #
 
-"""OrgUser.get_setting() where the OrgUser is the owner does... what?"""
 
-"""OrgUser.get_setting() will first look to a direct setting on the OrgUser"""
+def test_ou_get_setting_noexist(ou):
+    """OrgUser.get_setting() will create an OUSetting with a default of 0 if it is accessed but does not exist"""
+    assert OUSetting.objects.count() == 0  # No OUSettings yet.
 
-"""OrgUser.get_setting() will look to Org defaults (materializing if necessary) if there is no direct setting on the OrgUser"""
+    result = ou.get_setting("for-test")
+    settings = OUSetting.objects.all()
+    assert len(settings) == 1
+    setting = settings.first()
+    assert setting.slug == "for-test"
+    assert setting.default == 0
+    assert setting.type == constants.SettingType.BOOL
+    assert result is False
 
-"""OrgUser.get_setting() will create an OUSetting with a default of 0 if it is accessed but does not exist"""
+
+def test_ou_get_setting_materialize_org_defaults(ou, ou_setting):
+    """OrgUser.get_setting() will materialize OUSettingDefaults on the Org if there is no direct setting on the OrgUser"""
+    result = ou.get_setting("for-test")
+
+    assert OUSetting.objects.count() == 1
+
+    # Setting shouldn't change
+    assert ou_setting.slug == "for-test"
+    assert ou_setting.default == 5
+    assert ou_setting.type == constants.SettingType.INT
+    assert result == 5
+
+    # Materialized on Org
+    assert ou.org.ou_setting_defaults.first().setting == ou_setting
 
 
-"""OUSettings of type bool may only have a value of 0 or 1."""
+def test_ou_get_setting_defaults(ou, ou_setting):
+    """OrgUser.get_setting() in the normal case will retrieve the OrgSetting from the OuSettingDefaults (but not materialize the setting on OrgUser)"""
+    OUSettingDefault.objects.create(org=ou.org, setting=ou_setting, value=10)
+
+    result = ou.get_setting("for-test")
+    assert OUSetting.objects.count() == 1
+    assert OUSetting.objects.first().default == 5  # No change
+    assert OUSettingDefault.objects.count() == 1
+    assert OUSettingDefault.objects.first().value == 10  # No change
+    assert OrgUserOUSetting.objects.count() == 0  # Did not materialize on OrgUser
+
+    assert result == 10
+
+
+def test_ou_get_setting(ou, ou_setting):
+    """OrgUser.get_setting() will prioritize a direct setting on the OrgUser"""
+    OUSettingDefault.objects.create(org=ou.org, setting=ou_setting, value=10)
+    OrgUserOUSetting.objects.create(org_user=ou, setting=ou_setting, value=20)
+
+    result = ou.get_setting("for-test")
+    assert OUSetting.objects.count() == 1
+    assert OUSetting.objects.first().default == 5  # No change
+    assert OUSettingDefault.objects.count() == 1
+    assert OUSettingDefault.objects.first().value == 10  # No change
+    assert OrgUserOUSetting.objects.count() == 1
+    assert OrgUserOUSetting.objects.first().value == 20  # No change
+
+    assert result == 20
+
+
+def test_ou_setting_boolean(ou):
+    """OUSettings of type bool may only have a value of 0 or 1."""
+    ou_setting = OUSetting.objects.create(
+        slug="for-test", type=constants.SettingType.BOOL, default=0
+    )
+    ou_setting.default = 1
+    ou_setting.full_clean()
+    ou_setting.save()  # OK
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        ou_setting.default = 2
+        ou_setting.full_clean()
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        OUSettingDefault(org=ou.org, setting=ou_setting, value=2).full_clean()
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        OrgUserOUSetting(org_user=ou, setting=ou_setting, value=2).full_clean()
+
+
+"""OrgUser.get_setting() where the OrgUser is the owner does... what? fixme"""
+# FIXME: billing (?) + user comments
