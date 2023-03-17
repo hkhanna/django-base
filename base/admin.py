@@ -91,6 +91,118 @@ class EmailMessageWebhookAdmin(admin.ModelAdmin):
 
 
 admin.site.unregister(Group)
+
+
+class OrgUserAdminInline(admin.TabularInline):
+    model = models.OrgUser
+    fields = ("user", "joined_at", "updated_at", "last_accessed_at")
+    readonly_fields = ("joined_at", "updated_at", "last_accessed_at")
+    ordering = ("-last_accessed_at",)
+    show_change_link = True
+    extra = 0
+
+
+class OrgUserOUSettingAdminInline(admin.TabularInline):
+    model = models.OrgUserOUSetting
+    extra = 0
+
+
+class PlanOrgSettingAdminInline(admin.TabularInline):
+    model = models.PlanOrgSetting
+    extra = 0
+
+
+class OverriddenOrgSettingAdminInline(admin.TabularInline):
+    model = models.OverriddenOrgSetting
+    extra = 0
+
+
+class OUSettingDefaultAdminInline(admin.TabularInline):
+    model = models.OUSettingDefault
+    extra = 0
+
+
+@admin.register(models.Org)
+class OrgAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "slug",
+        "is_active",
+        "owner",
+        "is_personal",
+        "primary_plan",
+        "current_period_end",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = (
+        "is_active",
+        "is_personal",
+        "primary_plan",
+    )
+    readonly_fields = ("created_at", "updated_at")
+    search_fields = ("name", "slug")
+    prepopulated_fields = {"slug": ["name"]}
+    date_hierarchy = "created_at"
+    inlines = [
+        OverriddenOrgSettingAdminInline,
+        OUSettingDefaultAdminInline,
+        OrgUserAdminInline,
+    ]
+
+
+@admin.register(models.OrgUser)
+class OrgUserAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "org",
+        "joined_at",
+        "last_accessed_at",
+    )
+    fields = ("id", "user", "org", "joined_at", "updated_at", "last_accessed_at")
+    readonly_fields = ("id", "joined_at", "updated_at", "last_accessed_at")
+    date_hierarchy = "last_accessed_at"
+    inlines = [OrgUserOUSettingAdminInline]
+
+
+@admin.register(models.Plan)
+class PlanAdmin(admin.ModelAdmin):
+    list_display = (
+        "slug",
+        "name",
+        "is_default",
+        "created_at",
+        "updated_at",
+    )
+    fields = ("id", "name", "slug", "is_default", "created_at", "updated_at")
+    readonly_fields = ("id", "slug", "created_at", "updated_at")
+    search_fields = ("name",)
+    inlines = [PlanOrgSettingAdminInline]
+
+
+@admin.register(models.OrgSetting)
+class OrgSettingAdmin(admin.ModelAdmin):
+    list_display = (
+        "slug",
+        "created_at",
+        "type",
+        "default",
+    )
+    search_fields = ("slug",)
+
+
+@admin.register(models.OUSetting)
+class OUSettingAdmin(admin.ModelAdmin):
+    list_display = (
+        "slug",
+        "created_at",
+        "type",
+        "default",
+    )
+    search_fields = ("slug",)
+
+
 admin.site.index_title = "Index"
 admin.site.site_header = (
     f"{settings.SITE_CONFIG['name']} Administration ({settings.ENVIRONMENT})"

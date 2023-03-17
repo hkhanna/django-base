@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "waffle",
     "heroicons",
+    "django_extensions",
     "django_components",
     "django_vite",
     "allauth",

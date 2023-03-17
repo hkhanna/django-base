@@ -2,8 +2,8 @@ from django.db import models
 
 
 class SettingType(models.TextChoices):
-    BOOL = "bool"
-    INT = "int"
+    BOOL = "bool", "Boolean"
+    INT = "int", "Integer"
 
 
 class EmailMessage:

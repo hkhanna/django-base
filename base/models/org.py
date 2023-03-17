@@ -22,10 +22,10 @@ class Org(models.Model):
         unique=True,
         help_text="The name in all lowercase, suitable for URL identification",
     )
-    is_active = models.BooleanField(default=True)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="owned_orgs"
     )
+    is_active = models.BooleanField(default=True)
     is_personal = models.BooleanField()
     primary_plan = models.ForeignKey(
         "base.Plan", on_delete=models.PROTECT, related_name="primary_orgs"
@@ -127,12 +127,16 @@ class OrgUser(models.Model):
 
     # Recommend defining constants somewhere.  We don't set it as a 'choice' field
     # because we don't want to generate unnecessary migrations.
+    # FIXME
     role = models.CharField(max_length=127)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["user", "org"], name="unique_user_org")
         ]
+
+    def __str__(self):
+        return f"{self.org} / {self.user} ({self.pk})"
 
     def get_setting(self, slug):
         # See test_org_settings.py for an explanation of how this works.
@@ -188,6 +192,9 @@ class Plan(models.Model):
             )
         ]
 
+    def __str__(self):
+        return self.slug
+
     def save(self, *args, **kwargs):
         with transaction.atomic():
             # If this plan is set to the default, unset default on all other plans.
@@ -208,6 +215,9 @@ class OrgSetting(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     type = models.CharField(max_length=127, choices=constants.SettingType.choices)
     default = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"OrgSetting: {self.slug} ({self.pk})"
 
     def clean(self):
         if self.type == constants.SettingType.BOOL and self.default not in (0, 1):
@@ -235,7 +245,7 @@ class PlanOrgSetting(models.Model):
         ]
 
     def __str__(self):
-        return self.setting.slug
+        return f"PlanOrgSetting: {self.plan.slug} / {self.setting.slug} ({self.pk})"
 
     def clean(self):
         if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
@@ -269,7 +279,9 @@ class OverriddenOrgSetting(models.Model):
         ]
 
     def __str__(self):
-        return self.setting.slug
+        return (
+            f"OverriddenOrgSetting: {self.org.slug} / {self.setting.slug} ({self.pk})"
+        )
 
     def clean(self):
         if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
@@ -287,9 +299,15 @@ class OUSetting(models.Model):
     type = models.CharField(max_length=127, choices=constants.SettingType.choices)
     default = models.IntegerField(default=0)
 
+    class Meta:
+        verbose_name = "Org user setting"
+
     def clean(self):
         if self.type == constants.SettingType.BOOL and self.default not in (0, 1):
             raise ValidationError("Boolean OUSetting must have a default of 0 or 1.")
+
+    def __str__(self):
+        return f"OUSetting: {self.slug} ({self.pk})"
 
 
 class OrgUserOUSetting(models.Model):
@@ -310,6 +328,7 @@ class OrgUserOUSetting(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        verbose_name = "Org user org user setting"
         constraints = [
             models.UniqueConstraint(
                 fields=["org_user", "setting"], name="unique_org_user_ou_setting"
@@ -317,7 +336,7 @@ class OrgUserOUSetting(models.Model):
         ]
 
     def __str__(self):
-        return self.setting.slug
+        return f"OrgUserOUSetting: {self.org_user} / {self.setting.slug} ({self.pk})"
 
     def clean(self):
         if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
@@ -342,6 +361,7 @@ class OUSettingDefault(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        verbose_name = "Org user setting default"
         constraints = [
             models.UniqueConstraint(
                 fields=["org", "setting"], name="unique_ou_setting_defaults"
@@ -349,7 +369,7 @@ class OUSettingDefault(models.Model):
         ]
 
     def __str__(self):
-        return self.setting.slug
+        return f"OUSettingDefault: {self.org.slug} / {self.setting.slug} ({self.pk})"
 
     def clean(self):
         if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
