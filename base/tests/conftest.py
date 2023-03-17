@@ -1,5 +1,5 @@
 import pytest
-from .. import factories
+from .. import factories, models
 
 
 @pytest.fixture
@@ -16,7 +16,10 @@ def user():
 
 @pytest.fixture
 def org(user):
-    return factories.OrgFactory(owner=user)
+    # User should be a non-owner member of the Org
+    org = factories.OrgFactory()
+    models.OrgUser.objects.create(user=user, org=org)
+    return org
 
 
 @pytest.fixture

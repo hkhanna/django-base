@@ -1,7 +1,6 @@
 """Tests related to settings for Orgs, OrgUsers, and Plans."""
 import pytest
 from pytest_django.asserts import assertRaisesMessage
-from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from datetime import timedelta
 from freezegun import freeze_time
@@ -22,7 +21,8 @@ from base import constants
 # - If a Plan is queried for an OrgSetting, and that OrgSetting is not set on the Plan, it will materialize the setting on the Plan with the OrgSetting's default.
 # - OUSettings should have defaults set by the Org. If an Org is accessed for an OUSetting default and it's not there, it will materialize it on the Org.
 #    - At this point, it doesn't seem useful to attach OUSetting defaults to a Plan, so we don't. We can easily change this down the road though.
-# - If a setting does not exist but is queried, that setting will autocreate with a value of False.
+#    - We set an owner_value on the base OUSetting that is always used for the Org owner, who is kind of a superuser.
+# - If a setting does not exist but is queried, that setting will autocreate with a default of False and an owner_value of True.
 
 # A one-time payment situation would probably only use the default Plan and override OrgSettings as the purchase is made.
 # Each setting stores its value as an integer, but if the type is set to `bool` instead of `int`, it will report it as True or False.
@@ -38,7 +38,7 @@ def org_setting():
 @pytest.fixture
 def ou_setting():
     return OUSetting.objects.create(
-        slug="for-test", default=5, type=constants.SettingType.INT
+        slug="for-test", default=5, owner_value=100, type=constants.SettingType.INT
     )
 
 
@@ -157,7 +157,7 @@ def test_org_setting_boolean(org):
 
 
 def test_ou_get_setting_noexist(ou):
-    """OrgUser.get_setting() will create an OUSetting with a default of 0 if it is accessed but does not exist"""
+    """OrgUser.get_setting() will create a boolean OUSetting with a default of 0 and owner_value of 1 if it is accessed but does not exist"""
     assert OUSetting.objects.count() == 0  # No OUSettings yet.
 
     result = ou.get_setting("for-test")
@@ -166,6 +166,7 @@ def test_ou_get_setting_noexist(ou):
     setting = settings.first()
     assert setting.slug == "for-test"
     assert setting.default == 0
+    assert setting.owner_value == 1
     assert setting.type == constants.SettingType.BOOL
     assert result is False
 
@@ -219,7 +220,7 @@ def test_ou_get_setting(ou, ou_setting):
 def test_ou_setting_boolean(ou):
     """OUSettings of type bool may only have a value of 0 or 1."""
     ou_setting = OUSetting.objects.create(
-        slug="for-test", type=constants.SettingType.BOOL, default=0
+        slug="for-test", type=constants.SettingType.BOOL, default=0, owner_value=1
     )
     ou_setting.default = 1
     ou_setting.full_clean()
@@ -229,6 +230,12 @@ def test_ou_setting_boolean(ou):
         ou_setting.default = 2
         ou_setting.full_clean()
 
+    ou_setting.refresh_from_db()
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        ou_setting.owner_value = 2
+        ou_setting.full_clean()
+
     with assertRaisesMessage(ValidationError, "0 or 1"):
         OUSettingDefault(org=ou.org, setting=ou_setting, value=2).full_clean()
 
@@ -236,5 +243,21 @@ def test_ou_setting_boolean(ou):
         OrgUserOUSetting(org_user=ou, setting=ou_setting, value=2).full_clean()
 
 
-"""OrgUser.get_setting() where the OrgUser is the owner does... what? fixme"""
-# FIXME: billing (?) + user comments
+def test_ou_owner(org, ou, ou_setting):
+    """OrgUser.get_setting() where the OrgUser is the owner always pulls from OUSetting.owner_value."""
+    org.owner = ou.user
+    org.full_clean()
+    org.save()
+
+    OUSettingDefault.objects.create(org=ou.org, setting=ou_setting, value=10)
+    OrgUserOUSetting.objects.create(org_user=ou, setting=ou_setting, value=20)
+
+    result = ou.get_setting("for-test")
+    assert OUSetting.objects.count() == 1
+    assert OUSetting.objects.first().default == 5  # No change
+    assert OUSettingDefault.objects.count() == 1
+    assert OUSettingDefault.objects.first().value == 10  # No change
+    assert OrgUserOUSetting.objects.count() == 1
+    assert OrgUserOUSetting.objects.first().value == 20  # No change
+
+    assert result == 100

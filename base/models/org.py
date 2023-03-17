@@ -136,8 +136,20 @@ class OrgUser(models.Model):
         # See test_org_settings.py for an explanation of how this works.
 
         setting, _ = OUSetting.objects.get_or_create(
-            slug=slug, defaults={"type": constants.SettingType.BOOL, "default": 0}
+            slug=slug,
+            defaults={
+                "type": constants.SettingType.BOOL,
+                "default": 0,
+                "owner_value": 1,
+            },
         )
+
+        # Short-circuit if the OrgUser is the Org owner.
+        if self.org.owner == self.user:
+            if setting.type == constants.SettingType.BOOL:
+                return bool(setting.owner_value)
+            else:
+                return setting.owner_value
 
         org_user_ou_setting = OrgUserOUSetting.objects.filter(
             org_user=self, setting=setting
@@ -206,7 +218,7 @@ class OrgSetting(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     type = models.CharField(max_length=127, choices=constants.SettingType.choices)
-    default = models.IntegerField(default=0)
+    default = models.IntegerField()
 
     def __str__(self):
         return f"OrgSetting: {self.slug} ({self.pk})"
@@ -289,14 +301,21 @@ class OUSetting(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     type = models.CharField(max_length=127, choices=constants.SettingType.choices)
-    default = models.IntegerField(default=0)
+    default = models.IntegerField()
+    owner_value = models.IntegerField(
+        help_text="The value that will be enforced for the org owner over all other defaults and values."
+    )
 
     class Meta:
         verbose_name = "Org user setting"
 
     def clean(self):
-        if self.type == constants.SettingType.BOOL and self.default not in (0, 1):
-            raise ValidationError("Boolean OUSetting must have a default of 0 or 1.")
+        if self.type == constants.SettingType.BOOL and (
+            self.default not in (0, 1) or self.owner_value not in (0, 1)
+        ):
+            raise ValidationError(
+                "Boolean OUSetting must have a default and owner_value of 0 or 1."
+            )
 
     def __str__(self):
         return f"OUSetting: {self.slug} ({self.pk})"
