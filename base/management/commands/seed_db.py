@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from config.settings.local import env
 from allauth.socialaccount.models import SocialApp
-from base.models import Org
+from base.models import Org, Plan
 
 User = get_user_model()
 
@@ -28,7 +28,14 @@ class Command(BaseCommand):
 
         # -- Orgs -- #
         # Create an additional Org for the user with the user as the owner.
-        Org.objects.create(name="Example LLC", owner=user, is_personal=False)
+        plan = Plan.objects.create(name="Other Plan")
+        Org.objects.create(
+            name="Example LLC",
+            owner=user,
+            is_personal=False,
+            primary_plan=plan,
+            default_plan=plan,
+        )
 
         # -- Sites -- #
         # Change initial site to localhost
