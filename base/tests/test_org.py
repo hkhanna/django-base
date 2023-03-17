@@ -265,6 +265,19 @@ def test_org_detail(client, user, org):
     assert "Owner" in str(response.content)
     assert other_user.name in str(response.content)
 
+
+def test_plan_default_unique(user):
+    """Setting a plan as default unsets default from all other plans."""
+    assert Plan.objects.count() == 1  # default plan created when User was created
+    assert Plan.objects.first().is_default is True
+
+    plan = base.factories.PlanFactory()
+    plan.is_default = True
+    plan.save()
+
+    assert user.personal_org.primary_plan.is_default is False  # Default flipped off
+    assert plan.is_default is True  # Default turned on
+
 # DREAM: Org views
 # - creating an org
 # - deleting an org

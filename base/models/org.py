@@ -1,5 +1,5 @@
 import logging
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django_extensions.db.fields import AutoSlugField
@@ -172,8 +172,32 @@ class Plan(models.Model):
         unique=True,
         help_text="The name in all lowercase, suitable for URL identification",
     )
+    is_default = models.BooleanField(
+        default=False,
+        help_text="Used when no plan is specified. E.g., for users' personal orgs. Only one plan can be default, so setting this will unset any other default plan.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["is_default"],
+                condition=models.Q(is_default=True),
+                name="unique_default_plan",
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            # If this plan is set to the default, unset default on all other plans.
+            if self.is_default:
+                count = Plan.objects.exclude(pk=self.pk).update(is_default=False)
+                if count:
+                    logger.warning(
+                        f"Unset is_default on {count} Plans. This is okay if you meant to change the default Plan."
+                    )
+            super().save(*args, **kwargs)
 
 
 class OrgSetting(models.Model):

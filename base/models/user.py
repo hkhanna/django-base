@@ -100,10 +100,19 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
         Org = apps.get_model("base", "Org")
+        Plan = apps.get_model("base", "Plan")
+        default_plan, _ = Plan.objects.get_or_create(
+            is_default=True, defaults={"name": "Default"}
+        )
         org, _ = Org.objects.get_or_create(
             owner=self,
             is_personal=True,
-            defaults={"name": self.name, "is_active": True},
+            defaults={
+                "name": self.name,
+                "is_active": True,
+                "primary_plan": default_plan,
+                "default_plan": default_plan,
+            },
         )
 
         if not adding:
