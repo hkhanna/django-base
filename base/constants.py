@@ -1,6 +1,11 @@
 from django.db import models
 
 
+class SettingType(models.TextChoices):
+    BOOL = "bool"
+    INT = "int"
+
+
 class EmailMessage:
     class Status(models.TextChoices):
         NEW = "new"

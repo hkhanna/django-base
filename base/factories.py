@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 import factory
 from factory.faker import faker
 from allauth.account import models as auth_models
@@ -55,10 +57,22 @@ class EmailMessageFactory(factory.django.DjangoModelFactory):
     template_context = {}
 
 
+class PlanFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "base.Plan"
+
+    name = factory.Faker("pystr")
+
+
 class OrgFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = "base.Org"
 
     name = factory.Faker("company")
     owner = factory.SubFactory(UserFactory)
+    primary_plan = factory.SubFactory(PlanFactory)
+    default_plan = factory.SubFactory(PlanFactory)
+    current_period_end = factory.LazyFunction(
+        lambda: timezone.now() + timedelta(days=10)
+    )
     is_personal = False

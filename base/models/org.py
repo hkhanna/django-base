@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django_extensions.db.fields import AutoSlugField
 from django.utils.encoding import force_str
 from django.utils import timezone
+from base import constants
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,16 @@ class Org(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="owned_orgs"
     )
     is_personal = models.BooleanField()
+    primary_plan = models.ForeignKey(
+        "base.Plan", on_delete=models.PROTECT, related_name="primary_orgs"
+    )
+    default_plan = models.ForeignKey(
+        "base.Plan",
+        on_delete=models.PROTECT,
+        related_name="default_orgs",
+        help_text="Default plan if the primary plan expires.",
+    )
+    current_period_end = models.DateTimeField(null=True, blank=True)
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         related_name="orgs",
@@ -68,6 +79,39 @@ class Org(models.Model):
             # because AutoSlugField only triggers when saved.
             if not self.slug:
                 raise ValidationError({"slug": "Slug may not be blank."})
+
+    def get_plan(self):
+        """Returns the primary_plan or default_plan as a function of current_period_end."""
+        if self.current_period_end and timezone.now() > self.current_period_end:
+            return self.default_plan
+        return self.primary_plan
+
+    def get_setting(self, slug):
+        # See test_org_settings.py for an explanation of how this works.
+
+        setting, _ = OrgSetting.objects.get_or_create(
+            slug=slug, defaults={"type": constants.SettingType.BOOL, "default": 0}
+        )
+
+        overridden_org_setting = OverriddenOrgSetting.objects.filter(
+            org=self, setting=setting
+        ).first()
+
+        if overridden_org_setting:
+            best = overridden_org_setting.value
+        else:
+            plan = self.get_plan()
+            plan_org_setting, _ = PlanOrgSetting.objects.get_or_create(
+                plan=plan,
+                setting=setting,
+                defaults={"value": setting.default},
+            )
+            best = plan_org_setting.value
+
+        if setting.type == constants.SettingType.BOOL:
+            return bool(best)
+
+        return best
 
 
 class OrgUser(models.Model):
@@ -113,7 +157,12 @@ class OrgSetting(models.Model):
     slug = models.SlugField(max_length=254, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
     default = models.IntegerField(default=0)
+
+    def clean(self):
+        if self.type == constants.SettingType.BOOL and self.default not in (0, 1):
+            raise ValidationError("Boolean OrgSetting must have a default of 0 or 1.")
 
 
 class PlanOrgSetting(models.Model):
@@ -138,6 +187,12 @@ class PlanOrgSetting(models.Model):
 
     def __str__(self):
         return self.setting.slug
+
+    def clean(self):
+        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError(
+                "Boolean PlanOrgSetting must have a default of 0 or 1."
+            )
 
 
 class OverriddenOrgSetting(models.Model):
@@ -167,6 +222,12 @@ class OverriddenOrgSetting(models.Model):
     def __str__(self):
         return self.setting.slug
 
+    def clean(self):
+        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError(
+                "Boolean OverriddenOrgSetting must have a default of 0 or 1."
+            )
+
 
 class OUSetting(models.Model):
     """Settings for members of an Org, i.e., OrgUsers"""
@@ -174,6 +235,7 @@ class OUSetting(models.Model):
     slug = models.SlugField(max_length=254, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
     default = models.IntegerField(default=0)
 
 
