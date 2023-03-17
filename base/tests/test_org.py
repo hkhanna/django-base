@@ -1,3 +1,4 @@
+import pytest
 from pytest_django.asserts import assertRaisesMessage
 from freezegun import freeze_time
 from django.urls import reverse
@@ -5,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from ..models import Org
+from ..models import Org, Plan
 import base.factories
 
 User = get_user_model()
@@ -95,15 +96,34 @@ def test_maximum_personal(user):
     # Think a corporate rank-and-file employee who was invited by their company admin.
     assert Org.objects.filter(owner=user, is_personal=True).count() == 1
 
-    org = Org(owner=user, is_personal=False, name=user.name)
+    org = Org(
+        owner=user,
+        is_personal=False,
+        name=user.name,
+        primary_plan=base.factories.PlanFactory(),
+        default_plan=base.factories.PlanFactory(),
+    )
     org.full_clean()  # OK
     org.save()  # OK
 
-    org = Org(owner=user, is_personal=True, is_active=False, name=user.name)
+    org = Org(
+        owner=user,
+        is_personal=True,
+        is_active=False,
+        name=user.name,
+        primary_plan=base.factories.PlanFactory(),
+        default_plan=base.factories.PlanFactory(),
+    )
     org.full_clean()  # OK
     org.save()  # OK
 
-    org = Org(owner=user, is_personal=True, name=user.name)
+    org = Org(
+        owner=user,
+        is_personal=True,
+        name=user.name,
+        primary_plan=base.factories.PlanFactory(),
+        default_plan=base.factories.PlanFactory(),
+    )
     with assertRaisesMessage(IntegrityError, "unique_personal_active_org"):
         org.full_clean()
         org.save()
@@ -255,19 +275,72 @@ def test_plan_default_unique(user):
     assert user.personal_org.primary_plan.is_default is False  # Default flipped off
     assert plan.is_default is True  # Default turned on
 
+
+@pytest.mark.skip("Not implemented")
+def test_send_invitation():
+    """Inviting a user"""
+
+
+@pytest.mark.skip("Not implemented")
+def test_invite_existing_user():
+    """Inviting an existing user sends them an email ??"""
+
+
+@pytest.mark.skip("Not implemented")
+def test_invite_new_user():
+    """"""
+
+
+@pytest.mark.skip("Not implemented")
+def test_invite_permission():
+    """"""
+
+
+@pytest.mark.skip("Not implemented")
+def test_remove_user():
+    """"""
+
+
+@pytest.mark.skip("Not implemented")
+def test_remove_permission():
+    """"""
+
+
+@pytest.mark.skip("Not implemented")
+def test_remove_owner():
+    """An org owner may not be removed"""
+
+
+# ideas for OUSettings
+# can_invite_members
+# can_remove_members
+# can_change_org_name
+
+# ideas for OrgSettings
+# members_can_leave
+
 # DREAM: Org views
-# - creating an org
-# - deleting an org
-# - transfer org ownership
-#   - A user may not transfer ownership of a personal org
-# - leave org
-# - Convert personal org into a non-personal org
 # - invitations
 #   - If you created your user account because you were invited, don't create a personal org automatically.
 #   - If you don't have a personal org, there should be a way to create one.
 # - Removing a user from an org creates a personal org for them if they would otherwise have no active orgs.
 
+# Org CRUD tests
+"""A user may create an Org"""
+"""A user may not own more than 10 Orgs"""
+"""Deleting an Org sets is_active to False"""
+"""Only an owner may delete an Org and then only if the Org allows it."""
+"""Org information like name may be updated with the can_change_org_name OUSetting"""
+
 # Tests related to deleting a User
 """Can't delete your account if you own an org, unless its your personal Org"""
 """Deleting your account deactivates your personal org."""
 """Undeleting your account creates a new personal Org"""
+
+# Tests related to transfering an org
+"""An owner may transfer ownership of an org"""
+"""A personal org may not be transfered"""
+
+# Tests related to leaving an org
+"""A user may leave an org -- should this be on an org-by-org basis?"""
+"""An owner may not leave an org"""
