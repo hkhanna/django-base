@@ -17,6 +17,7 @@ def get_user_name(user):
 def forwards_func(apps, schema_editor):
     User = apps.get_model("base", "User")
     Org = apps.get_model("base", "Org")
+    OrgUser = apps.get_model("base", "OrgUser")
     Plan = apps.get_model("base", "Plan")
     default_plan, _ = Plan.objects.get_or_create(
         is_default=True, defaults={"name": "Default"}
@@ -32,6 +33,11 @@ def forwards_func(apps, schema_editor):
         )
         org.full_clean()
         org.save()
+
+        OrgUser.objects.get_or_create(
+            user=user,
+            org=org,
+        )
 
 
 class Migration(migrations.Migration):
