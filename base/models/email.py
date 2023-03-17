@@ -22,6 +22,12 @@ class EmailMessage(models.Model):
         on_delete=models.PROTECT,
         help_text="User that caused the EmailMessage to be created.",
     )
+    org = models.ForeignKey(
+        "base.Org",
+        on_delete=models.PROTECT,
+        help_text="The active Org of the User that caused the EmailMessage to be created.",
+        null=True,
+    )
     sender_name = models.CharField(max_length=254, blank=True)
     sender_email = models.EmailField()
     to_name = models.CharField(max_length=254, blank=True)
