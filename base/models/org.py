@@ -70,7 +70,6 @@ class Org(models.Model):
         OrgUser.objects.update_or_create(
             user=self.owner,
             org=self,
-            defaults={"role": settings.DEFAULT_ORG_OWNER_ROLE},
         )
 
     def clean(self):
@@ -125,11 +124,6 @@ class OrgUser(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     last_accessed_at = models.DateTimeField(default=timezone.now)
 
-    # Recommend defining constants somewhere.  We don't set it as a 'choice' field
-    # because we don't want to generate unnecessary migrations.
-    # FIXME
-    role = models.CharField(max_length=127)
-
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["user", "org"], name="unique_user_org")
@@ -144,8 +138,6 @@ class OrgUser(models.Model):
         setting, _ = OUSetting.objects.get_or_create(
             slug=slug, defaults={"type": constants.SettingType.BOOL, "default": 0}
         )
-
-        best = setting.default  # FIXME
 
         org_user_ou_setting = OrgUserOUSetting.objects.filter(
             org_user=self, setting=setting

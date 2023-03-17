@@ -77,39 +77,16 @@ def test_auto_create_org():
 
 def test_owner_org_user(user, settings):
     """Setting an Org owner automatically adds an OrgUser"""
-    org = Org(name="Example Org", owner=user, is_personal=False)
+    org = Org(
+        name="Example Org",
+        owner=user,
+        is_personal=False,
+        primary_plan=base.factories.PlanFactory(),
+        default_plan=base.factories.PlanFactory(),
+    )
     org.full_clean()
     org.save()
-    assert org.org_users.filter(
-        user=user, org=org, role=settings.DEFAULT_ORG_OWNER_ROLE
-    ).exists()
-
-
-def test_owner_org_user_role(user, org, settings):
-    """Setting an Org owner automatically updates an OrgUser's role to settings.DEFAULT_ORG_OWNER_ROLE"""
-    ou = org.org_users.filter(org=org, role=settings.DEFAULT_ORG_OWNER_ROLE)
-    assert len(ou) == 1
-    assert ou.first().user == user
-
-    # Create a new user and add them to the Org as a member
-    new_user = base.factories.UserFactory()
-    org.users.add(new_user, through_defaults={"role": settings.DEFAULT_ORG_ROLE})
-    assert org.org_users.filter(user=new_user).count() == 1
-    assert (
-        org.org_users.filter(user=new_user, role=settings.DEFAULT_ORG_ROLE).count() == 1
-    )
-
-    # Transfer ownership to a new user
-    org.owner = new_user
-    org.full_clean()
-    org.save()
-    assert org.org_users.filter(user=new_user).count() == 1
-    assert (
-        org.org_users.filter(
-            user=new_user, role=settings.DEFAULT_ORG_OWNER_ROLE
-        ).count()
-        == 1
-    )
+    assert org.org_users.filter(user=user, org=org).exists()
 
 
 def test_maximum_personal(user):
