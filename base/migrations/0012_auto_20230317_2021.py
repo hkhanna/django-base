@@ -3,6 +3,17 @@
 from django.db import migrations
 
 
+def get_user_name(user):
+    if user.first_name and user.last_name:
+        return f"{user.first_name} {user.last_name}"
+    elif user.first_name:
+        return user.first_name
+    elif user.last_name:
+        return user.last_name
+    else:
+        return user.email
+
+
 def forwards_func(apps, schema_editor):
     User = apps.get_model("base", "User")
     Org = apps.get_model("base", "Org")
@@ -14,7 +25,7 @@ def forwards_func(apps, schema_editor):
         org = Org(
             owner=user,
             is_personal=True,
-            name=user.name,
+            name=get_user_name(user),
             is_active=True,
             primary_plan=default_plan,
             default_plan=default_plan,
