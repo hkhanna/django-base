@@ -238,6 +238,7 @@ class OrgInvitation(models.Model):
         self.email_message = EmailMessage(
             created_by=self.created_by,
             org=self.org,
+            subject=f"Invitation to join {self.org.name} on {settings.SITE_CONFIG['name']}",
             to_name=to_name,
             to_email=self.email,
             sender_name=sender_name,
@@ -248,6 +249,8 @@ class OrgInvitation(models.Model):
             template_context={
                 "org_name": self.org.name,
                 "new_user": self.invitee is None,
+                "inviter": self.created_by.name,
+                "action_url": "",
             },
         )
         self.email_message.send()

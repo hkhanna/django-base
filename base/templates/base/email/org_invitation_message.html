@@ -1,0 +1,8 @@
+{% extends 'email/base.html' %}
+{% block preheader %}You have been invited to join {{org_name}}.{% endblock preheader %}
+{% block main %}
+  <p>Hello,</p>
+  <p style="font-weight: 600; font-size: 24px; margin: 0; margin-bottom: 24px; color: #000000; line-height: 32px;">Invitation to {{org_name}}</p>
+  <p style="margin: 0; margin-bottom: 24px;">You have been invited to join <strong>{{org_name}}</strong> on {{site_name}} by {{inviter}}.</p>
+  {% include 'email/action_button.html' with text='Accept Invitation' %}
+{% endblock main %}
