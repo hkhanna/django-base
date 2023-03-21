@@ -50,3 +50,60 @@ def formset_post_data(formset, update=[]):
 
 def form_post_data(form, update={}):
     return {field.name: field.value() for field in form} | update
+
+
+def get_email_display_name(
+    user,
+    header,
+    email=None,
+    suffix=None,
+    max_length=78,
+):
+    """Generate a From: or Reply-To: display name that fits within max_length
+    By default, max_length=78 conforms to https://www.rfc-editor.org/rfc/rfc5322#section-2.1.1
+    """
+    remaining = max_length
+    remaining -= len(header)
+    remaining -= 2  # Colon and space after header
+
+    if suffix:
+        remaining -= len(suffix)
+        remaining -= 1  # The space before the suffix
+
+    if not email:
+        email = user.email
+
+    remaining -= len(email)
+    remaining -= 3  # Space before the email and the angle brackets.
+
+    name = None
+    if len(user.name) <= remaining:
+        # Ideally we go, e.g., FullName via Magistrate <docs@getmagistrate.com>
+        name = user.name
+
+    if name is None and user.first_name and user.last_name:
+        # If that exceeds 78 characters, we go, e.g., FirstInitial LastName via Magistrate <docs@getmagistrate.com>
+        proposed = user.first_name[0] + ". " + user.last_name
+        if len(proposed) <= remaining:
+            name = proposed
+
+    if name is None:
+        # If that still exceeds 78 characters, use the user's initials via Magistrate.
+        proposed = ""
+        if user.first_name:
+            proposed += user.first_name[0]
+        if user.last_name:
+            proposed += user.last_name[0]
+        if proposed:
+            name = proposed
+
+    if name is None:
+        # If the user doesn't have any name and their email address is so long we get here,
+        # just truncate the email from the part before the @.
+        name = user.email.split("@")[0]
+        name = name[:remaining]
+
+    if suffix:
+        return f"{name} {suffix}"
+    else:
+        return name
