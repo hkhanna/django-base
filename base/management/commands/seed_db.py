@@ -4,9 +4,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from config.settings.local import env
 from allauth.socialaccount.models import SocialApp
-from base.models import Org, Plan
+from config.settings.local import env
+import base.models
 
 User = get_user_model()
 
@@ -28,8 +28,8 @@ class Command(BaseCommand):
 
         # -- Orgs -- #
         # Create an additional Org for the user with the user as the owner.
-        plan = Plan.objects.create(name="Other Plan")
-        Org.objects.create(
+        plan = base.models.Plan.objects.create(name="Other Plan")
+        base.models.Org.objects.create(
             name="Example LLC",
             owner=user,
             is_personal=False,
