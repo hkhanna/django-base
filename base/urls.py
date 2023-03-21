@@ -21,6 +21,7 @@ urlpatterns = [
         name="privacy_policy",
     ),
     path("org/switch/", views.OrgSwitchView.as_view(), name="org_switch"),
+    path("org/invite/", views.OrgInvitationCreateView.as_view(), name="org_invite"),
     path("org/", views.OrgDetailView.as_view(), name="org_detail"),
     path(
         "accounts/settings/", views.UserSettingsView.as_view(), name="account_settings"

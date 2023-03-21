@@ -125,13 +125,6 @@ class Org(models.Model):
 
         return best
 
-    def invite_email(self, email: str, user):
-        oi = OrgInvitation(org=self, email=email, created_by=user)
-        oi.full_clean()
-        oi.save()
-        oi.send()
-        return oi
-
 
 class OrgUser(models.Model):
     """The 'membership' model for a User/Org relationship."""

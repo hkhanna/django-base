@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
-from django.views.generic import TemplateView, View, DetailView
+from django.views.generic import TemplateView, View, DetailView, CreateView
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.http import require_http_methods
@@ -75,6 +75,31 @@ class OrgDetailView(LoginRequiredMixin, DetailView):
 
     def get_object(self, *args, **kwargs):
         return self.request.org
+
+
+class OrgInvitationCreateView(LoginRequiredMixin, CreateView):
+    model = models.OrgInvitation
+    fields = ("email",)
+
+    def form_valid(self, form):
+        email = form.instance.email
+        org = self.request.org
+
+        if models.OrgUser.objects.filter(org=org, user__email=email).exists():
+            messages.error(
+                self.request,
+                f"{email} is already a member of {org.name}.",
+            )
+        else:
+            form.instance.org = org
+            form.instance.created_by = self.request.user
+            self.object = form.save()
+            self.object.send()
+            messages.success(
+                self.request,
+                f"{email} has been invited to {org.name}.",
+            )
+        return redirect("org_detail")
 
 
 class UserSettingsView(LoginRequiredMixin, View):

@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 from ..models import Org, Plan, OrgInvitation
+from .assertions import assertMessageContains
 import base.factories
 from base import constants
 
@@ -277,13 +278,16 @@ def test_plan_default_unique(user):
     assert plan.is_default is True  # Default turned on
 
 
-def test_org_invite_sends_invitation_new(user, org, mailoutbox, settings):
+def test_org_invite_sends_invitation_new(client, user, org, mailoutbox, settings):
     """Inviting a new user sends them an email"""
+    client.force_login(user)
     email = base.factories.fake.email()
-    invitation = org.invite_email(email, user)
-    assert invitation.status == "Sent"
+    response = client.post(reverse("org_invite"), {"email": email}, follow=True)
+    assert response.status_code == 200
+    assertMessageContains(response, f"{email} has been invited to {org.name}.")
     assert OrgInvitation.objects.count() == 1
-    assert OrgInvitation.objects.first() == invitation
+    invitation = OrgInvitation.objects.first()
+    assert invitation.status == "Sent"
     assert invitation.invitee is None  # No existing user
     assert len(mailoutbox) == 1
     assert email in mailoutbox[0].to[0]
@@ -294,14 +298,17 @@ def test_org_invite_sends_invitation_new(user, org, mailoutbox, settings):
     assert "sign up and accept" in mailoutbox[0].body
 
 
-def test_org_invite_sends_invitation_existing(user, org, mailoutbox):
+def test_org_invite_sends_invitation_existing(client, user, org, mailoutbox):
     """Inviting an existing user (not part of the Org) connects the
     invitation to that user and still sends them an email"""
+    client.force_login(user)
     new = base.factories.UserFactory()
-    invitation = org.invite_email(new.email, user)
-    assert invitation.status == "Sent"
+    response = client.post(reverse("org_invite"), {"email": new.email}, follow=True)
+    assert response.status_code == 200
+    assertMessageContains(response, f"{new.email} has been invited to {org.name}.")
     assert OrgInvitation.objects.count() == 1
-    assert OrgInvitation.objects.first() == invitation
+    invitation = OrgInvitation.objects.first()
+    assert invitation.status == "Sent"
     assert invitation.invitee == new  # Connected to the user
     assert len(mailoutbox) == 1
     assert new.email in mailoutbox[0].to[0]
@@ -309,18 +316,21 @@ def test_org_invite_sends_invitation_existing(user, org, mailoutbox):
     assert "accept" in mailoutbox[0].body
 
 
-def test_org_invite_duplicate(user, org, mailoutbox):
+def test_org_invite_duplicate(client, user, org, mailoutbox):
     """Inviting a user that is already in the Org will not send them an email."""
+    client.force_login(user)
     new = base.factories.UserFactory()
     org.add_user(new)
-    org.invite_email(new.email, user)
+    response = client.post(reverse("org_invite"), {"email": new.email}, follow=True)
+    assert response.status_code == 200
+    assertMessageContains(response, f"{new.email} is already a member of {org.name}.")
     assert len(mailoutbox) == 0
     assert OrgInvitation.objects.count() == 0
 
 
 @pytest.mark.skip("Not implemented")
-def test_invite_existing_user():
-    """Inviting an existing user sends them an email ??"""
+def test_invite_permission():
+    """"""
 
 
 @pytest.mark.skip("Not implemented")
@@ -329,11 +339,6 @@ def test_invite_new_user_accept():
 
 
 def test_invite_existing_user_accept():
-    """"""
-
-
-@pytest.mark.skip("Not implemented")
-def test_invite_permission():
     """"""
 
 
