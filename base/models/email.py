@@ -19,12 +19,13 @@ class EmailMessage(models.Model):
     sent_at = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         help_text="User that caused the EmailMessage to be created.",
+        null=True,
     )
     org = models.ForeignKey(
         "base.Org",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         help_text="The active Org of the User that caused the EmailMessage to be created.",
         null=True,
     )
