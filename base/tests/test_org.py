@@ -6,8 +6,9 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from ..models import Org, Plan
+from ..models import Org, Plan, OrgInvitation
 import base.factories
+from base import constants
 
 User = get_user_model()
 
@@ -276,9 +277,45 @@ def test_plan_default_unique(user):
     assert plan.is_default is True  # Default turned on
 
 
-@pytest.mark.skip("Not implemented")
-def test_send_invitation():
-    """Inviting a user"""
+def test_org_invite_sends_invitation_new(user, org, mailoutbox, settings):
+    """Inviting a new user sends them an email"""
+    email = base.factories.fake.email()
+    invitation = org.invite_email(email, user)
+    assert invitation.status == "Sent"
+    assert OrgInvitation.objects.count() == 1
+    assert OrgInvitation.objects.first() == invitation
+    assert invitation.invitee is None  # No existing user
+    assert len(mailoutbox) == 1
+    assert email in mailoutbox[0].to[0]
+    assert (
+        f"Invitation to join {org.name} on {settings.SITE_CONFIG['name']}"
+        in mailoutbox[0].subject
+    )
+    assert "sign up and accept" in mailoutbox[0].body
+
+
+def test_org_invite_sends_invitation_existing(user, org, mailoutbox):
+    """Inviting an existing user (not part of the Org) connects the
+    invitation to that user and still sends them an email"""
+    new = base.factories.UserFactory()
+    invitation = org.invite_email(new.email, user)
+    assert invitation.status == "Sent"
+    assert OrgInvitation.objects.count() == 1
+    assert OrgInvitation.objects.first() == invitation
+    assert invitation.invitee == new  # Connected to the user
+    assert len(mailoutbox) == 1
+    assert new.email in mailoutbox[0].to[0]
+    assert "sign up and accept" not in mailoutbox[0].body
+    assert "accept" in mailoutbox[0].body
+
+
+def test_org_invite_duplicate(user, org, mailoutbox):
+    """Inviting a user that is already in the Org will not send them an email."""
+    new = base.factories.UserFactory()
+    org.add_user(new)
+    org.invite_email(new.email, user)
+    assert len(mailoutbox) == 0
+    assert OrgInvitation.objects.count() == 0
 
 
 @pytest.mark.skip("Not implemented")
@@ -287,7 +324,11 @@ def test_invite_existing_user():
 
 
 @pytest.mark.skip("Not implemented")
-def test_invite_new_user():
+def test_invite_new_user_accept():
+    """"""
+
+
+def test_invite_existing_user_accept():
     """"""
 
 
@@ -311,6 +352,8 @@ def test_remove_owner():
     """An org owner may not be removed"""
 
 
+# test the views
+
 # ideas for OUSettings
 # can_invite_members
 # can_remove_members
@@ -318,6 +361,7 @@ def test_remove_owner():
 
 # ideas for OrgSettings
 # members_can_leave
+# no_other_orgs
 
 # DREAM: Org views
 # - invitations

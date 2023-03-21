@@ -1,13 +1,19 @@
 import logging
+import uuid
+import secrets
 from django.db import models, transaction
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 from django_extensions.db.fields import AutoSlugField
 from django.utils.encoding import force_str
 from django.utils import timezone
-from base import constants
+from base import constants, utils
+from base.models.email import EmailMessage
 
 logger = logging.getLogger(__name__)
+
+User = get_user_model()
 
 
 class Org(models.Model):
@@ -72,6 +78,13 @@ class Org(models.Model):
             org=self,
         )
 
+    def add_user(self, user):
+        """Create an OrgUser for this Org and return the OrgUser."""
+        ou = OrgUser(org=self, user=user)
+        ou.full_clean()
+        ou.save()
+        return ou
+
     def clean(self):
         if self._state.adding is False:
             # The only time a blank slug is allowed is if it's a brand new Org,
@@ -111,6 +124,13 @@ class Org(models.Model):
             return bool(best)
 
         return best
+
+    def invite_email(self, email: str, user):
+        oi = OrgInvitation(org=self, email=email, created_by=user)
+        oi.full_clean()
+        oi.save()
+        oi.send()
+        return oi
 
 
 class OrgUser(models.Model):
@@ -166,6 +186,88 @@ class OrgUser(models.Model):
             return bool(best)
 
         return best
+
+
+class OrgInvitation(models.Model):
+    """An invitation to join an Org"""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    org = models.ForeignKey(Org, on_delete=models.CASCADE)
+    token = models.CharField(max_length=254, default=secrets.token_urlsafe)
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="org_invitations_created",
+    )
+    invitee = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="org_invitations_received",
+    )
+
+    email = models.EmailField(help_text="Email address of the invitee")
+    email_message = models.ForeignKey(
+        "base.EmailMessage", on_delete=models.SET_NULL, null=True, blank=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+
+        # If we're creating an invitation and there's an existing user, connect them.
+        if self._state.adding:
+            existing = User.objects.filter(email=self.email, is_active=True).first()
+            if existing:
+                self.invitee = existing
+
+        super().save(*args, **kwargs)
+
+    def send(self):
+        sender_email = settings.SITE_CONFIG["default_from_email"]
+        sender_name = utils.get_email_display_name(
+            self.created_by,
+            header="From",
+            email=sender_email,
+            suffix=f"via {settings.SITE_CONFIG['name']}",
+        )
+
+        reply_to_name = utils.get_email_display_name(self.created_by, header="Reply-To")
+        reply_to_email = self.created_by.email
+
+        to_name = ""
+        if self.invitee:
+            to_name = self.invitee.name
+
+        self.email_message = EmailMessage(
+            created_by=self.created_by,
+            org=self.org,
+            to_name=to_name,
+            to_email=self.email,
+            sender_name=sender_name,
+            sender_email=sender_email,
+            reply_to_name=reply_to_name,
+            reply_to_email=reply_to_email,
+            template_prefix="base/email/org_invitation",
+            template_context={
+                "org_name": self.org.name,
+                "new_user": self.invitee is None,
+            },
+        )
+        self.email_message.send()
+        self.save()
+
+    @property
+    def status(self):
+        if not self.email_message:
+            return "New"
+        return "Sent"
+
+
+# -- Plans & Settings -- #
 
 
 class Plan(models.Model):

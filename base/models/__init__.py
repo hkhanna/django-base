@@ -3,6 +3,7 @@ from .email import EmailMessage, EmailMessageWebhook
 from .org import (
     Org,
     OrgUser,
+    OrgInvitation,
     Plan,
     OrgSetting,
     PlanOrgSetting,
