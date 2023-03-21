@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from ..models import Org, Plan, OrgInvitation
+from ..models import Org, OrgUser, Plan, OrgInvitation, OUSetting, OrgUserOUSetting
 from .assertions import assertMessageContains
 import base.factories
 from base import constants
@@ -328,9 +328,21 @@ def test_org_invite_duplicate(client, user, org, mailoutbox):
     assert OrgInvitation.objects.count() == 0
 
 
-@pytest.mark.skip("Not implemented")
-def test_invite_permission():
-    """"""
+def test_invite_permission(client, user, org, mailoutbox):
+    """An OrgUser must have can_invite permission to invite someone."""
+    ou = OrgUser.objects.get(user=user, org=org)
+    setting = OUSetting.objects.get(slug="can_invite")
+    OrgUserOUSetting.objects.create(
+        org_user=ou, setting=setting, value=0
+    )  # Remove can_invite from this OrgUser
+
+    email = base.factories.fake.email()
+    client.force_login(user)
+    response = client.post(reverse("org_invite"), {"email": email})
+    assert response.status_code == 302
+    assertMessageContains(response, f"You don't have permission to invite a user.")
+    assert len(mailoutbox) == 0
+    assert OrgInvitation.objects.count() == 0
 
 
 @pytest.mark.skip("Not implemented")
@@ -356,8 +368,6 @@ def test_remove_permission():
 def test_remove_owner():
     """An org owner may not be removed"""
 
-
-# test the views
 
 # ideas for OUSettings
 # can_invite_members

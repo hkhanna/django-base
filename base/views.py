@@ -21,6 +21,7 @@ from allauth.account import (
 from allauth.account.adapter import get_adapter
 
 from . import forms, models
+from .permissions import OUSettingPermissionMixin
 
 logger = logging.getLogger(__name__)
 
@@ -77,9 +78,11 @@ class OrgDetailView(LoginRequiredMixin, DetailView):
         return self.request.org
 
 
-class OrgInvitationCreateView(LoginRequiredMixin, CreateView):
+class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, CreateView):
     model = models.OrgInvitation
     fields = ("email",)
+    ou_setting = "can_invite"
+    permission_denied_message = "You don't have permission to invite a user."
 
     def form_valid(self, form):
         email = form.instance.email

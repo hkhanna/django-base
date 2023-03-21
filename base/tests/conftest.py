@@ -1,5 +1,5 @@
 import pytest
-from .. import factories, models
+from .. import factories, models, constants
 
 
 @pytest.fixture
@@ -25,6 +25,14 @@ def org(user):
 @pytest.fixture
 def ou(user, org):
     return user.org_users.get(org=org)
+
+
+@pytest.fixture(autouse=True)
+def ou_settings():
+    # Permissive settings by default for test purposes
+    models.OUSetting.objects.create(
+        slug="can_invite", type=constants.SettingType.BOOL, default=1, owner_value=1
+    )
 
 
 @pytest.fixture(autouse=True)
