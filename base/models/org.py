@@ -185,7 +185,7 @@ class OrgInvitation(models.Model):
     """An invitation to join an Org"""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    org = models.ForeignKey(Org, on_delete=models.CASCADE)
+    org = models.ForeignKey(Org, on_delete=models.CASCADE, related_name="invitations")
     token = models.CharField(max_length=254, default=secrets.token_urlsafe)
 
     created_by = models.ForeignKey(
@@ -203,7 +203,11 @@ class OrgInvitation(models.Model):
 
     email = models.EmailField(help_text="Email address of the invitee")
     email_message = models.ForeignKey(
-        "base.EmailMessage", on_delete=models.SET_NULL, null=True, blank=True
+        "base.EmailMessage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="org_invitations",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

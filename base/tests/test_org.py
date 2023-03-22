@@ -14,6 +14,14 @@ from base import constants
 User = get_user_model()
 
 
+@pytest.fixture(autouse=True)
+def ou_settings():
+    # Permissive settings by default for test purposes
+    OUSetting.objects.create(
+        slug="can_invite", type=constants.SettingType.BOOL, default=1, owner_value=1
+    )
+
+
 def test_switch_org(client, user, org):
     """Switching an org simply sets request.org and persists that information to the session."""
     client.force_login(user)

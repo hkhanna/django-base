@@ -28,13 +28,5 @@ def ou(user, org):
 
 
 @pytest.fixture(autouse=True)
-def ou_settings():
-    # Permissive settings by default for test purposes
-    models.OUSetting.objects.create(
-        slug="can_invite", type=constants.SettingType.BOOL, default=1, owner_value=1
-    )
-
-
-@pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):
     pass
