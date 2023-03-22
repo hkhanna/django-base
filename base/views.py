@@ -104,6 +104,10 @@ class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, Crea
             )
         return redirect("org_detail")
 
+    def form_invalid(self, form):
+        messages.error(self.request, "Invalid email address in invitation.")
+        return redirect("org_detail")
+
 
 class UserSettingsView(LoginRequiredMixin, View):
     template_name = "account/settings.html"
