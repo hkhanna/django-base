@@ -354,10 +354,42 @@ def test_invite_permission(client, user, org, mailoutbox):
 
 
 @pytest.mark.skip("Not implemented")
+def test_cancel_invite(client, user):
+    """Cancel an invitation"""
+    client.force_login(user)
+    email = base.factories.fake.email()
+    client.post(reverse("org_invite"), {"email": email})
+    assert OrgInvitation.objects.count() == 1
+    response = client.post(reverse("org_invite_cancel"), {"email": email})
+    assertMessageContains(response, f"Invitation canceled.")
+    assert OrgInvitation.objects.count() == 0
+
+
+@pytest.mark.skip("Not implemented")
+def test_cancel_invite_permission(client, user, org):
+    """An OrgUser must have can_invite permission to cancel an invitation"""
+    client.force_login(user)
+    email = base.factories.fake.email()
+    client.post(reverse("org_invite"), {"email": email})
+    assert OrgInvitation.objects.count() == 1
+
+    ou = OrgUser.objects.get(user=user, org=org)
+    setting = OUSetting.objects.get(slug="can_invite")
+    OrgUserOUSetting.objects.create(
+        org_user=ou, setting=setting, value=0
+    )  # Remove can_invite from this OrgUser
+
+    response = client.post(reverse("org_invite_cancel"), {"email": email})
+    assertMessageContains(response, f"You don't have permission to do this.")
+    assert OrgInvitation.objects.count() == 1
+
+
+@pytest.mark.skip("Not implemented")
 def test_invite_new_user_accept():
     """"""
 
 
+@pytest.mark.skip("Not implemented")
 def test_invite_existing_user_accept():
     """"""
 
