@@ -80,7 +80,7 @@ def process_email_message_webhook(webhook_id):
         logger.debug(f"Saved EmailMessageWebhook.id={webhook_id}")
 
 
-@app.task
+@app.task(serializer="pickle")
 def send_email_message(email_message_id, attachments=[]):
     logger.info(f"EmailMessage.id={email_message_id} send_email_message task started")
     email_message = get_object_or_404(models.EmailMessage, id=email_message_id)
