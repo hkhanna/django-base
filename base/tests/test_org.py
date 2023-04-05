@@ -18,7 +18,10 @@ User = get_user_model()
 def ou_settings():
     # Permissive settings by default for test purposes
     OUSetting.objects.create(
-        slug="can_invite", type=constants.SettingType.BOOL, default=1, owner_value=1
+        slug="can_invite_members",
+        type=constants.SettingType.BOOL,
+        default=1,
+        owner_value=1,
     )
 
 
@@ -324,7 +327,7 @@ def test_org_invite_sends_invitation_existing(client, user, org, mailoutbox):
     assert "accept" in mailoutbox[0].body
 
 
-def test_org_invite_duplicate(client, user, org, mailoutbox):
+def test_org_invite_duplicate_user(client, user, org, mailoutbox):
     """Inviting a user that is already in the Org will not send them an email."""
     client.force_login(user)
     new = base.factories.UserFactory()
@@ -336,13 +339,23 @@ def test_org_invite_duplicate(client, user, org, mailoutbox):
     assert OrgInvitation.objects.count() == 0
 
 
+@pytest.mark.skip("Not implemented")
+def test_org_invite_duplicate_invitation(client, user, org, mailoutbox):
+    """Inviting a user that has an open invitation will fail."""
+
+
+@pytest.mark.skip("Not implemented")
+def test_org_invite_resend(client, user, org, mailoutbox):
+    """Resend invitation email only allows one per day."""
+
+
 def test_invite_permission(client, user, org, mailoutbox):
-    """An OrgUser must have can_invite permission to invite someone."""
+    """An OrgUser must have can_invite_members permission to invite someone."""
     ou = OrgUser.objects.get(user=user, org=org)
-    setting = OUSetting.objects.get(slug="can_invite")
+    setting = OUSetting.objects.get(slug="can_invite_members")
     OrgUserOUSetting.objects.create(
         org_user=ou, setting=setting, value=0
-    )  # Remove can_invite from this OrgUser
+    )  # Remove can_invite_members from this OrgUser
 
     email = base.factories.fake.email()
     client.force_login(user)
@@ -353,7 +366,6 @@ def test_invite_permission(client, user, org, mailoutbox):
     assert OrgInvitation.objects.count() == 0
 
 
-@pytest.mark.skip("Not implemented")
 def test_cancel_invite(client, user):
     """Cancel an invitation"""
     client.force_login(user)
@@ -367,17 +379,17 @@ def test_cancel_invite(client, user):
 
 @pytest.mark.skip("Not implemented")
 def test_cancel_invite_permission(client, user, org):
-    """An OrgUser must have can_invite permission to cancel an invitation"""
+    """An OrgUser must have can_invite_members permission to cancel an invitation"""
     client.force_login(user)
     email = base.factories.fake.email()
     client.post(reverse("org_invite"), {"email": email})
     assert OrgInvitation.objects.count() == 1
 
     ou = OrgUser.objects.get(user=user, org=org)
-    setting = OUSetting.objects.get(slug="can_invite")
+    setting = OUSetting.objects.get(slug="can_invite_members")
     OrgUserOUSetting.objects.create(
         org_user=ou, setting=setting, value=0
-    )  # Remove can_invite from this OrgUser
+    )  # Remove can_invite_members from this OrgUser
 
     response = client.post(reverse("org_invite_cancel"), {"email": email})
     assertMessageContains(response, f"You don't have permission to do this.")
@@ -410,7 +422,6 @@ def test_remove_owner():
 
 
 # ideas for OUSettings
-# can_invite_members
 # can_remove_members
 # can_change_org_name
 

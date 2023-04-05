@@ -81,7 +81,7 @@ class OrgDetailView(LoginRequiredMixin, DetailView):
 class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, CreateView):
     model = models.OrgInvitation
     fields = ("email",)
-    ou_setting = "can_invite"
+    ou_setting = "can_invite_members"
     permission_denied_message = "You don't have permission to invite a user."
 
     def form_valid(self, form):
