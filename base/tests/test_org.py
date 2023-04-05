@@ -457,6 +457,11 @@ def test_invite_new_user_accept():
 
 
 @pytest.mark.skip("Not implemented")
+def test_invite_new_user_accept_no_personal():
+    """If you created your user account because you were invited, don't create a personal org automatically."""
+
+
+@pytest.mark.skip("Not implemented")
 def test_invite_existing_user_accept():
     """"""
     # Make sure OrgInvitation.invitee is set to the user.
@@ -465,6 +470,11 @@ def test_invite_existing_user_accept():
 @pytest.mark.skip("Not implemented")
 def test_remove_user():
     """"""
+
+
+@pytest.mark.skip("Not implemented")
+def test_remove_user_last_org():
+    """Removing a user from an org creates a personal org for them if they would otherwise have no active orgs."""
 
 
 @pytest.mark.skip("Not implemented")
@@ -477,24 +487,19 @@ def test_remove_owner():
     """An org owner may not be removed"""
 
 
-# ideas for OrgSettings
-# members_can_leave
-# no_other_orgs
+# N.B. Holding off on developing these features until there's some concrete direction.
 
-# DREAM: Org views
-# - invitations
-#   - If you created your user account because you were invited, don't create a personal org automatically.
-#   - If you don't have a personal org, there should be a way to create one.
-#   - decline invitations
-#   - require email to be verified before allowing invitations
-# - Removing a user from an org creates a personal org for them if they would otherwise have no active orgs.
+# Org invitations
+"""Disallow resending an invitation more than `max_invitation_resend` OrgSetting times."""
+"""Inviter must have a verified email before they may invite anyone."""
 
 # Org CRUD tests
 """A user may create an Org"""
+"""If you don't have a personal org, there should be a way to create one. -- although this shouldn't always be available. Could be an OrgSetting."""
 """A user may not own more than 10 Orgs"""
 """Deleting an Org sets is_active to False"""
 """Only an owner may delete an Org and then only if the Org allows it."""
-"""Org information like name may be updated with the can_change_org_name OUSetting"""
+"""Org information like name may be updated with the `can_change_org_name` OUSetting"""
 
 # Tests related to deleting a User
 """Can't delete your account if you own an org, unless its your personal Org"""
@@ -506,5 +511,6 @@ def test_remove_owner():
 """A personal org may not be transfered"""
 
 # Tests related to leaving an org
-"""A user may leave an org -- should this be on an org-by-org basis?"""
+"""A user may leave an org -- should this be on an org-by-org basis with a `members_can_leave` OrgSetting?"""
 """An owner may not leave an org"""
+"""If a user leaves an org and have no active orgs, it auto-creates a personal org."""
