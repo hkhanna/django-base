@@ -146,8 +146,6 @@ class OrgUser(models.Model):
         return f"{self.org} / {self.user} ({self.pk})"
 
     def get_setting(self, slug):
-        # See test_org_settings.py for an explanation of how this works.
-
         setting, _ = OUSetting.objects.get_or_create(
             slug=slug,
             defaults={
@@ -202,11 +200,8 @@ class OrgInvitation(models.Model):
     )
 
     email = models.EmailField(help_text="Email address of the invitee")
-    email_message = models.ForeignKey(
+    email_messages = models.ManyToManyField(
         "base.EmailMessage",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
         related_name="org_invitations",
     )
 
@@ -216,6 +211,7 @@ class OrgInvitation(models.Model):
     def save(self, *args, **kwargs):
 
         # If we're creating an invitation and there's an existing user, connect them.
+        # This might be moved to when the user accepts.
         if self._state.adding:
             existing = User.objects.filter(email=self.email, is_active=True).first()
             if existing:
@@ -236,10 +232,11 @@ class OrgInvitation(models.Model):
         reply_to_email = self.created_by.email
 
         to_name = ""
+        # FIXME
         if self.invitee:
             to_name = self.invitee.name
 
-        self.email_message = EmailMessage(
+        email_message = EmailMessage(
             created_by=self.created_by,
             org=self.org,
             subject=f"Invitation to join {self.org.name} on {settings.SITE_CONFIG['name']}",
@@ -252,17 +249,18 @@ class OrgInvitation(models.Model):
             template_prefix="base/email/org_invitation",
             template_context={
                 "org_name": self.org.name,
-                "new_user": self.invitee is None,
+                "new_user": self.invitee is None,  # FIXME
                 "inviter": self.created_by.name,
                 "action_url": "",
             },
         )
-        self.email_message.send()
+        email_message.send()
         self.save()
+        self.email_messages.add(email_message)
 
     @property
     def status(self):
-        if not self.email_message:
+        if not self.email_messages.exists():
             return "New"
         return "Sent"
 

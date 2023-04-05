@@ -1,4 +1,5 @@
 import pytest
+from datetime import timedelta
 from pytest_django.asserts import assertRaisesMessage
 from freezegun import freeze_time
 from django.urls import reverse
@@ -299,6 +300,7 @@ def test_org_invite_sends_invitation_new(client, user, org, mailoutbox, settings
     assert OrgInvitation.objects.count() == 1
     invitation = OrgInvitation.objects.first()
     assert invitation.status == "Sent"
+    assert invitation.email_messages.count() == 1
     assert invitation.invitee is None  # No existing user
     assert len(mailoutbox) == 1
     assert email in mailoutbox[0].to[0]
@@ -320,6 +322,7 @@ def test_org_invite_sends_invitation_existing(client, user, org, mailoutbox):
     assert OrgInvitation.objects.count() == 1
     invitation = OrgInvitation.objects.first()
     assert invitation.status == "Sent"
+    assert invitation.email_messages.count() == 1
     assert invitation.invitee == new  # Connected to the user
     assert len(mailoutbox) == 1
     assert new.email in mailoutbox[0].to[0]
@@ -342,11 +345,18 @@ def test_org_invite_duplicate_user(client, user, org, mailoutbox):
 @pytest.mark.skip("Not implemented")
 def test_org_invite_duplicate_invitation(client, user, org, mailoutbox):
     """Inviting a user that has an open invitation will fail."""
+    client.force_login(user)
+    new = base.factories.UserFactory()
+    client.post(reverse("org_invite"), {"email": new.email})
+    assert len(mailoutbox) == 1
+    assert OrgInvitation.objects.count() == 1
 
-
-@pytest.mark.skip("Not implemented")
-def test_org_invite_resend(client, user, org, mailoutbox):
-    """Resend invitation email only allows one per day."""
+    response = client.post(reverse("org_invite"), {"email": new.email}, follow=True)
+    assertMessageContains(
+        response, f"{new.email} has a pending invitation to {org.name}."
+    )
+    assert len(mailoutbox) == 1
+    assert OrgInvitation.objects.count() == 1
 
 
 def test_invite_permission(client, user, org, mailoutbox):
@@ -399,14 +409,73 @@ def test_cancel_invite_permission(client, user, org):
     assert OrgInvitation.objects.count() == 1
 
 
+def test_org_invite_resend(client, user, mailoutbox):
+    """Resend invitation email."""
+    client.force_login(user)
+    email = base.factories.fake.email()
+    client.post(reverse("org_invite"), {"email": email})
+    assert len(mailoutbox) == 1
+    pk = OrgInvitation.objects.first().pk
+    assert OrgInvitation.objects.first().email_messages.count() == 1
+    with freeze_time(timezone.now() + timedelta(hours=1)):
+        response = client.post(reverse("org_invitation_resend", kwargs={"pk": pk}))
+        assertMessageContains(response, f"Invitation resent.")
+        assert OrgInvitation.objects.first().email_messages.count() == 2
+        assert len(mailoutbox) == 2
+
+
+def test_org_invite_resend_permission(client, user, org, mailoutbox):
+    """An OrgUser must have can_invite_members permission to resend an invitation."""
+    client.force_login(user)
+    email = base.factories.fake.email()
+    client.post(reverse("org_invite"), {"email": email})
+    assert len(mailoutbox) == 1
+    pk = OrgInvitation.objects.first().pk
+    assert OrgInvitation.objects.first().email_messages.count() == 1
+
+    ou = OrgUser.objects.get(user=user, org=org)
+    setting = OUSetting.objects.get(slug="can_invite_members")
+    OrgUserOUSetting.objects.create(
+        org_user=ou, setting=setting, value=0
+    )  # Remove can_invite_members from this OrgUser
+
+    with freeze_time(timezone.now() + timedelta(hours=1)):
+        response = client.post(reverse("org_invitation_resend", kwargs={"pk": pk}))
+        assertMessageContains(
+            response, f"You don't have permission to resend an invitation."
+        )
+        assert OrgInvitation.objects.first().email_messages.count() == 1
+        assert len(mailoutbox) == 1
+
+
 @pytest.mark.skip("Not implemented")
 def test_invite_permission_ui(client, user, org):
     """Without can_invite_members permission, the UI doesn't show invitation, cancel, or resend button."""
+    client.force_login(user)
+    client.post(reverse("org_invite"), {"email": base.factories.fake.email()})
+    response = client.get(reverse("org_detail"))
+    assert "Invite a Member" in str(response.content)
+    assert "Cancel Invitation" in str(response.content)
+    assert "Resend Invitation" in str(response.content)
+
+    ou = OrgUser.objects.get(user=user, org=org)
+    setting = OUSetting.objects.get(slug="can_invite_members")
+    OrgUserOUSetting.objects.create(
+        org_user=ou, setting=setting, value=0
+    )  # Remove can_invite_members from this OrgUser
+
+    response = client.get(reverse("org_detail"))
+    assert "Invite a Member" not in str(response.content)
+    assert "Cancel Invitation" not in str(response.content)
+    assert "Resend Invitation" not in str(response.content)
 
 
 @pytest.mark.skip("Not implemented")
 def test_invite_new_user_accept():
     """"""
+    # What if a user signs up between when the invitation is sent and when it is accepted?
+    # You shouldn't connect the invitation to a user until they accept, I think. Otherwise it's
+    # vulnerable to a squatting attack.
 
 
 @pytest.mark.skip("Not implemented")

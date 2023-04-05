@@ -98,8 +98,13 @@
                           </form>
                           <button type="button" x-on:click="modal = true" class="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</button>
                         </div>
-
-                          <a href="#" class="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Resend</a>
+                          <div x-data="{modal: false}">
+                          <form action="{% url 'org_invitation_resend' pk=oi.pk %}" method="POST">
+                          {% csrf_token %}
+                          {% component "submit_modal" variant="primary" title="Resend Invitation" submit_button_text="Confirm Resend" icon="user-add" text="Do you really want to resend the invitation?" %}
+                          </form>
+                          <button type="button" x-on:click="modal = true" class="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Resend</button>
+                        </div>
                         </div>
                       </div>
                     </li>

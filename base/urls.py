@@ -27,6 +27,11 @@ urlpatterns = [
         views.OrgInvitationCancelView.as_view(),
         name="org_invitation_cancel",
     ),
+    path(
+        "org/invitation/<uuid:pk>/resend/",
+        views.OrgInvitationResendView.as_view(),
+        name="org_invitation_resend",
+    ),
     path("org/", views.OrgDetailView.as_view(), name="org_detail"),
     path(
         "accounts/settings/", views.UserSettingsView.as_view(), name="account_settings"

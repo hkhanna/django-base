@@ -4,7 +4,7 @@ import json
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.conf import settings
 from django.http import Http404
@@ -114,7 +114,6 @@ class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, Crea
 class OrgInvitationCancelView(
     LoginRequiredMixin, OUSettingPermissionMixin, SuccessMessageMixin, DeleteView
 ):
-    model = models.OrgInvitation
     ou_setting = "can_invite_members"
     permission_denied_message = "You don't have permission to cancel an invitation."
     success_url = reverse_lazy("org_detail")
@@ -129,6 +128,21 @@ class OrgInvitationCancelView(
         success_message = self.get_success_message({})
         messages.success(self.request, success_message)
         return response
+
+
+class OrgInvitationResendView(
+    LoginRequiredMixin,
+    OUSettingPermissionMixin,
+    View,
+):
+    ou_setting = "can_invite_members"
+    permission_denied_message = "You don't have permission to resend an invitation."
+
+    def post(self, request, pk):
+        invitation = get_object_or_404(models.OrgInvitation, org=request.org, pk=pk)
+        invitation.send()
+        messages.success(request, "Invitation resent.")
+        return redirect("org_detail")
 
 
 class UserSettingsView(LoginRequiredMixin, View):
