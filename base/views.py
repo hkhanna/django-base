@@ -2,12 +2,14 @@ import waffle
 import logging
 import json
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.conf import settings
 from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
-from django.views.generic import TemplateView, View, DetailView, CreateView
+from django.views.generic import TemplateView, View, DetailView, CreateView, DeleteView
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.http import require_http_methods
@@ -107,6 +109,26 @@ class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, Crea
     def form_invalid(self, form):
         messages.error(self.request, "Invalid email address in invitation.")
         return redirect("org_detail")
+
+
+class OrgInvitationCancelView(
+    LoginRequiredMixin, OUSettingPermissionMixin, SuccessMessageMixin, DeleteView
+):
+    model = models.OrgInvitation
+    ou_setting = "can_invite_members"
+    permission_denied_message = "You don't have permission to cancel an invitation."
+    success_url = reverse_lazy("org_detail")
+    success_message = "Invitation canceled."
+
+    def get_queryset(self):
+        return models.OrgInvitation.objects.filter(org=self.request.org)
+
+    # HACK: SuccessMessageMixin works properly in Django 4.1, so this method can be removed once we upgrade.
+    def delete(self, *args, **kwargs):
+        response = super().delete(*args, *kwargs)
+        success_message = self.get_success_message({})
+        messages.success(self.request, success_message)
+        return response
 
 
 class UserSettingsView(LoginRequiredMixin, View):
@@ -213,7 +235,7 @@ class ResendConfirmationEmailView(LoginRequiredMixin, View):
         return redirect("account_settings")
 
 
-class DeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin, View):
+class AccountDeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin, View):
     def post(self, request, *args, **kwargs):
         if waffle.switch_is_active("disable_account_deletion"):
             raise Http404("Account deletion is disabled.")

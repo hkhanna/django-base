@@ -372,12 +372,12 @@ def test_cancel_invite(client, user):
     email = base.factories.fake.email()
     client.post(reverse("org_invite"), {"email": email})
     assert OrgInvitation.objects.count() == 1
-    response = client.post(reverse("org_invite_cancel"), {"email": email})
+    pk = OrgInvitation.objects.first().pk
+    response = client.post(reverse("org_invitation_cancel", kwargs={"pk": pk}))
     assertMessageContains(response, f"Invitation canceled.")
     assert OrgInvitation.objects.count() == 0
 
 
-@pytest.mark.skip("Not implemented")
 def test_cancel_invite_permission(client, user, org):
     """An OrgUser must have can_invite_members permission to cancel an invitation"""
     client.force_login(user)
@@ -391,9 +391,17 @@ def test_cancel_invite_permission(client, user, org):
         org_user=ou, setting=setting, value=0
     )  # Remove can_invite_members from this OrgUser
 
-    response = client.post(reverse("org_invite_cancel"), {"email": email})
-    assertMessageContains(response, f"You don't have permission to do this.")
+    pk = OrgInvitation.objects.first().pk
+    response = client.post(reverse("org_invitation_cancel", kwargs={"pk": pk}))
+    assertMessageContains(
+        response, f"You don't have permission to cancel an invitation."
+    )
     assert OrgInvitation.objects.count() == 1
+
+
+@pytest.mark.skip("Not implemented")
+def test_invite_permission_ui(client, user, org):
+    """Without can_invite_members permission, the UI doesn't show invitation, cancel, or resend button."""
 
 
 @pytest.mark.skip("Not implemented")
@@ -422,7 +430,6 @@ def test_remove_owner():
 
 
 # ideas for OUSettings
-# can_remove_members
 # can_change_org_name
 
 # ideas for OrgSettings

@@ -21,7 +21,12 @@ urlpatterns = [
         name="privacy_policy",
     ),
     path("org/switch/", views.OrgSwitchView.as_view(), name="org_switch"),
-    path("org/invite/", views.OrgInvitationCreateView.as_view(), name="org_invite"),
+    path("org/invitation/", views.OrgInvitationCreateView.as_view(), name="org_invite"),
+    path(
+        "org/invitation/<uuid:pk>/cancel/",
+        views.OrgInvitationCancelView.as_view(),
+        name="org_invitation_cancel",
+    ),
     path("org/", views.OrgDetailView.as_view(), name="org_detail"),
     path(
         "accounts/settings/", views.UserSettingsView.as_view(), name="account_settings"
@@ -31,7 +36,7 @@ urlpatterns = [
         views.ResendConfirmationEmailView.as_view(),
         name="account_resend_confirmation_email",
     ),
-    path("accounts/delete/", views.DeleteView.as_view(), name="account_delete"),
+    path("accounts/delete/", views.AccountDeleteView.as_view(), name="account_delete"),
     path("accounts/password/change/", page_not_found, name="account_change_password"),
     path(
         "accounts/password/set/",
