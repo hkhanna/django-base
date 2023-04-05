@@ -95,6 +95,10 @@ class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, Crea
                 self.request,
                 f"{email} is already a member of {org.name}.",
             )
+        elif models.OrgInvitation.objects.filter(org=org, email=email).exists():
+            messages.warning(
+                self.request, f"{email} already has a pending invitation to {org}."
+            )
         else:
             form.instance.org = org
             form.instance.created_by = self.request.user

@@ -323,7 +323,6 @@ def test_org_invite_duplicate_user(client, user, org, mailoutbox):
     assert OrgInvitation.objects.count() == 0
 
 
-@pytest.mark.skip("Not implemented")
 def test_org_invite_duplicate_invitation(client, user, org, mailoutbox):
     """Inviting a user that has an open invitation will fail."""
     client.force_login(user)
@@ -334,7 +333,7 @@ def test_org_invite_duplicate_invitation(client, user, org, mailoutbox):
 
     response = client.post(reverse("org_invite"), {"email": new.email}, follow=True)
     assertMessageContains(
-        response, f"{new.email} has a pending invitation to {org.name}."
+        response, f"{new.email} already has a pending invitation to {org.name}."
     )
     assert len(mailoutbox) == 1
     assert OrgInvitation.objects.count() == 1
@@ -478,9 +477,6 @@ def test_remove_owner():
     """An org owner may not be removed"""
 
 
-# ideas for OUSettings
-# can_change_org_name
-
 # ideas for OrgSettings
 # members_can_leave
 # no_other_orgs
@@ -489,6 +485,8 @@ def test_remove_owner():
 # - invitations
 #   - If you created your user account because you were invited, don't create a personal org automatically.
 #   - If you don't have a personal org, there should be a way to create one.
+#   - decline invitations
+#   - require email to be verified before allowing invitations
 # - Removing a user from an org creates a personal org for them if they would otherwise have no active orgs.
 
 # Org CRUD tests
