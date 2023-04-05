@@ -308,25 +308,6 @@ def test_org_invite_sends_invitation_new(client, user, org, mailoutbox, settings
         f"Invitation to join {org.name} on {settings.SITE_CONFIG['name']}"
         in mailoutbox[0].subject
     )
-    assert "sign up and accept" in mailoutbox[0].body
-
-
-def test_org_invite_sends_invitation_existing(client, user, org, mailoutbox):
-    """Inviting an existing user (not part of the Org) connects the
-    invitation to that user and still sends them an email"""
-    client.force_login(user)
-    new = base.factories.UserFactory()
-    response = client.post(reverse("org_invite"), {"email": new.email}, follow=True)
-    assert response.status_code == 200
-    assertMessageContains(response, f"{new.email} has been invited to {org.name}.")
-    assert OrgInvitation.objects.count() == 1
-    invitation = OrgInvitation.objects.first()
-    assert invitation.status == "Sent"
-    assert invitation.email_messages.count() == 1
-    assert invitation.invitee == new  # Connected to the user
-    assert len(mailoutbox) == 1
-    assert new.email in mailoutbox[0].to[0]
-    assert "sign up and accept" not in mailoutbox[0].body
     assert "accept" in mailoutbox[0].body
 
 
@@ -473,14 +454,13 @@ def test_invite_permission_ui(client, user, org):
 @pytest.mark.skip("Not implemented")
 def test_invite_new_user_accept():
     """"""
-    # What if a user signs up between when the invitation is sent and when it is accepted?
-    # You shouldn't connect the invitation to a user until they accept, I think. Otherwise it's
-    # vulnerable to a squatting attack.
+    # Make sure OrgInvitation.invitee is set to the user.
 
 
 @pytest.mark.skip("Not implemented")
 def test_invite_existing_user_accept():
     """"""
+    # Make sure OrgInvitation.invitee is set to the user.
 
 
 @pytest.mark.skip("Not implemented")

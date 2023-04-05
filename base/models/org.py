@@ -208,17 +208,6 @@ class OrgInvitation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-
-        # If we're creating an invitation and there's an existing user, connect them.
-        # This might be moved to when the user accepts.
-        if self._state.adding:
-            existing = User.objects.filter(email=self.email, is_active=True).first()
-            if existing:
-                self.invitee = existing
-
-        super().save(*args, **kwargs)
-
     def send(self):
         sender_email = settings.SITE_CONFIG["default_from_email"]
         sender_name = utils.get_email_display_name(
@@ -231,16 +220,10 @@ class OrgInvitation(models.Model):
         reply_to_name = utils.get_email_display_name(self.created_by, header="Reply-To")
         reply_to_email = self.created_by.email
 
-        to_name = ""
-        # FIXME
-        if self.invitee:
-            to_name = self.invitee.name
-
         email_message = EmailMessage(
             created_by=self.created_by,
             org=self.org,
             subject=f"Invitation to join {self.org.name} on {settings.SITE_CONFIG['name']}",
-            to_name=to_name,
             to_email=self.email,
             sender_name=sender_name,
             sender_email=sender_email,
@@ -249,7 +232,6 @@ class OrgInvitation(models.Model):
             template_prefix="base/email/org_invitation",
             template_context={
                 "org_name": self.org.name,
-                "new_user": self.invitee is None,  # FIXME
                 "inviter": self.created_by.name,
                 "action_url": "",
             },

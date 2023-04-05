@@ -4,6 +4,6 @@ Hello,
 
 You have been invited to join {{org_name}} on {{site_name}} by {{inviter}}.
 
-You may {% if new_user %}sign up and {% endif %}accept this invitation at this url:
+You may accept this invitation at this url:
 {{action_url|safe}}
 {% endblock %}
