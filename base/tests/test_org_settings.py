@@ -14,19 +14,6 @@ from ..models import (
 )
 from base import constants
 
-# The general philosophy is this.
-# There are 2 types of settings, settings for an Org (OrgSetting) and settings for an OrgUser (OUSetting).
-# They are related to Orgs, OrgUsers and Plans in different ways.
-# - OrgSettings are primarily related to a payment Plan. An Org may override an OrgSetting, in which case it will not look to the Plan for that OrgSetting.
-# - If a Plan is queried for an OrgSetting, and that OrgSetting is not set on the Plan, it will materialize the setting on the Plan with the OrgSetting's default.
-# - OUSettings should have defaults set by the Org. If an Org is accessed for an OUSetting default and it's not there, it will materialize it on the Org.
-#    - At this point, it doesn't seem useful to attach OUSetting defaults to a Plan, so we don't. We can easily change this down the road though.
-#    - We set an owner_value on the base OUSetting that is always used for the Org owner, who is kind of a superuser.
-# - If a setting does not exist but is queried, that setting will autocreate with a default of False and an owner_value of True.
-
-# A one-time payment situation would probably only use the default Plan and override OrgSettings as the purchase is made.
-# Each setting stores its value as an integer, but if the type is set to `bool` instead of `int`, it will report it as True or False.
-
 
 @pytest.fixture
 def org_setting():
