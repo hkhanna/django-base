@@ -283,7 +283,6 @@ logging.config.dictConfig(
             "default": {
                 "format": "[%(name)s] at=%(levelname)s timestamp=%(asctime)s request_id=%(request_id)s "
                 + "pathname=%(pathname)s funcname=%(funcName)s lineno=%(lineno)s %(message)s",
-                "datefmt": "%Y-%m-%dT%H:%M:%S%z",
             },
         },
         "handlers": {
