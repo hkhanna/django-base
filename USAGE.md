@@ -9,6 +9,7 @@ Generally, you'll want to avoid making too many changes to the `base` app to avo
 - Pick a suitable project name.
 - Clone the repo into the new project name directory. E.g., `git clone git@github.com:getmagistrate/base-fedora.git <project_name>`
 - Rename the `origin` remote to `base`: `git remote rename origin base`
+- In the project directory: `git checkout base/base && git checkout -b base && git branch -D main && git branch -M main`.
 - Create a fresh Github repo for the project.
 - Point the `origin` remote to a fresh Github repo.
 - In the `base-fedora` repo, add the new application as it's own remote so you can cherry-pick commits if necessary.
