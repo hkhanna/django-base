@@ -39,6 +39,9 @@ class RequestIDMiddleware:
 
     def log_request_id(self, request, response):
         msg = f"method={request.method} path={request.path} status={response.status_code} "
+        ip = request.META["REMOTE_ADDR"]
+        msg += f"ip={ip} "
+
         user = getattr(request, "user", None)
         if user:
             msg += f"User.id={user.id}"

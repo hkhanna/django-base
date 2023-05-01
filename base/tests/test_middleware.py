@@ -13,26 +13,28 @@ def test_request_id_middleware_user(client, caplog, user):
     assert f"User.id={user.pk}" in caplog.text
 
 
-def test_setremoteaddr_middleware():
+def test_setremoteaddr_middleware(caplog):
     """An IP address passed in X-Forwarded-For header should end up in REMOTE_ADDR.
-    We can only do this safely while using Render."""
+    We can only do this safely while using Render. Ip should also end up in request log."""
     ip = fake.ipv4()
     client = Client(HTTP_X_FORWARDED_FOR=ip)
     response = client.get(reverse("index"))
     request = response.wsgi_request
     assert request.META["REMOTE_ADDR"] == ip
+    assert f"ip={ip}" in caplog.text
 
 
 @override_settings(ENVIRONMENT="production")
-def test_setremoteaddr_middleware_none():
+def test_setremoteaddr_middleware_none(caplog):
     """No IP address in X-Forwarded-For makes REMOTE_ADDR None in prod."""
     client = Client()
     response = client.get(reverse("index"))
     request = response.wsgi_request
     assert request.META["REMOTE_ADDR"] is None
+    assert "ip=None" in caplog.text
 
 
-def test_setremoteaddr_middleware_multiple():
+def test_setremoteaddr_middleware_multiple(caplog):
     """Multiple IP addresses in X-Forwarded-For takes the first one since it is
     explicitly set by Render and can be trusted."""
     ip0 = fake.ipv4()
@@ -42,6 +44,7 @@ def test_setremoteaddr_middleware_multiple():
     response = client.get(reverse("index"))
     request = response.wsgi_request
     assert request.META["REMOTE_ADDR"] == ip0
+    assert f"ip={ip0}" in caplog.text
 
 
 def test_health_check(client):
