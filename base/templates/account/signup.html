@@ -55,6 +55,11 @@
             {% component "input_field" field=form.first_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
           </div>
 
+          <div class="noteworthy">
+            <span class="sr-only">This middle initial field should not be completed by humans.</span>
+            {% component "input_field" field=form.middle_initial input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+          </div>
+
           <div class="col-span-6 sm:col-span-3">
             {% component "input_field" field=form.last_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
           </div>

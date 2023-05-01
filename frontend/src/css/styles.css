@@ -11,3 +11,7 @@
 [x-cloak] {
   display: none !important;
 }
+
+.noteworthy {
+  display: none !important;
+}

@@ -71,6 +71,22 @@ class SignupForm(auth_forms.SignupForm):
         ),
     )
 
+    # Honeypot
+    middle_initial = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={"placeholder": "Middle initial"}),
+        required=False,
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Check honeypot
+        honeypot = cleaned_data.get("middle_initial")
+        if honeypot:
+            raise ValidationError("Signup sadly closed.")
+        return cleaned_data
+
     def clean_email(self):
         self.cleaned_data["email"] = self.cleaned_data["email"].lower()
         return super().clean_email()

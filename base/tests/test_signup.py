@@ -12,6 +12,7 @@ def test_signup_create(client):
         "last_name": "Khanna",
         "email": "harry@example.com",
         "password1": "a really good password!",
+        "middle_initial": "",  # Honeypot
     }
     client.post(reverse("account_signup"), payload)
     assert 1 == models.User.objects.filter(email="harry@example.com").count()
@@ -157,3 +158,17 @@ def test_last_name_length(client, user):
         "has at most 150 characters" in response.context["form"].errors["last_name"][0]
     )
     assert "has at most 150 characters" in str(response.content)
+
+
+def test_honeypot(client):
+    """If honeypot is provided, return 400."""
+    payload = {
+        "first_name": "Harry",
+        "last_name": "Khanna",
+        "email": "a@example.com",
+        "password1": "a really good password!",
+        "middle_initial": "S",
+    }
+    response = client.post(reverse("account_signup"), payload)
+    assert "Signup sadly closed." in str(response.content)
+    assert models.User.objects.count() == 0
