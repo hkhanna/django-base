@@ -249,6 +249,9 @@ WAFFLE_CREATE_MISSING_SWITCHES = True
 WAFFLE_CREATE_MISSING_FLAGS = False  # Default
 WAFFLE_FLAG_DEFAULT = False  # Default
 
+# Event Handlers
+EVENT_HANDLERS = {"default": "base.models.event.default_handler"}
+
 # Celery
 CELERY_BROKER_URL = env("REDIS_URL", default=None)
 CELERY_TASK_ALWAYS_EAGER = True

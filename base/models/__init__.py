@@ -13,3 +13,4 @@ from .org import (
     OrgUserOUSetting,
     OUSettingDefault,
 )
+from .event import Event
