@@ -33,6 +33,7 @@ urlpatterns = [
         name="org_invitation_resend",
     ),
     path("org/", views.OrgDetailView.as_view(), name="org_detail"),
+    path("event/emit/<str:type>/", views.event_emit_view, name="event_emit"),
     path(
         "accounts/settings/", views.UserSettingsView.as_view(), name="account_settings"
     ),

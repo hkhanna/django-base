@@ -6,6 +6,7 @@ SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
     default="django-insecure-v9@!9+-)rsufs7qy6j4ki-ywhggph**_^8h+-*zabvj314a**y",
 )
+EVENT_SECRET = "test"
 
 DATABASES = {
     "default": env.db(

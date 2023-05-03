@@ -19,7 +19,9 @@ envVarGroups:
         sync: false
       - key: POSTMARK_API_KEY
         sync: false
-
+      - key: EVENT_SECRET
+        sync: false
+      
 services:
   - type: web
     name: base-fedora-web

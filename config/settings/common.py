@@ -251,6 +251,7 @@ WAFFLE_FLAG_DEFAULT = False  # Default
 
 # Event Handlers
 EVENT_HANDLERS = {"default": "base.models.event.default_handler"}
+EVENT_SECRET = env("EVENT_SECRET", default="insecure")
 
 # Celery
 CELERY_BROKER_URL = env("REDIS_URL", default=None)

@@ -295,3 +295,22 @@ def email_message_webhook_view(request):
     webhook.process()
 
     return JsonResponse({"detail": "Created"}, status=201)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def event_emit_view(request, type):
+    try:
+        payload = json.loads(request.body)
+    except json.decoder.JSONDecodeError as e:
+        payload = {}
+
+    # Verify shared secret
+    secret = request.META.get("HTTP_X_EVENT_SECRET")
+    if secret != settings.EVENT_SECRET:
+        return JsonResponse({"detail": "Invalid payload"}, status=400)
+
+    logger.info(f"Request to emit event of type {type} received.")
+    models.Event.emit(type, payload)
+
+    return JsonResponse({"detail": "Created"}, status=201)
