@@ -25,15 +25,15 @@ def test_event_emit(test_handler_setting, caplog, monkeypatch):
 
 
 def test_event_emit_default(monkeypatch):
-    """Emitting an event without a handler calls the default handler."""
+    """Emitting an event without a handler calls the noop handler."""
     mock = Mock()
-    monkeypatch.setattr(base.models.event, "default_handler", mock)
+    monkeypatch.setattr(base.models.event, "noop", mock)
     Event.emit("example_evt", {"hello": "world"})
     assert mock.call_count == 1
 
 
 def test_event_emit_view(client):
-    """POST hook to emit event without secret"""
+    """POST hook to emit event with good secret"""
     response = client.post(
         reverse("event_emit", kwargs={"type": "example_event"}),
         HTTP_X_EVENT_SECRET="test",

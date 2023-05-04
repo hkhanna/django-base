@@ -40,6 +40,5 @@ class Event(models.Model):
         return event
 
 
-def default_handler(event):
-    # You can add code here, but a more robust solution would be to set a different handler in the settings.
+def noop(event):
     pass

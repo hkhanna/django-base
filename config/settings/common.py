@@ -250,7 +250,7 @@ WAFFLE_CREATE_MISSING_FLAGS = False  # Default
 WAFFLE_FLAG_DEFAULT = False  # Default
 
 # Event Handlers
-EVENT_HANDLERS = {"default": "base.models.event.default_handler"}
+EVENT_HANDLERS = {"default": "base.models.event.noop"}
 EVENT_SECRET = env("EVENT_SECRET", default="insecure")
 
 # Celery
