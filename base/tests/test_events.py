@@ -5,6 +5,11 @@ import base.models.event
 from ..models import Event
 
 
+@pytest.fixture(autouse=True)
+def default_handler(settings):
+    settings.EVENT_HANDLERS["default"] = "base.models.event.noop"
+
+
 @pytest.fixture
 def test_handler_setting(settings):
     settings.EVENT_HANDLERS["example_evt"] = "base.models.event.test_handler"
@@ -36,14 +41,14 @@ def test_event_emit_view(client):
     """POST hook to emit event with good secret"""
     response = client.post(
         reverse("event_emit"),
-        data={"type": "example_event", "hello": "world"},
+        data={"type": "example_evt", "hello": "world"},
         content_type="application/json",
         HTTP_X_EVENT_SECRET="test",
     )
     assert response.status_code == 201
     assert Event.objects.count() == 1
     event = Event.objects.first()
-    assert event.type == "example_event"
+    assert event.type == "example_evt"
     assert event.data == {"hello": "world"}
 
 
@@ -51,7 +56,7 @@ def test_event_emit_view_insecure(client):
     """POST hook to emit event without secret"""
     response = client.post(
         reverse("event_emit"),
-        data={"type": "example_event", "hello": "world"},
+        data={"type": "example_evt", "hello": "world"},
         content_type="application/json",
     )
 
