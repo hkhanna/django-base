@@ -299,11 +299,17 @@ def email_message_webhook_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-def event_emit_view(request, type):
+def event_emit_view(request):
     try:
         payload = json.loads(request.body)
     except json.decoder.JSONDecodeError as e:
         payload = {}
+
+    # Ensure there is a 'type' key
+    try:
+        type = payload.pop("type")
+    except KeyError:
+        return JsonResponse({"detail": "Invalid payload"}, status=400)
 
     # Verify shared secret
     secret = request.META.get("HTTP_X_EVENT_SECRET")
