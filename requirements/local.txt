@@ -2,6 +2,7 @@
 
 django-check-html-middleware==2021.10.1
 django-debug-toolbar==3.7.0
+django-stubs==4.2.3
 djhtml==1.5.2
 freezegun==1.2.2
 black==22.10.0
