@@ -138,7 +138,7 @@ def test_maximum_personal(user):
         primary_plan=base.factories.plan_create(),
         default_plan=base.factories.plan_create(),
     )
-    with assertRaisesMessage(IntegrityError, "unique_personal_active_org"):
+    with assertRaisesMessage(ValidationError, "unique_personal_active_org"):
         org.full_clean()
         org.save()
 
