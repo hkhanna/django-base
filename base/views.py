@@ -10,7 +10,7 @@ from django.conf import settings
 from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views.generic import TemplateView, View, DetailView, CreateView, DeleteView
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
@@ -21,6 +21,9 @@ from allauth.account import (
     models as auth_models,
 )
 from allauth.account.adapter import get_adapter
+from .models import (
+    User as UserType,
+)  # HACK: Can't use get_user_model because of https://github.com/typeddjango/django-stubs/issues/599
 
 from . import forms, models
 from .permissions import OUSettingPermissionMixin
@@ -118,6 +121,7 @@ class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, Crea
 class OrgInvitationCancelView(
     LoginRequiredMixin, OUSettingPermissionMixin, SuccessMessageMixin, DeleteView
 ):
+    object: UserType  # HACK: Workaround to a mypy bug. See https://github.com/typeddjango/django-stubs/issues/1227
     ou_setting = "can_invite_members"
     permission_denied_message = "You don't have permission to cancel an invitation."
     success_url = reverse_lazy("org_detail")

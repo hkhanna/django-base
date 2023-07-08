@@ -71,7 +71,9 @@ urlpatterns = [
         views.email_message_webhook_view,
         name="email_message_webhook",
     ),
-    path("400/", lambda request: django.views.defaults.bad_request(request, None)),
+    path(
+        "400/", lambda request: django.views.defaults.bad_request(request, Exception())
+    ),
     path("404/", page_not_found),
     path("500/", django.views.defaults.server_error),
     path(

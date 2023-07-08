@@ -54,7 +54,7 @@ class User(AbstractUser):
         verbose_name="UUID",
         help_text="Secondary ID",
     )
-    username = None
+    username = None  # type: ignore
     email = models.EmailField(
         "email address",
         unique=True,
@@ -69,7 +69,7 @@ class User(AbstractUser):
         blank=True,
         help_text="Record of all email addresses the user has had.",
     )
-    objects = UserManager()
+    objects = UserManager()  # type: ignore
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS: list = []
