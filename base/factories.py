@@ -1,78 +1,54 @@
 from datetime import timedelta
 from django.utils import timezone
-import factory
-from factory.faker import faker
+from django.contrib.auth import get_user_model
+from faker import Faker
 from allauth.account import models as auth_models
+from .models import EmailMessage, Org, Plan
 
-fake = faker.Faker()  # This is to use faker without the factory_boy wrapper
+fake = Faker()
 
-
-class PrimaryEmailAddressFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = auth_models.EmailAddress
-        django_get_or_create = (
-            "user",
-            "email",
-        )
-
-    user = None
-    email = factory.LazyAttribute(lambda o: o.user.email)
-    primary = True
+User = get_user_model()
 
 
-class UserFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.User"
-        django_get_or_create = ("email",)
+def user_create(**kwargs):
+    first_name = fake.first_name()
+    last_name = fake.last_name()
 
-    first_name = factory.Faker("first_name")
-    last_name = factory.Faker("last_name")
-    email = factory.LazyAttribute(
-        lambda obj: f"{obj.first_name}.{obj.last_name}@example.com".lower()
+    defaults = dict(
+        first_name=first_name,
+        last_name=last_name,
+        email=f"{first_name}.{last_name}@example.com".lower(),
+        password="goodpass",
     )
-    password = "goodpass"
-    emailaddress_set = factory.RelatedFactory(
-        PrimaryEmailAddressFactory, factory_related_name="user"
+    params = defaults | kwargs
+    user = User.objects.create_user(**params)
+    auth_models.EmailAddress.objects.get_or_create(
+        user=user, email=user.email, primary=True
     )
-
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        """Override the default ``_create`` with our custom call."""
-        manager = cls._get_manager(model_class)
-
-        # We have to manually implement the get_or_create functionality because we've overriden this function.
-        existing = manager.filter(email=kwargs["email"]).first()
-        if existing:
-            return existing
-        else:
-            # The default would use ``manager.create(*args, **kwargs)``
-            return manager.create_user(*args, **kwargs)
+    return user
 
 
-class EmailMessageFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.EmailMessage"
+def email_message_create(**kwargs):
+    defaults = dict(created_by=user_create(), template_context=dict())
+    params = defaults | kwargs
 
-    created_by = factory.SubFactory(UserFactory)
-    template_context: dict = {}
-
-
-class PlanFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.Plan"
-
-    name = factory.Faker("pystr")
+    return EmailMessage.objects.create(**params)
 
 
-class OrgFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = "base.Org"
-
-    name = factory.Faker("company")
-    owner = factory.SubFactory(UserFactory)
-    primary_plan = factory.SubFactory(PlanFactory)
-    default_plan = factory.SubFactory(PlanFactory)
-    current_period_end = factory.LazyFunction(
-        lambda: timezone.now() + timedelta(days=10)
+def org_create(**kwargs):
+    defaults = dict(
+        name=fake.company(),
+        owner=user_create(),
+        primary_plan=plan_create(),
+        default_plan=plan_create(),
+        current_period_end=timezone.now() + timedelta(days=10),
+        is_personal=False,
     )
-    is_personal = False
+    params = defaults | kwargs
+
+    return Org.objects.create(**params)
+
+
+def plan_create():
+    name = "Plan " + fake.word()
+    return Plan.objects.create(name=name)

@@ -48,8 +48,8 @@ def test_type_recorded(client, payload):
 
 def test_email_message_linked(client, payload):
     """An EmailMessageWebhook is linked to its related EmailMessage"""
-    linked = factories.EmailMessageFactory(message_id="id-abc123")
-    notlinked = factories.EmailMessageFactory(message_id="other-id")
+    linked = factories.email_message_create(message_id="id-abc123")
+    notlinked = factories.email_message_create(message_id="other-id")
 
     response = client.post(url, payload, content_type="application/json")
     assert response.status_code == 201
@@ -70,7 +70,7 @@ Status = constants.EmailMessage.Status
     ],
 )
 def test_update_email_message_status(client, record_type, new_status):
-    email_message = factories.EmailMessageFactory(message_id="id-abc123")
+    email_message = factories.email_message_create(message_id="id-abc123")
     ts_key = constants.WEBHOOK_TYPE_TO_TIMESTAMP[record_type]
     payload = json.dumps(
         {
@@ -87,7 +87,7 @@ def test_update_email_message_status(client, record_type, new_status):
 
 def test_update_email_message_status_order(client):
     """An EmailMessageWebhook that arrives out of order should not regress the status."""
-    email_message = factories.EmailMessageFactory(message_id="id-abc123")
+    email_message = factories.email_message_create(message_id="id-abc123")
     delivered_at = timezone.now()
     opened_at = delivered_at + timedelta(seconds=2)
     spam_at = opened_at + timedelta(seconds=5)

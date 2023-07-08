@@ -14,10 +14,9 @@ class Command(BaseCommand):
     help = "Seed local db with Postmark webhooks and EmailMessages (for testing)"
 
     def handle(self, *args, **options):
-
         # -- EmailMessage -- #
         try:
-            factories.EmailMessageFactory(
+            factories.email_message_create(
                 template_prefix="email/base",
                 to_email="harry@example.com",
                 template_context={"some": "context"},

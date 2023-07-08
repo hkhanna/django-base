@@ -55,7 +55,7 @@ def test_switch_inactive_org(client, user, org):
 
 def test_switch_inactive_unauthorized(client, user):
     """A user may not switch to an org that they don't belong to."""
-    org = base.factories.OrgFactory()  # Different owner
+    org = base.factories.org_create()  # Different owner
 
     client.force_login(user)
     response = client.get(reverse("index"))
@@ -96,8 +96,8 @@ def test_owner_org_user(user, settings):
         name="Example Org",
         owner=user,
         is_personal=False,
-        primary_plan=base.factories.PlanFactory(),
-        default_plan=base.factories.PlanFactory(),
+        primary_plan=base.factories.plan_create(),
+        default_plan=base.factories.plan_create(),
     )
     org.full_clean()
     org.save()
@@ -114,8 +114,8 @@ def test_maximum_personal(user):
         owner=user,
         is_personal=False,
         name=user.name,
-        primary_plan=base.factories.PlanFactory(),
-        default_plan=base.factories.PlanFactory(),
+        primary_plan=base.factories.plan_create(),
+        default_plan=base.factories.plan_create(),
     )
     org.full_clean()  # OK
     org.save()  # OK
@@ -125,8 +125,8 @@ def test_maximum_personal(user):
         is_personal=True,
         is_active=False,
         name=user.name,
-        primary_plan=base.factories.PlanFactory(),
-        default_plan=base.factories.PlanFactory(),
+        primary_plan=base.factories.plan_create(),
+        default_plan=base.factories.plan_create(),
     )
     org.full_clean()  # OK
     org.save()  # OK
@@ -135,8 +135,8 @@ def test_maximum_personal(user):
         owner=user,
         is_personal=True,
         name=user.name,
-        primary_plan=base.factories.PlanFactory(),
-        default_plan=base.factories.PlanFactory(),
+        primary_plan=base.factories.plan_create(),
+        default_plan=base.factories.plan_create(),
     )
     with assertRaisesMessage(IntegrityError, "unique_personal_active_org"):
         org.full_clean()
@@ -187,7 +187,7 @@ def test_no_org_in_session(client, user, org):
 def test_org_in_session(client, user):
     """If there's an org in the session, set request.org to that org."""
     client.force_login(user)
-    other_org = base.factories.OrgFactory(
+    other_org = base.factories.org_create(
         owner=user,
         is_personal=False,
         is_active=True,
@@ -203,8 +203,8 @@ def test_org_in_session(client, user):
 def test_org_in_session_bad(client, user):
     """If there's an org in the session, but it doesn't match the user, don't use it."""
     client.force_login(user)
-    other_org = base.factories.OrgFactory(
-        owner=base.factories.UserFactory(),
+    other_org = base.factories.org_create(
+        owner=base.factories.user_create(),
         is_personal=False,
         is_active=True,
     )
@@ -267,7 +267,7 @@ def test_org_detail(client, user, org):
     """Org detail page shows members"""
     client.force_login(user)
     assert user.default_org == org
-    other_user = base.factories.UserFactory()
+    other_user = base.factories.user_create()
     org.users.add(other_user)
 
     response = client.get(reverse("org_detail"))
@@ -282,7 +282,7 @@ def test_plan_default_unique(user):
     assert Plan.objects.count() == 1  # default plan created when User was created
     assert Plan.objects.first().is_default is True
 
-    plan = base.factories.PlanFactory()
+    plan = base.factories.plan_create()
     plan.is_default = True
     plan.save()
 
@@ -314,7 +314,7 @@ def test_org_invite_sends_invitation_new(client, user, org, mailoutbox, settings
 def test_org_invite_duplicate_user(client, user, org, mailoutbox):
     """Inviting a user that is already in the Org will not send them an email."""
     client.force_login(user)
-    new = base.factories.UserFactory()
+    new = base.factories.user_create()
     org.add_user(new)
     response = client.post(reverse("org_invite"), {"email": new.email}, follow=True)
     assert response.status_code == 200
@@ -326,7 +326,7 @@ def test_org_invite_duplicate_user(client, user, org, mailoutbox):
 def test_org_invite_duplicate_invitation(client, user, org, mailoutbox):
     """Inviting a user that has an open invitation will fail."""
     client.force_login(user)
-    new = base.factories.UserFactory()
+    new = base.factories.user_create()
     client.post(reverse("org_invite"), {"email": new.email})
     assert len(mailoutbox) == 1
     assert OrgInvitation.objects.count() == 1

@@ -4,7 +4,7 @@ from .. import factories, models, constants
 
 @pytest.fixture
 def user():
-    user = factories.UserFactory()
+    user = factories.user_create()
 
     # Verify email address
     email_address = user.emailaddress_set.first()
@@ -17,7 +17,7 @@ def user():
 @pytest.fixture
 def org(user):
     # User should be a non-owner member of the Org
-    org = factories.OrgFactory()
+    org = factories.org_create()
     models.OrgUser.objects.create(user=user, org=org)
     return org
 

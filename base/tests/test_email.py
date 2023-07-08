@@ -293,7 +293,7 @@ def test_cooldown_scopes(user, mailoutbox):
 
     # Email with different user cancels if "created_by" scope is removed
     email = models.EmailMessage.objects.create(
-        **{**email_message_args, "created_by": factories.UserFactory()}
+        **{**email_message_args, "created_by": factories.user_create()}
     )
     assert email.send(scopes=["template_prefix", "to"]) is False
     assert len(mailoutbox) == 1

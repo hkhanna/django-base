@@ -119,7 +119,7 @@ def test_email_lowercase(client, user):
 def test_email_unique_iexact(client, user):
     """Email addresses should be unique for users when changed in settings
     even if different case"""
-    other_user = factories.UserFactory()
+    other_user = factories.user_create()
     client.force_login(user)
     payload = {
         "first_name": factories.fake.first_name(),
@@ -256,7 +256,7 @@ def test_deleted_user_unconfirm_email(client, user):
 
 def test_deleted_user_unconfirm_email_social(client, user):
     """Deleting a user deletes all connected SocialAccounts."""
-    other_user = factories.UserFactory()
+    other_user = factories.user_create()
     socialauth_models.SocialAccount.objects.create(
         user=user, provider="Google", uid="123"
     )
@@ -279,7 +279,7 @@ def test_change_email_to_deleted_user(client, user):
     """Edge case: user attempts to change their email address to the email address
     of a deleted user. It should succeed and change the deleted user's email address."""
     email = "harry@example.com"
-    deleted_user = factories.UserFactory(is_active=False, email=email)
+    deleted_user = factories.user_create(is_active=False, email=email)
 
     client.force_login(user)
     payload = {
