@@ -13,11 +13,12 @@ def gen_uuid(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("base", "0005_user_uuid"),
     ]
 
     operations = [
-        migrations.RunPython(gen_uuid, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            gen_uuid, reverse_code=migrations.RunPython.noop, elidable=True
+        ),
     ]
