@@ -44,7 +44,7 @@ jobs:
           pip install -r requirements/test.txt
       - name: Typecheck with mypy
         run: |
-          make mypy
+          mypy .
       - name: Test with pytest
         run: |
           py.test
