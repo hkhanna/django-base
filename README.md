@@ -24,6 +24,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 ### Testing
 
 - `make check` will run all tests. You can also directly run `py.test` if you have the virtualenv activated.
+- `make mypy` to run a manual typecheck on the repo.
 
 ### Updating Packages
 
@@ -38,7 +39,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 # Deployment
 
 - Hosted on Render.
-- Backend logging to Logtail.
+- Backend logging to Papertrail.
 
 ## How to Deploy
 

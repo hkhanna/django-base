@@ -1,4 +1,4 @@
-.PHONY: run app check vite all clean build db seed
+.PHONY: run app check vite all clean build mypy mypy-install-types db seed
 
 include .env
 SHELL := /bin/bash
@@ -18,11 +18,14 @@ vite:
 check:
 	source .venv/bin/activate && py.test
 
+mypy:
+	-mypy .
+
 fmt:
 	find -name *.html -not -path "*node_modules*" -a -not -path "*.git*" -a -not -path "*.venv*" | xargs djhtml -i -t 2
 
 # BUILD STEPS #
-all: clean build seed 
+all: clean build mypy-install-types seed 
 
 clean:
 	@echo "Removing python virtual environment"
@@ -37,6 +40,9 @@ build:
 	@echo "Installing vite node dependencies"
 	npm install --prefix frontend/
 	
+mypy-install-types: mypy
+	@echo "Installing type stubs"
+	mypy --install-types
 
 db:
 	@echo "Destroying postgres docker container"

@@ -1,30 +1,31 @@
 {
-    "python.defaultInterpreterPath": ".venv/bin/python3",
-    "python.formatting.provider": "none",
-    "python.testing.pytestEnabled": true,
-    "python.testing.nosetestsEnabled": false,
-    "python.testing.unittestEnabled": false,
-    "editor.formatOnSave": true,
-    "editor.tabSize": 4,
-    "editor.insertSpaces": true,
-    "[django-html]": {
-        "editor.formatOnSave": false,
-        "editor.quickSuggestions": {
-            "other": true,
-            "comments": true,
-            "strings": true
-        },
-        "editor.tabSize": 2
+  "python.defaultInterpreterPath": ".venv/bin/python3",
+  "python.formatting.provider": "none",
+  "python.testing.pytestEnabled": true,
+  "python.testing.nosetestsEnabled": false,
+  "python.testing.unittestEnabled": false,
+  "editor.formatOnSave": true,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "[django-html]": {
+    "editor.formatOnSave": false,
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": true,
+      "strings": true
     },
-    "files.exclude": {
-        "**/__pycache__": true,
-        "**/.venv": true
-    },
-    "files.watcherExclude": {
-        "**/__pycache__/**": true,
-        "**/.venv/**": true
-    },
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
-    }
+    "editor.tabSize": 2
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.venv": true
+  },
+  "files.watcherExclude": {
+    "**/__pycache__/**": true,
+    "**/.venv/**": true
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.linting.mypyEnabled": true
 }
