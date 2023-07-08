@@ -1,10 +1,11 @@
+import typing
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import ImproperlyConfigured
 from base.models import OrgUser
 
 
 class OUSettingPermissionMixin(UserPassesTestMixin):
-    ou_setting = None
+    ou_setting: typing.Optional[str] = None
 
     def test_func(self):
         if self.ou_setting is None:

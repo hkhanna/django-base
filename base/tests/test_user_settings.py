@@ -254,7 +254,7 @@ def test_deleted_user_unconfirm_email(client, user):
     assert email_address.verified is False
 
 
-def test_deleted_user_unconfirm_email(client, user):
+def test_deleted_user_unconfirm_email_social(client, user):
     """Deleting a user deletes all connected SocialAccounts."""
     other_user = factories.UserFactory()
     socialauth_models.SocialAccount.objects.create(

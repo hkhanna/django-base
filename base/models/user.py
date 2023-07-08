@@ -72,7 +72,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS: list = []
 
     def __str__(self):
         return self.name
@@ -148,7 +148,8 @@ class User(AbstractUser):
     def sync_changed_email(self):
         """If user.email has changed, remove all a User's EmailAddresses
         (although they should only have one), and replace it with the new one.
-        Returns the EmailAddress if one was created to send a confirmation email if desired."""
+        Returns the EmailAddress if one was created to send a confirmation email if desired.
+        """
         if not auth_models.EmailAddress.objects.filter(
             user=self, email__iexact=self.email
         ).exists():

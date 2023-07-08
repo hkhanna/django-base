@@ -31,7 +31,7 @@ if READ_DOT_ENV_FILE and os.path.exists(BASE_DIR / ".env"):
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: list = []
 
 
 # Application definition

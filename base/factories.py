@@ -54,7 +54,7 @@ class EmailMessageFactory(factory.django.DjangoModelFactory):
         model = "base.EmailMessage"
 
     created_by = factory.SubFactory(UserFactory)
-    template_context = {}
+    template_context: dict = {}
 
 
 class PlanFactory(factory.django.DjangoModelFactory):
