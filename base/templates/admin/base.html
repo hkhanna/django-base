@@ -1,0 +1,11 @@
+{% extends 'admin/base.html' %}
+
+{% block extrastyle %}
+  {% if ENVIRONMENT == 'production' %}
+    <style>
+    #header {
+      background: #15803d
+    }
+    </style>
+  {% endif %}
+{% endblock extrastyle %}

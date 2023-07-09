@@ -37,15 +37,16 @@ ALLOWED_HOSTS: list = []
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.sites",
+    # Base must come before admin because it overrides an admin template
     # Base must come before staticfiles because it overrides collectstatic
     # Base must come before allauth so that base templates take precedence
     "base.apps.BaseConfig",
+    "django.contrib.admin",
     "django.contrib.staticfiles",
     "waffle",
     "heroicons",
