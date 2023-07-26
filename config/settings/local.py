@@ -34,5 +34,6 @@ CHECK_HTML_IGNORE_MESSAGES = [
     "inserting implicit <p>",
     "trimming empty",
     "unescaped &",
+    '<svg> attribute "stroke-width" has invalid value',
 ]
 MIDDLEWARE.insert(1, "check_html.CheckHTMLMiddleware")

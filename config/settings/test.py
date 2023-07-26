@@ -1,4 +1,5 @@
 from .common import *
+from check_html import CheckHTMLMiddleware
 
 DEBUG = False
 SECRET_KEY = env(
@@ -25,4 +26,7 @@ DJANGO_VITE_DEV_MODE = True
 CELERY_TASK_ALWAYS_EAGER = True
 
 # HTML validation middleware
+CHECK_HTML_IGNORE_MESSAGES = list(CheckHTMLMiddleware.ignore_messages_default) + [
+    '<svg> attribute "stroke-width" has invalid value',  # This is because of django-heroicons
+]
 MIDDLEWARE.insert(1, "check_html.CheckHTMLMiddleware")

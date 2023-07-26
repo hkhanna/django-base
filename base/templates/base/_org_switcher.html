@@ -15,7 +15,7 @@
     <form action="{% url 'org_switch' %}" method="POST">
       {% csrf_token %}
       {% for org in available_orgs %}
-        <button x-menu:item type="submit" name="slug" value="{{org.slug}}" class="flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 text-gray-700" role="menuitem">{% heroicon_outline "switch-horizontal" class="w-5 h-5 mr-2 text-gray-600" %}<span>{{org.name}}</span></button>
+        <button x-menu:item type="submit" name="slug" value="{{org.slug}}" class="flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 text-gray-700" role="menuitem">{% heroicon_outline "arrows-right-left" class="w-5 h-5 mr-2 text-gray-600" %}<span>{{org.name}}</span></button>
       {% endfor %}
     </form>
     {% endif %}

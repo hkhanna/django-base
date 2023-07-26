@@ -28,7 +28,6 @@ class Alert(component.Component):
     def get_context_data(
         self, text, variant=SUCCESS, dismissable=True, alertClass=None
     ):
-
         # So you can pass in "info" or "success" as a variant.
         if isinstance(variant, str):
             variant = DEFAULT_LEVELS[variant.upper()]
@@ -44,7 +43,7 @@ class Alert(component.Component):
             },
             WARNING: {
                 "bg_color": "bg-yellow-50",
-                "icon": "exclamation",
+                "icon": "exclamation-circle",
                 "icon_color": "text-yellow-400",
                 "text_color": "text-yellow-800",
                 "subtext_color": "text-yellow-600",
@@ -115,7 +114,7 @@ class SubmitModal(component.Component):
                 "icon_color": "text-blue-500",
             },
             "danger": {
-                "icon": icon or "exclamation",
+                "icon": icon or "exclamation-circle",
                 "icon_bg_color": "bg-red-100",
                 "icon_color": "text-red-600",
             },
