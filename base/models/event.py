@@ -26,7 +26,6 @@ class BaseModel(models.Model):
 class Event(BaseModel):
     """A discrete event that occurs with respect to one or more other models in the system."""
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     occurred_at = models.DateTimeField()
     type = models.CharField(max_length=127)
     data = models.JSONField(

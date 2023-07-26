@@ -23,12 +23,12 @@ urlpatterns = [
     path("org/switch/", views.OrgSwitchView.as_view(), name="org_switch"),
     path("org/invitation/", views.OrgInvitationCreateView.as_view(), name="org_invite"),
     path(
-        "org/invitation/<uuid:pk>/cancel/",
+        "org/invitation/<uuid:uuid>/cancel/",
         views.OrgInvitationCancelView.as_view(),
         name="org_invitation_cancel",
     ),
     path(
-        "org/invitation/<uuid:pk>/resend/",
+        "org/invitation/<uuid:uuid>/resend/",
         views.OrgInvitationResendView.as_view(),
         name="org_invitation_resend",
     ),

@@ -32,7 +32,7 @@ def event_emit(
         occurred_at = timezone.now()
     event = Event.objects.create(type=type, data=data, occurred_at=occurred_at)
 
-    logger.info(f"Event.id={event.id} Event.type={event.type} emitted.")  # FIXME
+    logger.info(f"Event.uuid={event.uuid} Event.type={event.type} emitted.")
 
     handler_str = settings.EVENT_HANDLERS.get(type, settings.EVENT_HANDLERS["default"])
     path_parts = handler_str.split(".")

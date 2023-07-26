@@ -122,6 +122,8 @@ class OrgInvitationCancelView(
     LoginRequiredMixin, OUSettingPermissionMixin, SuccessMessageMixin, DeleteView
 ):
     object: UserType  # mypy: Workaround to a mypy bug. See https://github.com/typeddjango/django-stubs/issues/1227
+    slug_field = "uuid"
+    slug_url_kwarg = "uuid"
     ou_setting = "can_invite_members"
     permission_denied_message = "You don't have permission to cancel an invitation."
     success_url = reverse_lazy("org_detail")
@@ -139,8 +141,8 @@ class OrgInvitationResendView(
     ou_setting = "can_invite_members"
     permission_denied_message = "You don't have permission to resend an invitation."
 
-    def post(self, request, pk):
-        invitation = get_object_or_404(models.OrgInvitation, org=request.org, pk=pk)
+    def post(self, request, uuid):
+        invitation = get_object_or_404(models.OrgInvitation, org=request.org, uuid=uuid)
         invitation.send()
         messages.success(request, "Invitation resent.")
         return redirect("org_detail")

@@ -362,8 +362,8 @@ def test_cancel_invite(client, user):
     email = base.factories.fake.email()
     client.post(reverse("org_invite"), {"email": email})
     assert OrgInvitation.objects.count() == 1
-    pk = OrgInvitation.objects.first().pk
-    response = client.post(reverse("org_invitation_cancel", kwargs={"pk": pk}))
+    uuid = OrgInvitation.objects.first().uuid
+    response = client.post(reverse("org_invitation_cancel", kwargs={"uuid": uuid}))
     assertMessageContains(response, f"Invitation canceled.")
     assert OrgInvitation.objects.count() == 0
 
@@ -381,8 +381,8 @@ def test_cancel_invite_permission(client, user, org):
         org_user=ou, setting=setting, value=0
     )  # Remove can_invite_members from this OrgUser
 
-    pk = OrgInvitation.objects.first().pk
-    response = client.post(reverse("org_invitation_cancel", kwargs={"pk": pk}))
+    uuid = OrgInvitation.objects.first().uuid
+    response = client.post(reverse("org_invitation_cancel", kwargs={"uuid": uuid}))
     assertMessageContains(
         response, f"You don't have permission to cancel an invitation."
     )
@@ -395,10 +395,10 @@ def test_org_invite_resend(client, user, mailoutbox):
     email = base.factories.fake.email()
     client.post(reverse("org_invite"), {"email": email})
     assert len(mailoutbox) == 1
-    pk = OrgInvitation.objects.first().pk
+    uuid = OrgInvitation.objects.first().uuid
     assert OrgInvitation.objects.first().email_messages.count() == 1
     with freeze_time(timezone.now() + timedelta(hours=1)):
-        response = client.post(reverse("org_invitation_resend", kwargs={"pk": pk}))
+        response = client.post(reverse("org_invitation_resend", kwargs={"uuid": uuid}))
         assertMessageContains(response, f"Invitation resent.")
         assert OrgInvitation.objects.first().email_messages.count() == 2
         assert len(mailoutbox) == 2
@@ -410,7 +410,7 @@ def test_org_invite_resend_permission(client, user, org, mailoutbox):
     email = base.factories.fake.email()
     client.post(reverse("org_invite"), {"email": email})
     assert len(mailoutbox) == 1
-    pk = OrgInvitation.objects.first().pk
+    uuid = OrgInvitation.objects.first().uuid
     assert OrgInvitation.objects.first().email_messages.count() == 1
 
     ou = OrgUser.objects.get(user=user, org=org)
@@ -420,7 +420,7 @@ def test_org_invite_resend_permission(client, user, org, mailoutbox):
     )  # Remove can_invite_members from this OrgUser
 
     with freeze_time(timezone.now() + timedelta(hours=1)):
-        response = client.post(reverse("org_invitation_resend", kwargs={"pk": pk}))
+        response = client.post(reverse("org_invitation_resend", kwargs={"uuid": uuid}))
         assertMessageContains(
             response, f"You don't have permission to resend an invitation."
         )

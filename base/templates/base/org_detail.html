@@ -91,14 +91,14 @@
                         </div>
                         <div class="flex space-x-2">
                           <div x-data="{modal: false}">
-                          <form action="{% url 'org_invitation_cancel' pk=oi.pk %}" method="POST">
+                          <form action="{% url 'org_invitation_cancel' uuid=oi.uuid %}" method="POST">
                           {% csrf_token %}
                           {% component "submit_modal" variant="primary" title="Cancel Invitation" submit_button_text="Confirm Cancel" icon="user-plus" text="Do you really want to cancel this invitation?" %}
                           </form>
                           <button type="button" x-on:click="modal = true" class="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</button>
                         </div>
                           <div x-data="{modal: false}">
-                          <form action="{% url 'org_invitation_resend' pk=oi.pk %}" method="POST">
+                          <form action="{% url 'org_invitation_resend' uuid=oi.uuid %}" method="POST">
                           {% csrf_token %}
                           {% component "submit_modal" variant="primary" title="Resend Invitation" submit_button_text="Confirm Resend" icon="user-plus" text="Do you really want to resend the invitation?" %}
                           </form>
