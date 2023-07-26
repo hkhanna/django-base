@@ -25,7 +25,7 @@ from .models import (
     User as UserType,
 )  # mypy: Can't use get_user_model because of https://github.com/typeddjango/django-stubs/issues/599
 
-from . import forms, models
+from . import forms, models, services
 from .permissions import OUSettingPermissionMixin
 
 logger = logging.getLogger(__name__)
@@ -314,6 +314,6 @@ def event_emit_view(request):
         return JsonResponse({"detail": "Invalid payload"}, status=400)
 
     logger.info(f"Request to emit event of type {type} received.")
-    models.Event.emit(type, payload)
+    services.event_emit(type=type, data=payload)
 
     return JsonResponse({"detail": "Created"}, status=201)
