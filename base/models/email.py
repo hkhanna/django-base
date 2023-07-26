@@ -6,16 +6,15 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from base import constants
-
 from .. import tasks
+from base.models.event import BaseModel
 
 logger = logging.getLogger(__name__)
 
 
-class EmailMessage(models.Model):
+class EmailMessage(BaseModel):
     """Keep a record of every email sent in the DB."""
 
-    created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -160,7 +159,7 @@ class EmailMessage(models.Model):
         return f"{template_prefix} - {self.to_email}"
 
 
-class EmailMessageWebhook(models.Model):
+class EmailMessageWebhook(BaseModel):
     """Webhooks related to an outgoing EmailMessage, like bounces, spam complaints, etc."""
 
     received_at = models.DateTimeField(auto_now_add=True)

@@ -10,13 +10,14 @@ from django.utils.encoding import force_str
 from django.utils import timezone
 from base import constants, utils
 from base.models.email import EmailMessage
+from base.models.event import BaseModel
 
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
 
-class Org(models.Model):
+class Org(BaseModel):
     """Organizations users can belong to. They must belong to at least one."""
 
     name = models.CharField(max_length=254, help_text="The name of the organization")
@@ -49,8 +50,6 @@ class Org(models.Model):
         related_query_name="orgs",
         through="OrgUser",
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ("name", "slug")
@@ -126,15 +125,13 @@ class Org(models.Model):
         return best
 
 
-class OrgUser(models.Model):
+class OrgUser(BaseModel):
     """The 'membership' model for a User/Org relationship."""
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="org_users", on_delete=models.CASCADE
     )
     org = models.ForeignKey(Org, related_name="org_users", on_delete=models.CASCADE)
-    joined_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     last_accessed_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -179,7 +176,7 @@ class OrgUser(models.Model):
         return best
 
 
-class OrgInvitation(models.Model):
+class OrgInvitation(BaseModel):
     """An invitation to join an Org"""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -204,9 +201,6 @@ class OrgInvitation(models.Model):
         "base.EmailMessage",
         related_name="org_invitations",
     )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def send(self):
         sender_email = settings.SITE_CONFIG["default_from_email"]
@@ -250,7 +244,7 @@ class OrgInvitation(models.Model):
 # -- Plans & Settings -- #
 
 
-class Plan(models.Model):
+class Plan(BaseModel):
     """Represents a group of OrgSettings. Often tied to billing."""
 
     name = models.CharField(max_length=254, unique=True)
@@ -266,8 +260,6 @@ class Plan(models.Model):
         default=False,
         help_text="Used when no plan is specified. E.g., for users' personal orgs. Only one plan can be default, so setting this will unset any other default plan.",
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
@@ -293,12 +285,10 @@ class Plan(models.Model):
             super().save(*args, **kwargs)
 
 
-class OrgSetting(models.Model):
+class OrgSetting(BaseModel):
     """An Org-wide setting"""
 
     slug = models.SlugField(max_length=254, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     type = models.CharField(max_length=127, choices=constants.SettingType.choices)
     default = models.IntegerField()
 
@@ -310,7 +300,7 @@ class OrgSetting(models.Model):
             raise ValidationError("Boolean OrgSetting must have a default of 0 or 1.")
 
 
-class PlanOrgSetting(models.Model):
+class PlanOrgSetting(BaseModel):
     """The Org-wide settings for a particular Plan. Billing-related limitations go here."""
 
     plan = models.ForeignKey(
@@ -320,8 +310,6 @@ class PlanOrgSetting(models.Model):
         "base.OrgSetting", on_delete=models.CASCADE, related_name="plan_org_settings"
     )
     value = models.IntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
@@ -340,7 +328,7 @@ class PlanOrgSetting(models.Model):
             )
 
 
-class OverriddenOrgSetting(models.Model):
+class OverriddenOrgSetting(BaseModel):
     """Used if a particular Org should override the Plan Org-wide settings."""
 
     # Useful if there's a custom plan for a customer or if there's only one Plan but customers
@@ -354,8 +342,6 @@ class OverriddenOrgSetting(models.Model):
         related_name="overridden_org_settings",
     )
     value = models.IntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
@@ -376,12 +362,10 @@ class OverriddenOrgSetting(models.Model):
             )
 
 
-class OUSetting(models.Model):
+class OUSetting(BaseModel):
     """Settings for members of an Org, i.e., OrgUsers"""
 
     slug = models.SlugField(max_length=254, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     type = models.CharField(max_length=127, choices=constants.SettingType.choices)
     default = models.IntegerField()
     owner_value = models.IntegerField(
@@ -403,7 +387,7 @@ class OUSetting(models.Model):
         return f"OUSetting: {self.slug} ({self.pk})"
 
 
-class OrgUserOUSetting(models.Model):
+class OrgUserOUSetting(BaseModel):
     """The specific mapping of an OrgUser to an OUSetting."""
 
     org_user = models.ForeignKey(
@@ -417,8 +401,6 @@ class OrgUserOUSetting(models.Model):
         related_name="org_user_ou_settings",
     )
     value = models.IntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Org user org user setting"
@@ -438,7 +420,7 @@ class OrgUserOUSetting(models.Model):
             )
 
 
-class OUSettingDefault(models.Model):
+class OUSettingDefault(BaseModel):
     """An Org can set defaults for its OrgUsers that have not specifically set certain settings."""
 
     org = models.ForeignKey(
@@ -450,8 +432,6 @@ class OUSettingDefault(models.Model):
         related_name="ou_setting_defaults",
     )
     value = models.IntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Org user setting default"

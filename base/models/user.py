@@ -69,6 +69,8 @@ class User(AbstractUser):
         blank=True,
         help_text="Record of all email addresses the user has had.",
     )
+    updated_at = models.DateTimeField(auto_now=True)
+
     objects = UserManager()  # type: ignore
 
     USERNAME_FIELD = "email"
@@ -160,6 +162,10 @@ class User(AbstractUser):
             return email_address
         else:
             return None
+
+    @property
+    def created_at(self):
+        return self.date_joined
 
     @property
     def is_email_verified(self):

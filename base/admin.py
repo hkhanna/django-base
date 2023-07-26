@@ -95,8 +95,8 @@ admin.site.unregister(Group)
 
 class OrgUserAdminInline(admin.TabularInline):
     model = models.OrgUser
-    fields = ("user", "joined_at", "updated_at", "last_accessed_at")
-    readonly_fields = ("joined_at", "updated_at", "last_accessed_at")
+    fields = ("user", "created_at", "updated_at", "last_accessed_at")
+    readonly_fields = ("created_at", "updated_at", "last_accessed_at")
     ordering = ("-last_accessed_at",)
     show_change_link = True
     extra = 0
@@ -157,11 +157,11 @@ class OrgUserAdmin(admin.ModelAdmin):
         "id",
         "user",
         "org",
-        "joined_at",
+        "created_at",
         "last_accessed_at",
     )
-    fields = ("id", "user", "org", "joined_at", "updated_at", "last_accessed_at")
-    readonly_fields = ("id", "joined_at", "updated_at", "last_accessed_at")
+    fields = ("id", "user", "org", "created_at", "updated_at", "last_accessed_at")
+    readonly_fields = ("id", "created_at", "updated_at", "last_accessed_at")
     date_hierarchy = "last_accessed_at"
     inlines = [OrgUserOUSettingAdminInline]
 
