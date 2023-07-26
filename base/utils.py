@@ -1,3 +1,7 @@
+import json
+from django.http import HttpRequest
+
+
 # This is used to test formset submissions and to create synthetic formset data.
 # See https://stackoverflow.com/a/64354805
 def formset_post_data(formset, update=[]):
@@ -107,3 +111,20 @@ def get_email_display_name(
         return f"{name} {suffix}"
     else:
         return name
+
+
+def validate_request_body_json(request: HttpRequest, required_keys=list) -> dict | None:
+    """Validate that the request body is JSON and return the parsed JSON."""
+    try:
+        body = json.loads(request.body)
+    except json.decoder.JSONDecodeError as e:
+        body = {}
+
+    # Ensure all required keys
+    for key in required_keys:
+        try:
+            body[key]
+        except KeyError:
+            return None
+
+    return body

@@ -25,7 +25,7 @@ from .models import (
     User as UserType,
 )  # mypy: Can't use get_user_model because of https://github.com/typeddjango/django-stubs/issues/599
 
-from . import forms, models, services
+from . import forms, models, services, utils
 from .permissions import OUSettingPermissionMixin
 
 logger = logging.getLogger(__name__)
@@ -297,23 +297,16 @@ def email_message_webhook_view(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def event_emit_view(request):
-    try:
-        payload = json.loads(request.body)
-    except json.decoder.JSONDecodeError as e:
-        payload = {}
-
-    # Ensure there is a 'type' key
-    try:
-        type = payload.pop("type")
-    except KeyError:
+    payload = utils.validate_request_body_json(request, required_keys=["type"])
+    if payload is None:
         return JsonResponse({"detail": "Invalid payload"}, status=400)
+    type = payload.pop("type")
 
     # Verify shared secret
     secret = request.META.get("HTTP_X_EVENT_SECRET")
     if secret != settings.EVENT_SECRET:
         return JsonResponse({"detail": "Invalid payload"}, status=400)
 
-    logger.info(f"Request to emit event of type {type} received.")
     services.event_emit(type=type, data=payload)
 
     return JsonResponse({"detail": "Created"}, status=201)
