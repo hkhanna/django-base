@@ -25,7 +25,7 @@ from .models import (
     User as UserType,
 )  # mypy: Can't use get_user_model because of https://github.com/typeddjango/django-stubs/issues/599
 
-from . import forms, models, services, utils
+from . import forms, models, services, utils, tasks
 from .permissions import OUSettingPermissionMixin
 
 logger = logging.getLogger(__name__)
@@ -271,27 +271,12 @@ class AccountDeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin,
 @require_http_methods(["POST"])
 def email_message_webhook_view(request):
     try:
-        payload = json.loads(request.body)
-    except json.decoder.JSONDecodeError as e:
+        webhook = services.email_message_webhook_create(request)
+    except TypeError:
         return JsonResponse({"detail": "Invalid payload"}, status=400)
 
-    if type(payload) != dict:
-        return JsonResponse({"detail": "Invalid payload"}, status=400)
-
-    headers = {}
-    for key in request.headers:
-        value = request.headers[key]
-        if isinstance(value, str):
-            headers[key] = value
-
-    webhook = models.EmailMessageWebhook.objects.create(
-        body=payload,
-        headers=headers,
-        status=models.EmailMessageWebhook.Status.NEW,
-    )
     logger.info(f"EmailMessageWebhook.id={webhook.id} received")
-
-    webhook.process()
+    tasks.process_email_message_webhook.delay(webhook.id)
 
     return JsonResponse({"detail": "Created"}, status=201)
 

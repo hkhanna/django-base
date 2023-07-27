@@ -84,6 +84,3 @@ class EmailMessageWebhook(BaseModel):
     def __str__(self):
         if self.type:
             return f"{self.type} ({self.id})"
-
-    def process(self):
-        tasks.process_email_message_webhook.delay(self.id)

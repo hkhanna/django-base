@@ -113,14 +113,19 @@ def get_email_display_name(
         return name
 
 
-def validate_request_body_json(request: HttpRequest, required_keys=list) -> dict | None:
+def validate_request_body_json(
+    request: HttpRequest, required_keys: list | None = None
+) -> dict | None:
     """Validate that the request body is JSON and return the parsed JSON."""
     try:
         body = json.loads(request.body)
     except json.decoder.JSONDecodeError as e:
-        body = {}
+        return None
 
     # Ensure all required keys
+    if required_keys is None:
+        required_keys = []
+
     for key in required_keys:
         try:
             body[key]

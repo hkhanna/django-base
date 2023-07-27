@@ -18,15 +18,16 @@ import logging
 from typing import List
 from datetime import datetime
 from typing import Optional
+from django.http import HttpRequest
 from django.utils import timezone
 from django.conf import settings
 from django.template.loader import render_to_string
 from datetime import timedelta
 from django.utils import timezone
 from importlib import import_module
-from .models import EmailMessage
+from .models import EmailMessage, EmailMessageWebhook
 from .models.event import Event
-from . import tasks
+from . import tasks, utils
 
 logger = logging.getLogger(__name__)
 
@@ -159,3 +160,24 @@ class EmailMessageService:
         else:
             tasks.send_email_message.delay(e.id, attachments)
             return True
+
+
+def email_message_webhook_create(request: HttpRequest) -> EmailMessageWebhook:
+    payload = utils.validate_request_body_json(request)
+    if payload is None or type(payload) != dict:
+        raise TypeError("Invalid payload")
+
+    headers = {}
+    for key in request.headers:
+        value = request.headers[key]
+        if isinstance(value, str):
+            headers[key] = value
+
+    webhook = EmailMessageWebhook.objects.create(
+        body=payload,
+        headers=headers,
+        status=EmailMessageWebhook.Status.NEW,  # FIXME
+    )
+    logger.info(f"EmailMessageWebhook.id={webhook.id} received")
+
+    return webhook
