@@ -10,7 +10,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.contrib import messages
 
-from . import models
+from . import models, services
 
 
 class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
@@ -50,7 +50,7 @@ class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
         context["user_name"] = name or user.email
         context["user_email"] = user.email
 
-        email_message = models.EmailMessage.objects.create(
+        service = services.EmailMessageService(
             created_by=user,
             to_name=name,
             to_email=email,
@@ -61,7 +61,7 @@ class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
             template_prefix=template_prefix,
             template_context=context,
         )
-        email_message.send()
+        service.send_email()
 
 
 class SocialAccountAdapter(allauth.socialaccount.adapter.DefaultSocialAccountAdapter):

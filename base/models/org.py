@@ -1,5 +1,4 @@
 import logging
-import uuid
 import secrets
 from django.db import models, transaction
 from django.conf import settings
@@ -9,8 +8,8 @@ from django_extensions.db.fields import AutoSlugField
 from django.utils.encoding import force_str
 from django.utils import timezone
 from base import constants, utils
-from base.models.email import EmailMessage
 from base.models.event import BaseModel
+from .. import services
 
 logger = logging.getLogger(__name__)
 
@@ -213,7 +212,7 @@ class OrgInvitation(BaseModel):
         reply_to_name = utils.get_email_display_name(self.created_by, header="Reply-To")
         reply_to_email = self.created_by.email
 
-        email_message = EmailMessage(
+        service = services.EmailMessageService(
             created_by=self.created_by,
             org=self.org,
             subject=f"Invitation to join {self.org.name} on {settings.SITE_CONFIG['name']}",
@@ -229,9 +228,9 @@ class OrgInvitation(BaseModel):
                 "action_url": "",
             },
         )
-        email_message.send()
+        service.send_email()
         self.save()
-        self.email_messages.add(email_message)
+        self.email_messages.add(service.email_message)
 
     @property
     def status(self):

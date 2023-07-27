@@ -4,6 +4,9 @@ from ..models import Event
 from .. import services
 
 
+# Event services
+
+
 @pytest.fixture(autouse=True)
 def default_handler(settings):
     settings.EVENT_HANDLERS["default"] = "base.services.event_noop"
@@ -34,3 +37,6 @@ def test_event_emit_default(monkeypatch):
     monkeypatch.setattr(services, "event_noop", mock)
     services.event_emit(type="example_evt", data={"hello": "world"})
     assert mock.call_count == 1
+
+
+# EmailMessage services
