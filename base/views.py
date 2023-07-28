@@ -91,11 +91,12 @@ class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, Crea
 
     def form_valid(self, form):
         try:
-            services.org_invitation_send(
+            org_invitation = services.org_invitation_validate_new(
                 org=self.request.org,
                 created_by=self.request.user,
                 org_invitation=form.instance,
             )
+            services.org_invitation_send(org_invitation=org_invitation)
         except ApplicationError as e:
             messages.error(self.request, str(e))
         except ApplicationWarning as e:
@@ -124,7 +125,7 @@ class OrgInvitationCancelView(
     success_message = "Invitation canceled."
 
     def get_queryset(self):
-        return models.OrgInvitation.objects.filter(org=self.request.org)
+        return services.org_invitation_list(org=self.request.org)
 
 
 class OrgInvitationResendView(
@@ -136,8 +137,10 @@ class OrgInvitationResendView(
     permission_denied_message = "You don't have permission to resend an invitation."
 
     def post(self, request, uuid):
-        invitation = get_object_or_404(models.OrgInvitation, org=request.org, uuid=uuid)
-        invitation.send()
+        try:
+            services.org_invitation_resend(org=request.org, uuid=uuid)
+        except ApplicationError as e:
+            raise Http404(str(e))
         messages.success(request, "Invitation resent.")
         return redirect("org_detail")
 
@@ -265,6 +268,7 @@ class AccountDeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin,
 @require_http_methods(["POST"])
 def email_message_webhook_view(request):
     try:
+        # FIXME: can use ApplicationError here now.
         webhook = services.email_message_webhook_create(request=request)
     except TypeError:
         return JsonResponse({"detail": "Invalid payload"}, status=400)
@@ -278,6 +282,7 @@ def email_message_webhook_view(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def event_emit_view(request):
+    # FIXME: can use ApplicationError here now.
     payload = utils.validate_request_body_json(request, required_keys=["type"])
     if payload is None:
         return JsonResponse({"detail": "Invalid payload"}, status=400)

@@ -15,7 +15,7 @@ Does business logic - from simple model creation to complex cross-cutting concer
 """
 
 import logging
-from typing import List, Iterable, Union
+from typing import List, Union
 from datetime import datetime
 from typing import Optional
 from django.http import HttpRequest
@@ -187,9 +187,9 @@ def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook
     return webhook
 
 
-def org_invitation_send(
+def org_invitation_validate_new(
     *, org: Org, created_by: User, org_invitation: OrgInvitation
-) -> None:
+) -> OrgInvitation:
     if not org_invitation._state.adding:
         raise RuntimeError(
             "org_invitation_send service must be called with a new object"
@@ -199,6 +199,7 @@ def org_invitation_send(
             "org_invitation_send service must be called with an OrgInvitation that has an email"
         )
 
+    # Validation
     if org_invitation_list(org=org, email=org_invitation.email).exists():
         raise ApplicationWarning(
             f"{org_invitation.email} already has an invitation to {org}."
@@ -214,7 +215,11 @@ def org_invitation_send(
     # But that is fine as there should never be problems and if there are we want to know.
     org_invitation.full_clean()
     org_invitation.save()
+    return org_invitation
 
+
+def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
+    # Send email
     assert settings.SITE_CONFIG["default_from_email"] is not None
     sender_email = settings.SITE_CONFIG["default_from_email"]
     sender_name = utils.get_email_display_name(
@@ -250,9 +255,21 @@ def org_invitation_send(
     org_invitation.email_messages.add(service.email_message)
 
 
+def org_invitation_resend(*, org: Org, uuid: str) -> None:
+    try:
+        org_invitation = org_invitation_list(org=org, uuid=uuid).get()
+        org_invitation_send(org_invitation=org_invitation)
+    except OrgInvitation.DoesNotExist:
+        raise ApplicationError(f"Invitation {uuid} does not exist.")
+
+
 def org_invitation_list(**kwargs: Union[Org, str]) -> QuerySet[OrgInvitation]:
-    return OrgInvitation.objects.filter(**kwargs)
+    return model_list(klass=OrgInvitation, **kwargs)
 
 
 def org_user_list(**kwargs: Union[Org, str]) -> QuerySet[OrgUser]:
-    return OrgUser.objects.filter(**kwargs)
+    return model_list(klass=OrgUser, **kwargs)
+
+
+def model_list(*, klass, **kwargs: Union[Org, str]) -> QuerySet:
+    return klass.objects.filter(**kwargs)
