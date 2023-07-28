@@ -90,15 +90,12 @@ class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, Crea
     permission_denied_message = "You don't have permission to invite a user."
 
     def form_valid(self, form):
-        service = services.OrgInvitationService(
-            org=self.request.org,
-            created_by=self.request.user,
-            org_invitation=form.instance,
-        )
-
         try:
-            service.org_invitation_validate()
-            service.org_invitation_send()
+            services.org_invitation_send(
+                org=self.request.org,
+                created_by=self.request.user,
+                org_invitation=form.instance,
+            )
         except ApplicationError as e:
             messages.error(self.request, str(e))
         except ApplicationWarning as e:

@@ -187,80 +187,71 @@ def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook
     return webhook
 
 
-class OrgInvitationService:
-    def __init__(
-        self, *, org: Org, created_by: User, org_invitation: OrgInvitation
-    ) -> None:
-        if not org_invitation._state.adding:
-            raise RuntimeError("OrgInvitationService must be called with a new object")
-        if not org_invitation.email:
-            raise RuntimeError(
-                "OrgInvitationService must be called with an OrgInvitation that has an email"
-            )
-
-        self.org = org
-        self.created_by = created_by
-        self.org_invitation = org_invitation
-
-    def org_invitation_send(self) -> None:
-        self.org_invitation.save()
-
-        assert settings.SITE_CONFIG["default_from_email"] is not None
-        sender_email = settings.SITE_CONFIG["default_from_email"]
-        sender_name = utils.get_email_display_name(
-            self.org_invitation.created_by,
-            header="From",
-            email=sender_email,
-            suffix=f"via {settings.SITE_CONFIG['name']}",
+def org_invitation_send(
+    *, org: Org, created_by: User, org_invitation: OrgInvitation
+) -> None:
+    if not org_invitation._state.adding:
+        raise RuntimeError(
+            "org_invitation_send service must be called with a new object"
+        )
+    if not org_invitation.email:
+        raise RuntimeError(
+            "org_invitation_send service must be called with an OrgInvitation that has an email"
         )
 
-        reply_to_name = utils.get_email_display_name(
-            self.org_invitation.created_by, header="Reply-To"
+    if org_invitation_list(org=org, email=org_invitation.email).exists():
+        raise ApplicationWarning(
+            f"{org_invitation.email} already has an invitation to {org}."
         )
-        reply_to_email = self.org_invitation.created_by.email
 
-        service = EmailMessageService(
-            created_by=self.org_invitation.created_by,
-            org=self.org_invitation.org,
-            subject=f"Invitation to join {self.org_invitation.org.name} on {settings.SITE_CONFIG['name']}",
-            to_email=self.org_invitation.email,
-            sender_name=sender_name,
-            sender_email=sender_email,
-            reply_to_name=reply_to_name,
-            reply_to_email=reply_to_email,
-            template_prefix="base/email/org_invitation",
-            template_context={
-                "org_name": self.org_invitation.org.name,
-                "inviter": self.org_invitation.created_by.name,
-                "action_url": "",
-            },
-        )
-        service.send_email()
-        self.org_invitation.save()
-        self.org_invitation.email_messages.add(service.email_message)
+    if org_user_list(org=org, user__email=org_invitation.email).exists():
+        raise ApplicationError(f"{org_invitation.email} is already a member of {org}.")
 
-    def org_invitation_validate(self) -> None:
-        if self.org_invitation_list(
-            org=self.org, email=self.org_invitation.email
-        ).exists():
-            raise ApplicationWarning(
-                f"{self.org_invitation.email} already has an invitation to {self.org}."
-            )
+    org_invitation.org = org
+    org_invitation.created_by = created_by
 
-        if org_user_list(org=self.org, user__email=self.org_invitation.email).exists():
-            raise ApplicationError(
-                f"{self.org_invitation.email} is already a member of {self.org}."
-            )
+    # This will blow up if there are problems because we don't catch ValidationError.
+    # But that is fine as there should never be problems and if there are we want to know.
+    org_invitation.full_clean()
+    org_invitation.save()
 
-        self.org_invitation.org = self.org
-        self.org_invitation.created_by = self.created_by
+    assert settings.SITE_CONFIG["default_from_email"] is not None
+    sender_email = settings.SITE_CONFIG["default_from_email"]
+    sender_name = utils.get_email_display_name(
+        org_invitation.created_by,
+        header="From",
+        email=sender_email,
+        suffix=f"via {settings.SITE_CONFIG['name']}",
+    )
 
-        # This will blow up if there are problems because we don't catch ValidationError.
-        # But that is fine as there should never be problems and if there are we want to know.
-        self.org_invitation.full_clean()
+    reply_to_name = utils.get_email_display_name(
+        org_invitation.created_by, header="Reply-To"
+    )
+    reply_to_email = org_invitation.created_by.email
 
-    def org_invitation_list(self, **kwargs: Union[Org, str]) -> QuerySet[OrgInvitation]:
-        return OrgInvitation.objects.filter(**kwargs)
+    service = EmailMessageService(
+        created_by=org_invitation.created_by,
+        org=org_invitation.org,
+        subject=f"Invitation to join {org_invitation.org.name} on {settings.SITE_CONFIG['name']}",
+        to_email=org_invitation.email,
+        sender_name=sender_name,
+        sender_email=sender_email,
+        reply_to_name=reply_to_name,
+        reply_to_email=reply_to_email,
+        template_prefix="base/email/org_invitation",
+        template_context={
+            "org_name": org_invitation.org.name,
+            "inviter": org_invitation.created_by.name,
+            "action_url": "",
+        },
+    )
+    service.send_email()
+    org_invitation.save()
+    org_invitation.email_messages.add(service.email_message)
+
+
+def org_invitation_list(**kwargs: Union[Org, str]) -> QuerySet[OrgInvitation]:
+    return OrgInvitation.objects.filter(**kwargs)
 
 
 def org_user_list(**kwargs: Union[Org, str]) -> QuerySet[OrgUser]:
