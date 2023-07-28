@@ -24,7 +24,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Model
 from importlib import import_module
 from .models import EmailMessage, EmailMessageWebhook, User
 from .models.event import Event
@@ -256,20 +256,28 @@ def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
 
 
 def org_invitation_resend(*, org: Org, uuid: str) -> None:
-    try:
-        org_invitation = org_invitation_list(org=org, uuid=uuid).get()
-        org_invitation_send(org_invitation=org_invitation)
-    except OrgInvitation.DoesNotExist:
-        raise ApplicationError(f"Invitation {uuid} does not exist.")
+    org_invitation = org_invitation_list(org=org, uuid=uuid).get()
+    org_invitation_send(org_invitation=org_invitation)
 
 
-def org_invitation_list(**kwargs: Union[Org, str]) -> QuerySet[OrgInvitation]:
+def org_list(**kwargs) -> QuerySet[Org]:
+    return model_list(klass=Org, **kwargs)
+
+
+def org_invitation_list(**kwargs) -> QuerySet[OrgInvitation]:
     return model_list(klass=OrgInvitation, **kwargs)
 
 
-def org_user_list(**kwargs: Union[Org, str]) -> QuerySet[OrgUser]:
+def org_user_list(**kwargs) -> QuerySet[OrgUser]:
     return model_list(klass=OrgUser, **kwargs)
 
 
-def model_list(*, klass, **kwargs: Union[Org, str]) -> QuerySet:
+def model_list(*, klass, **kwargs: Union[Model, str, bool]) -> QuerySet:
     return klass.objects.filter(**kwargs)
+
+
+def org_switch(*, request: HttpRequest, slug: str) -> None:
+    org = org_list(slug=slug, users=request.user, is_active=True).get()
+
+    assert hasattr(request, "org"), "org is always set on request in the middleware"
+    request.org = org

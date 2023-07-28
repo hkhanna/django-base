@@ -3,7 +3,8 @@ import logging
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
-from django.shortcuts import render, redirect, get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.conf import settings
 from django.http import Http404
@@ -62,17 +63,11 @@ def permission_denied(request, exception):
 
 class OrgSwitchView(LoginRequiredMixin, View):
     def post(self, request):
-        slug = request.POST.get("slug")
-        if slug:
-            org = models.Org.objects.filter(
-                slug=slug, users=request.user, is_active=True
-            ).first()
-            if org:
-                request.org = org
-            else:
-                messages.warning(
-                    request, f"You do not have access to {slug} or it does not exist."
-                )
+        try:
+            services.org_switch(request=request, slug=request.POST.get("slug"))
+        except ObjectDoesNotExist as e:
+            logger.exception(e)
+            raise Http404()
         return redirect("index")
 
 
@@ -139,8 +134,10 @@ class OrgInvitationResendView(
     def post(self, request, uuid):
         try:
             services.org_invitation_resend(org=request.org, uuid=uuid)
-        except ApplicationError as e:
-            raise Http404(str(e))
+        except ObjectDoesNotExist as e:
+            logger.exception(e)
+            raise Http404()
+
         messages.success(request, "Invitation resent.")
         return redirect("org_detail")
 
