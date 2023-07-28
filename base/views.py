@@ -25,7 +25,7 @@ from .models import (
     User as UserType,
 )  # mypy: Can't use get_user_model because of https://github.com/typeddjango/django-stubs/issues/599
 
-from . import forms, models, services, utils, tasks
+from . import forms, models, services, selectors, utils, tasks
 from .permissions import OUSettingPermissionMixin
 from .exceptions import ApplicationError, ApplicationWarning
 
@@ -120,7 +120,7 @@ class OrgInvitationCancelView(
     success_message = "Invitation canceled."
 
     def get_queryset(self):
-        return services.org_invitation_list(org=self.request.org)
+        return selectors.org_invitation_list(org=self.request.org)
 
 
 class OrgInvitationResendView(

@@ -24,7 +24,6 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import QuerySet, Model
 from importlib import import_module
 from .models import (
     EmailMessage,
@@ -36,7 +35,7 @@ from .models import (
     User,
 )
 from .exceptions import *
-from . import tasks, utils
+from . import tasks, utils, selectors
 
 logger = logging.getLogger(__name__)
 
@@ -206,12 +205,12 @@ def org_invitation_validate_new(
         )
 
     # Validation
-    if org_invitation_list(org=org, email=org_invitation.email).exists():
+    if selectors.org_invitation_list(org=org, email=org_invitation.email).exists():
         raise ApplicationWarning(
             f"{org_invitation.email} already has an invitation to {org}."
         )
 
-    if org_user_list(org=org, user__email=org_invitation.email).exists():
+    if selectors.org_user_list(org=org, user__email=org_invitation.email).exists():
         raise ApplicationError(f"{org_invitation.email} is already a member of {org}.")
 
     org_invitation.org = org
@@ -262,28 +261,12 @@ def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
 
 
 def org_invitation_resend(*, org: Org, uuid: str) -> None:
-    org_invitation = org_invitation_list(org=org, uuid=uuid).get()
+    org_invitation = selectors.org_invitation_list(org=org, uuid=uuid).get()
     org_invitation_send(org_invitation=org_invitation)
 
 
-def org_list(**kwargs) -> QuerySet[Org]:
-    return model_list(klass=Org, **kwargs)
-
-
-def org_invitation_list(**kwargs) -> QuerySet[OrgInvitation]:
-    return model_list(klass=OrgInvitation, **kwargs)
-
-
-def org_user_list(**kwargs) -> QuerySet[OrgUser]:
-    return model_list(klass=OrgUser, **kwargs)
-
-
-def model_list(*, klass, **kwargs: Union[Model, str, bool]) -> QuerySet:
-    return klass.objects.filter(**kwargs)
-
-
 def org_switch(*, request: HttpRequest, slug: str) -> None:
-    org = org_list(slug=slug, users=request.user, is_active=True).get()
+    org = selectors.org_list(slug=slug, users=request.user, is_active=True).get()
 
     assert hasattr(request, "org"), "org is always set on request in the middleware"
     request.org = org
