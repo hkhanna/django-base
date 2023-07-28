@@ -26,9 +26,15 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db.models import QuerySet, Model
 from importlib import import_module
-from .models import EmailMessage, EmailMessageWebhook, User
-from .models.event import Event
-from .models.org import OrgInvitation, OrgUser, Org
+from .models import (
+    EmailMessage,
+    EmailMessageWebhook,
+    Event,
+    Org,
+    OrgInvitation,
+    OrgUser,
+    User,
+)
 from .exceptions import *
 from . import tasks, utils
 
