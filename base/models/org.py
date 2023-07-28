@@ -7,9 +7,8 @@ from django.contrib.auth import get_user_model
 from django_extensions.db.fields import AutoSlugField
 from django.utils.encoding import force_str
 from django.utils import timezone
-from base import constants, utils
+from base import constants
 from base.models.event import BaseModel
-from .. import services
 
 logger = logging.getLogger(__name__)
 
@@ -200,38 +199,6 @@ class OrgInvitation(BaseModel):
         related_name="org_invitations",
     )
 
-    def send(self):
-        sender_email = settings.SITE_CONFIG["default_from_email"]
-        sender_name = utils.get_email_display_name(
-            self.created_by,
-            header="From",
-            email=sender_email,
-            suffix=f"via {settings.SITE_CONFIG['name']}",
-        )
-
-        reply_to_name = utils.get_email_display_name(self.created_by, header="Reply-To")
-        reply_to_email = self.created_by.email
-
-        service = services.EmailMessageService(
-            created_by=self.created_by,
-            org=self.org,
-            subject=f"Invitation to join {self.org.name} on {settings.SITE_CONFIG['name']}",
-            to_email=self.email,
-            sender_name=sender_name,
-            sender_email=sender_email,
-            reply_to_name=reply_to_name,
-            reply_to_email=reply_to_email,
-            template_prefix="base/email/org_invitation",
-            template_context={
-                "org_name": self.org.name,
-                "inviter": self.created_by.name,
-                "action_url": "",
-            },
-        )
-        service.send_email()
-        self.save()
-        self.email_messages.add(service.email_message)
-
     @property
     def status(self):
         if not self.email_messages.exists():
@@ -272,6 +239,7 @@ class Plan(BaseModel):
         return self.slug
 
     def save(self, *args, **kwargs):
+        # FIXME: Move this to the admin.
         with transaction.atomic():
             # If this plan is set to the default, unset default on all other plans.
             if self.is_default:

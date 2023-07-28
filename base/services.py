@@ -15,7 +15,7 @@ Does business logic - from simple model creation to complex cross-cutting concer
 """
 
 import logging
-from typing import List
+from typing import List, Iterable, Union
 from datetime import datetime
 from typing import Optional
 from django.http import HttpRequest
@@ -24,9 +24,12 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import QuerySet
 from importlib import import_module
-from .models import EmailMessage, EmailMessageWebhook
+from .models import EmailMessage, EmailMessageWebhook, User
 from .models.event import Event
+from .models.org import OrgInvitation, OrgUser, Org
+from .exceptions import *
 from . import tasks, utils
 
 logger = logging.getLogger(__name__)
@@ -56,7 +59,7 @@ def event_noop(event: Event) -> None:
 
 
 class EmailMessageService:
-    def __init__(self, **kwargs: dict) -> None:
+    def __init__(self, **kwargs: Union[str, dict, User, Org]) -> None:
         self.email_message = EmailMessage.objects.create(**kwargs)
 
     def _trim_string(self, field: str) -> str:
@@ -138,6 +141,7 @@ class EmailMessageService:
 
         return email_messages.count() >= allowed
 
+    # FIXME: should this be email_message_send?
     def send_email(
         self,
         attachments=[],
@@ -162,7 +166,7 @@ class EmailMessageService:
             return True
 
 
-def email_message_webhook_create(request: HttpRequest) -> EmailMessageWebhook:
+def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook:
     payload = utils.validate_request_body_json(request)
     if payload is None or type(payload) != dict:
         raise TypeError("Invalid payload")
@@ -181,3 +185,83 @@ def email_message_webhook_create(request: HttpRequest) -> EmailMessageWebhook:
     logger.info(f"EmailMessageWebhook.id={webhook.id} received")
 
     return webhook
+
+
+class OrgInvitationService:
+    def __init__(
+        self, *, org: Org, created_by: User, org_invitation: OrgInvitation
+    ) -> None:
+        if not org_invitation._state.adding:
+            raise RuntimeError("OrgInvitationService must be called with a new object")
+        if not org_invitation.email:
+            raise RuntimeError(
+                "OrgInvitationService must be called with an OrgInvitation that has an email"
+            )
+
+        self.org = org
+        self.created_by = created_by
+        self.org_invitation = org_invitation
+
+    def org_invitation_send(self) -> None:
+        self.org_invitation.save()
+
+        assert settings.SITE_CONFIG["default_from_email"] is not None
+        sender_email = settings.SITE_CONFIG["default_from_email"]
+        sender_name = utils.get_email_display_name(
+            self.org_invitation.created_by,
+            header="From",
+            email=sender_email,
+            suffix=f"via {settings.SITE_CONFIG['name']}",
+        )
+
+        reply_to_name = utils.get_email_display_name(
+            self.org_invitation.created_by, header="Reply-To"
+        )
+        reply_to_email = self.org_invitation.created_by.email
+
+        service = EmailMessageService(
+            created_by=self.org_invitation.created_by,
+            org=self.org_invitation.org,
+            subject=f"Invitation to join {self.org_invitation.org.name} on {settings.SITE_CONFIG['name']}",
+            to_email=self.org_invitation.email,
+            sender_name=sender_name,
+            sender_email=sender_email,
+            reply_to_name=reply_to_name,
+            reply_to_email=reply_to_email,
+            template_prefix="base/email/org_invitation",
+            template_context={
+                "org_name": self.org_invitation.org.name,
+                "inviter": self.org_invitation.created_by.name,
+                "action_url": "",
+            },
+        )
+        service.send_email()
+        self.org_invitation.save()
+        self.org_invitation.email_messages.add(service.email_message)
+
+    def org_invitation_validate(self) -> None:
+        if self.org_invitation_list(
+            org=self.org, email=self.org_invitation.email
+        ).exists():
+            raise ApplicationWarning(
+                f"{self.org_invitation.email} already has an invitation to {self.org}."
+            )
+
+        if org_user_list(org=self.org, user__email=self.org_invitation.email).exists():
+            raise ApplicationError(
+                f"{self.org_invitation.email} is already a member of {self.org}."
+            )
+
+        self.org_invitation.org = self.org
+        self.org_invitation.created_by = self.created_by
+
+        # This will blow up if there are problems because we don't catch ValidationError.
+        # But that is fine as there should never be problems and if there are we want to know.
+        self.org_invitation.full_clean()
+
+    def org_invitation_list(self, **kwargs: Union[Org, str]) -> QuerySet[OrgInvitation]:
+        return OrgInvitation.objects.filter(**kwargs)
+
+
+def org_user_list(**kwargs: Union[Org, str]) -> QuerySet[OrgUser]:
+    return OrgUser.objects.filter(**kwargs)

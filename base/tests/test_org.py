@@ -333,7 +333,7 @@ def test_org_invite_duplicate_invitation(client, user, org, mailoutbox):
 
     response = client.post(reverse("org_invite"), {"email": new.email}, follow=True)
     assertMessageContains(
-        response, f"{new.email} already has a pending invitation to {org.name}."
+        response, f"{new.email} already has an invitation to {org.name}."
     )
     assert len(mailoutbox) == 1
     assert OrgInvitation.objects.count() == 1

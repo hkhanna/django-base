@@ -1,6 +1,5 @@
 import waffle
 import logging
-import json
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
@@ -27,6 +26,7 @@ from .models import (
 
 from . import forms, models, services, utils, tasks
 from .permissions import OUSettingPermissionMixin
+from .exceptions import ApplicationError, ApplicationWarning
 
 logger = logging.getLogger(__name__)
 
@@ -90,26 +90,23 @@ class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, Crea
     permission_denied_message = "You don't have permission to invite a user."
 
     def form_valid(self, form):
-        email = form.instance.email
-        org = self.request.org
+        service = services.OrgInvitationService(
+            org=self.request.org,
+            created_by=self.request.user,
+            org_invitation=form.instance,
+        )
 
-        if models.OrgUser.objects.filter(org=org, user__email=email).exists():
-            messages.error(
-                self.request,
-                f"{email} is already a member of {org.name}.",
-            )
-        elif models.OrgInvitation.objects.filter(org=org, email=email).exists():
-            messages.warning(
-                self.request, f"{email} already has a pending invitation to {org}."
-            )
+        try:
+            service.org_invitation_validate()
+            service.org_invitation_send()
+        except ApplicationError as e:
+            messages.error(self.request, str(e))
+        except ApplicationWarning as e:
+            messages.warning(self.request, str(e))
         else:
-            form.instance.org = org
-            form.instance.created_by = self.request.user
-            self.object = form.save()
-            self.object.send()
             messages.success(
                 self.request,
-                f"{email} has been invited to {org.name}.",
+                f"{form.instance.email} has been invited to {self.request.org.name}.",
             )
         return redirect("org_detail")
 
@@ -271,7 +268,7 @@ class AccountDeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin,
 @require_http_methods(["POST"])
 def email_message_webhook_view(request):
     try:
-        webhook = services.email_message_webhook_create(request)
+        webhook = services.email_message_webhook_create(request=request)
     except TypeError:
         return JsonResponse({"detail": "Invalid payload"}, status=400)
 
