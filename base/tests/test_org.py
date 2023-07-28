@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from ..models import Org, OrgUser, Plan, OrgInvitation, OUSetting, OrgUserOUSetting
 from .assertions import assertMessageContains
 import base.factories
-from base import constants
+from base import constants, services
 
 User = get_user_model()
 
@@ -315,7 +315,7 @@ def test_org_invite_duplicate_user(client, user, org, mailoutbox):
     """Inviting a user that is already in the Org will not send them an email."""
     client.force_login(user)
     new = base.factories.user_create()
-    org.add_user(new)
+    services.org_user_create(org=org, user=new)
     response = client.post(reverse("org_invite"), {"email": new.email}, follow=True)
     assert response.status_code == 200
     assertMessageContains(response, f"{new.email} is already a member of {org.name}.")

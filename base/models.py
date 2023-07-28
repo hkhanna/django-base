@@ -183,52 +183,12 @@ class Org(BaseModel):
             org=self,
         )
 
-    def add_user(self, user):
-        """Create an OrgUser for this Org and return the OrgUser."""
-        ou = OrgUser(org=self, user=user)
-        ou.full_clean()
-        ou.save()
-        return ou
-
     def clean(self):
         if self._state.adding is False:
             # The only time a blank slug is allowed is if it's a brand new Org,
             # because AutoSlugField only triggers when saved.
             if not self.slug:
                 raise ValidationError({"slug": "Slug may not be blank."})
-
-    def get_plan(self):
-        """Returns the primary_plan or default_plan as a function of current_period_end."""
-        if self.current_period_end and timezone.now() > self.current_period_end:
-            return self.default_plan
-        return self.primary_plan
-
-    def get_setting(self, slug):
-        # See test_org_settings.py for an explanation of how this works.
-
-        setting, _ = OrgSetting.objects.get_or_create(
-            slug=slug, defaults={"type": constants.SettingType.BOOL, "default": 0}
-        )
-
-        overridden_org_setting = OverriddenOrgSetting.objects.filter(
-            org=self, setting=setting
-        ).first()
-
-        if overridden_org_setting:
-            best = overridden_org_setting.value
-        else:
-            plan = self.get_plan()
-            plan_org_setting, _ = PlanOrgSetting.objects.get_or_create(
-                plan=plan,
-                setting=setting,
-                defaults={"value": setting.default},
-            )
-            best = plan_org_setting.value
-
-        if setting.type == constants.SettingType.BOOL:
-            return bool(best)
-
-        return best
 
 
 class OrgUser(BaseModel):
@@ -247,39 +207,6 @@ class OrgUser(BaseModel):
 
     def __str__(self):
         return f"{self.org} / {self.user} ({self.pk})"
-
-    def get_setting(self, slug):
-        setting, _ = OUSetting.objects.get_or_create(
-            slug=slug,
-            defaults={
-                "type": constants.SettingType.BOOL,
-                "default": 0,
-                "owner_value": 1,
-            },
-        )
-
-        # Short-circuit if the OrgUser is the Org owner.
-        if self.org.owner == self.user:
-            if setting.type == constants.SettingType.BOOL:
-                return bool(setting.owner_value)
-            else:
-                return setting.owner_value
-
-        org_user_ou_setting = OrgUserOUSetting.objects.filter(
-            org_user=self, setting=setting
-        ).first()
-        if org_user_ou_setting:
-            best = org_user_ou_setting.value
-        else:
-            ou_setting_default, _ = OUSettingDefault.objects.get_or_create(
-                org=self.org, setting=setting, defaults={"value": setting.default}
-            )
-            best = ou_setting_default.value
-
-        if setting.type == constants.SettingType.BOOL:
-            return bool(best)
-
-        return best
 
 
 class OrgInvitation(BaseModel):

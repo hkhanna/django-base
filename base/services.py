@@ -32,6 +32,8 @@ from .models import (
     Org,
     OrgInvitation,
     OrgUser,
+    OrgSetting,
+    Plan,
     User,
 )
 from .exceptions import *
@@ -64,6 +66,8 @@ def event_noop(event: Event) -> None:
 
 
 class EmailMessageService:
+    """Service for sending emails."""
+
     def __init__(self, **kwargs: Union[str, dict, User, Org]) -> None:
         self.email_message = EmailMessage.objects.create(**kwargs)
 
@@ -172,6 +176,7 @@ class EmailMessageService:
 
 
 def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook:
+    """Create an EmailMessageWebhook from a request object."""
     payload = utils.validate_request_body_json(request)
     if payload is None or type(payload) != dict:
         raise TypeError("Invalid payload")
@@ -195,6 +200,7 @@ def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook
 def org_invitation_validate_new(
     *, org: Org, created_by: User, org_invitation: OrgInvitation
 ) -> OrgInvitation:
+    """Validate that an OrgInvitation is ready to be created and sent."""
     if not org_invitation._state.adding:
         raise RuntimeError(
             "org_invitation_send service must be called with a new object"
@@ -204,7 +210,6 @@ def org_invitation_validate_new(
             "org_invitation_send service must be called with an OrgInvitation that has an email"
         )
 
-    # Validation
     if selectors.org_invitation_list(org=org, email=org_invitation.email).exists():
         raise ApplicationWarning(
             f"{org_invitation.email} already has an invitation to {org}."
@@ -224,7 +229,7 @@ def org_invitation_validate_new(
 
 
 def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
-    # Send email
+    """Send a new OrgInvitation."""
     assert settings.SITE_CONFIG["default_from_email"] is not None
     sender_email = settings.SITE_CONFIG["default_from_email"]
     sender_name = utils.get_email_display_name(
@@ -261,12 +266,22 @@ def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
 
 
 def org_invitation_resend(*, org: Org, uuid: str) -> None:
+    """Resend an OrgInvitation."""
     org_invitation = selectors.org_invitation_list(org=org, uuid=uuid).get()
     org_invitation_send(org_invitation=org_invitation)
 
 
 def org_switch(*, request: HttpRequest, slug: str) -> None:
+    """Switch a user to a different Org."""
     org = selectors.org_list(slug=slug, users=request.user, is_active=True).get()
 
     assert hasattr(request, "org"), "org is always set on request in the middleware"
     request.org = org
+
+
+def org_user_create(*, org: Org, user: User) -> OrgUser:
+    """Create an OrgUser for an Org and return the OrgUser."""
+    org_user = OrgUser(org=org, user=user)
+    org_user.full_clean()
+    org_user.save()
+    return org_user

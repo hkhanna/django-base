@@ -12,7 +12,7 @@ from ..models import (
     OUSettingDefault,
     OrgUserOUSetting,
 )
-from base import constants
+from base import constants, selectors
 
 
 @pytest.fixture
@@ -33,10 +33,10 @@ def ou_setting():
 
 
 def test_org_get_setting_noexist(org):
-    """Org.get_setting() will create an OrgSetting with a default of False if it is accessed but does not exist"""
+    """org_get_setting() will create an OrgSetting with a default of False if it is accessed but does not exist"""
     assert OrgSetting.objects.count() == 0  # No OrgSettings yet.
 
-    result = org.get_setting("for-test")
+    result = selectors.org_get_setting(org=org, slug="for-test")
     settings = OrgSetting.objects.all()
     assert len(settings) == 1
     setting = settings.first()
@@ -47,8 +47,8 @@ def test_org_get_setting_noexist(org):
 
 
 def test_org_get_setting_noplan(org, org_setting):
-    """Org.get_setting() will materialize an OrgSetting on the Plan if it isn't already on the Plan"""
-    result = org.get_setting("for-test")
+    """org_get_setting() will materialize an OrgSetting on the Plan if it isn't already on the Plan"""
+    result = selectors.org_get_setting(org=org, slug="for-test")
     assert OrgSetting.objects.count() == 1
     # Setting shouldn't change
     assert org_setting.slug == "for-test"
@@ -61,10 +61,10 @@ def test_org_get_setting_noplan(org, org_setting):
 
 
 def test_org_get_setting_plan(org, org_setting):
-    """Org.get_setting() in the normal case will retrieve the OrgSetting from the Plan"""
+    """org_get_setting() in the normal case will retrieve the OrgSetting from the Plan"""
     PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
 
-    result = org.get_setting("for-test")
+    result = selectors.org_get_setting(org=org, slug="for-test")
     assert OrgSetting.objects.count() == 1
     assert OrgSetting.objects.first().default == 5  # No change
     assert PlanOrgSetting.objects.count() == 1
@@ -73,11 +73,11 @@ def test_org_get_setting_plan(org, org_setting):
 
 
 def test_org_get_setting_override(org, org_setting):
-    """Org.get_setting() will prioritize any OverriddenOrgSettings"""
+    """org_get_setting() will prioritize any OverriddenOrgSettings"""
     PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
     OverriddenOrgSetting.objects.create(org=org, setting=org_setting, value=20)
 
-    result = org.get_setting("for-test")
+    result = selectors.org_get_setting(org=org, slug="for-test")
     assert OrgSetting.objects.count() == 1
     assert OrgSetting.objects.first().default == 5  # No change
     assert PlanOrgSetting.objects.count() == 1
@@ -88,10 +88,10 @@ def test_org_get_setting_override(org, org_setting):
 
 
 def test_org_get_setting_plan_expired(org, org_setting):
-    """If Org.current_period_end is expired, Org.get_setting() should look to Org.default_plan"""
+    """If Org.current_period_end is expired, org_get_setting() should look to Org.default_plan"""
     PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
     with freeze_time(org.current_period_end + timedelta(seconds=1)):
-        result = org.get_setting("for-test")
+        result = selectors.org_get_setting(org=org, slug="for-test")
         assert OrgSetting.objects.count() == 1
         assert OrgSetting.objects.first().default == 5  # No change
         assert (
@@ -103,10 +103,10 @@ def test_org_get_setting_plan_expired(org, org_setting):
         default_setting.value = 30
         default_setting.full_clean()
         default_setting.save()
-        result = org.get_setting("for-test")
+        result = selectors.org_get_setting(org=org, slug="for-test")
         assert result == 30  # Use the specified
 
-    result = org.get_setting("for-test")
+    result = selectors.org_get_setting(org=org, slug="for-test")
     assert result == 10  # Use the primary plan's now that we're not expired.
 
 
@@ -116,7 +116,7 @@ def test_org_get_setting_plan_never_expires(org, org_setting):
     org.current_period_end = None
     org.full_clean()
     org.save()
-    result = org.get_setting("for-test")
+    result = selectors.org_get_setting(org=org, slug="for-test")
     assert result == 10
 
 
@@ -144,10 +144,10 @@ def test_org_setting_boolean(org):
 
 
 def test_ou_get_setting_noexist(ou):
-    """OrgUser.get_setting() will create a boolean OUSetting with a default of 0 and owner_value of 1 if it is accessed but does not exist"""
+    """org_user_get_setting() will create a boolean OUSetting with a default of 0 and owner_value of 1 if it is accessed but does not exist"""
     assert OUSetting.objects.count() == 0  # No OUSettings yet.
 
-    result = ou.get_setting("for-test")
+    result = selectors.org_user_get_setting(org_user=ou, slug="for-test")
     settings = OUSetting.objects.all()
     assert len(settings) == 1
     setting = settings.first()
@@ -159,8 +159,8 @@ def test_ou_get_setting_noexist(ou):
 
 
 def test_ou_get_setting_materialize_org_defaults(ou, ou_setting):
-    """OrgUser.get_setting() will materialize OUSettingDefaults on the Org if there is no direct setting on the OrgUser"""
-    result = ou.get_setting("for-test")
+    """org_user_get_setting() will materialize OUSettingDefaults on the Org if there is no direct setting on the OrgUser"""
+    result = selectors.org_user_get_setting(org_user=ou, slug="for-test")
 
     assert OUSetting.objects.count() == 1
 
@@ -175,10 +175,10 @@ def test_ou_get_setting_materialize_org_defaults(ou, ou_setting):
 
 
 def test_ou_get_setting_defaults(ou, ou_setting):
-    """OrgUser.get_setting() in the normal case will retrieve the OrgSetting from the OuSettingDefaults (but not materialize the setting on OrgUser)"""
+    """org_user_get_setting() in the normal case will retrieve the OrgSetting from the OuSettingDefaults (but not materialize the setting on OrgUser)"""
     OUSettingDefault.objects.create(org=ou.org, setting=ou_setting, value=10)
 
-    result = ou.get_setting("for-test")
+    result = selectors.org_user_get_setting(org_user=ou, slug="for-test")
     assert OUSetting.objects.count() == 1
     assert OUSetting.objects.first().default == 5  # No change
     assert OUSettingDefault.objects.count() == 1
@@ -189,11 +189,11 @@ def test_ou_get_setting_defaults(ou, ou_setting):
 
 
 def test_ou_get_setting(ou, ou_setting):
-    """OrgUser.get_setting() will prioritize a direct setting on the OrgUser"""
+    """org_user_get_setting() will prioritize a direct setting on the OrgUser"""
     OUSettingDefault.objects.create(org=ou.org, setting=ou_setting, value=10)
     OrgUserOUSetting.objects.create(org_user=ou, setting=ou_setting, value=20)
 
-    result = ou.get_setting("for-test")
+    result = selectors.org_user_get_setting(org_user=ou, slug="for-test")
     assert OUSetting.objects.count() == 1
     assert OUSetting.objects.first().default == 5  # No change
     assert OUSettingDefault.objects.count() == 1
@@ -231,7 +231,7 @@ def test_ou_setting_boolean(ou):
 
 
 def test_ou_owner(org, ou, ou_setting):
-    """OrgUser.get_setting() where the OrgUser is the owner always pulls from OUSetting.owner_value."""
+    """org_user_get_setting() where the OrgUser is the owner always pulls from OUSetting.owner_value."""
     org.owner = ou.user
     org.full_clean()
     org.save()
@@ -239,7 +239,7 @@ def test_ou_owner(org, ou, ou_setting):
     OUSettingDefault.objects.create(org=ou.org, setting=ou_setting, value=10)
     OrgUserOUSetting.objects.create(org_user=ou, setting=ou_setting, value=20)
 
-    result = ou.get_setting("for-test")
+    result = selectors.org_user_get_setting(org_user=ou, slug="for-test")
     assert OUSetting.objects.count() == 1
     assert OUSetting.objects.first().default == 5  # No change
     assert OUSettingDefault.objects.count() == 1
