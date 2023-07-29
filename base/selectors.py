@@ -1,7 +1,9 @@
-from typing import Union
+from typing import Union, Type
 
 from django.db.models import Model, QuerySet
 from django.utils import timezone
+
+from base.types import ModelType
 
 from . import constants
 from .models import (
@@ -102,5 +104,7 @@ def org_user_get_setting(*, org_user: OrgUser, slug: str) -> bool | int:
     return best
 
 
-def model_list(*, klass, **kwargs: Union[Model, str, bool]) -> QuerySet:
+def model_list(
+    *, klass: Type[ModelType], **kwargs: Union[Model, str, bool]
+) -> QuerySet[ModelType]:
     return klass.objects.filter(**kwargs)

@@ -10,7 +10,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
-from django.utils.encoding import force_str
 from django_extensions.db.fields import AutoSlugField
 
 from base import constants
@@ -169,19 +168,6 @@ class Org(BaseModel):
 
     def __str__(self):
         return self.name
-
-    def save(self, *args, **kwargs):
-        # If this is a personal org, update the slug.
-        if self.is_personal:
-            self.slug = force_str(Org._meta.get_field("slug").create_slug(self, True))
-
-        super().save(*args, **kwargs)
-
-        # If owner isn't an OrgUser, create one.
-        OrgUser.objects.update_or_create(
-            user=self.owner,
-            org=self,
-        )
 
     def clean(self):
         if self._state.adding is False:
@@ -544,6 +530,7 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
         # Auto-create a personal org if the user doesn't have any orgs.
+        # START: FIXME this needs to use org_create for tests to pass
         if not self.orgs.exists():
             Org = apps.get_model("base", "Org")
             Plan = apps.get_model("base", "Plan")

@@ -1,5 +1,6 @@
 import waffle
 import logging
+from typing import TYPE_CHECKING
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
@@ -21,11 +22,10 @@ from allauth.account import (
     models as auth_models,
 )
 from allauth.account.adapter import get_adapter
-from .models import (
-    User as UserType,
-)  # mypy: Can't use get_user_model because of https://github.com/typeddjango/django-stubs/issues/599
+
 
 from . import forms, models, services, selectors, utils, tasks
+from .types import UserType
 from .permissions import OUSettingPermissionMixin
 from .exceptions import ApplicationError, ApplicationWarning
 

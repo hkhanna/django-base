@@ -15,29 +15,30 @@ Does business logic - from simple model creation to complex cross-cutting concer
 """
 
 import logging
-from typing import List, Union
-from datetime import datetime
-from typing import Optional
-from django.http import HttpRequest
-from django.utils import timezone
-from django.conf import settings
-from django.template.loader import render_to_string
-from datetime import timedelta
-from django.utils import timezone
+from datetime import datetime, timedelta
 from importlib import import_module
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union, Dict, Any
+
+from django.conf import settings
+from django.http import HttpRequest
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.utils.encoding import force_str
+from django.db import models
+
+from . import selectors, tasks, utils
+from .exceptions import *
 from .models import (
     EmailMessage,
     EmailMessageWebhook,
     Event,
     Org,
     OrgInvitation,
-    OrgUser,
     OrgSetting,
+    OrgUser,
     Plan,
-    User,
 )
-from .exceptions import *
-from . import tasks, utils, selectors
+from .types import ModelType, UserType
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ def event_noop(event: Event) -> None:
 class EmailMessageService:
     """Service for sending emails."""
 
-    def __init__(self, **kwargs: Union[str, dict, User, Org]) -> None:
+    def __init__(self, **kwargs: Union[str, dict, UserType, Org]) -> None:
         self.email_message = EmailMessage.objects.create(**kwargs)
 
     def _trim_string(self, field: str) -> str:
@@ -198,7 +199,7 @@ def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook
 
 
 def org_invitation_validate_new(
-    *, org: Org, created_by: User, org_invitation: OrgInvitation
+    *, org: Org, created_by: UserType, org_invitation: OrgInvitation
 ) -> OrgInvitation:
     """Validate that an OrgInvitation is ready to be created and sent."""
     if not org_invitation._state.adding:
@@ -279,9 +280,115 @@ def org_switch(*, request: HttpRequest, slug: str) -> None:
     request.org = org
 
 
-def org_user_create(*, org: Org, user: User) -> OrgUser:
+def org_user_create(*, org: Org, user: UserType) -> OrgUser:
     """Create an OrgUser for an Org and return the OrgUser."""
     org_user = OrgUser(org=org, user=user)
     org_user.full_clean()
     org_user.save()
     return org_user
+
+
+def org_create(**kwargs) -> Org:
+    """Create an Org and return the Org."""
+    # FIXME: admin need to use this and the update function
+    org = Org(**kwargs)
+    org.full_clean()
+    org.save()
+
+    # If owner isn't an OrgUser, create one.
+    if not selectors.org_user_list(org=org, user=org.owner).exists():
+        org_user_create(org=org, user=org.owner)
+
+    return org
+
+
+def org_update(*, instance: Org, **kwargs) -> Org:
+    """Update an Org and return the Org."""
+
+    # If this is a personal org, update the slug.
+    if instance.is_personal:
+        instance.slug = force_str(
+            Org._meta.get_field("slug").create_slug(instance, True)
+        )
+
+    org, _ = model_update(instance=instance, data=kwargs)
+
+    # If owner isn't an OrgUser, create one.
+    if not selectors.org_user_list(org=org, user=org.owner).exists():
+        org_user_create(org=org, user=org.owner)
+
+    return org
+
+
+# Borrowed from https://github.com/HackSoftware/Django-Styleguide-Example/blob/master/styleguide_example/common/services.py
+def model_update(
+    *,
+    instance: ModelType,
+    data: Dict[str, Any],
+) -> Tuple[ModelType, bool]:
+    """
+    Generic update service meant to be reused in local update services.
+
+    For example:
+
+    def user_update(*, user: User, data) -> User:
+        user, has_updated = model_update(instance=user, data=data)
+
+        // Do other actions with the user here
+
+        return user
+
+    Return value: Tuple with the following elements:
+        1. The instance we updated.
+        2. A boolean value representing whether we performed an update or not.
+
+    Some important notes:
+
+        - There's a strict assertion that all values in `fields` are actual fields in `instance`.
+        - `data` can support m2m fields, which are handled after the update on `instance`.
+    """
+    has_updated = False
+    m2m_data = {}
+    update_fields = []
+
+    model_fields = {field.name: field for field in instance._meta.get_fields()}
+
+    for field in data:
+        # Skip if a field is not present in the actual data
+        if field not in data:
+            continue
+
+        # If field is not an actual model field, raise an error
+        model_field = model_fields.get(field)
+
+        assert (
+            model_field is not None
+        ), f"{field} is not part of {instance.__class__.__name__} fields."
+
+        # If we have m2m field, handle differently
+        if isinstance(model_field, models.ManyToManyField):
+            m2m_data[field] = data[field]
+            continue
+
+        if getattr(instance, field) != data[field]:
+            has_updated = True
+            update_fields.append(field)
+            setattr(instance, field, data[field])
+
+    # Perform an update only if any of the fields were actually changed
+    if has_updated:
+        instance.full_clean()
+        # Update only the fields that are meant to be updated.
+        # Django docs reference:
+        # https://docs.djangoproject.com/en/dev/ref/models/instances/#specifying-which-fields-to-save
+        instance.save(update_fields=update_fields)
+
+    for field_name, value in m2m_data.items():
+        related_manager = getattr(instance, field_name)
+        related_manager.set(value)
+
+        # Still not sure about this.
+        # What if we only update m2m relations & nothing on the model? Is this still considered as updated?
+        has_updated = True
+
+    return instance, has_updated
