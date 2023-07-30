@@ -205,26 +205,36 @@ class EmailMessageService:
             return True
 
 
-def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook:
+def email_message_webhook_create_from_request(
+    *, body: str, headers: dict
+) -> EmailMessageWebhook:
     """Create an EmailMessageWebhook from a request object."""
-    payload = utils.validate_request_body_json(request)
+    payload = utils.validate_request_body_json(body=body)
     if type(payload) != dict:
         raise ApplicationError("Invalid payload")
 
-    headers = {}
-    for key in request.headers:
-        value = request.headers[key]
+    headers_processed = {}
+    for key in headers:
+        value = headers[key]
         if isinstance(value, str):
-            headers[key] = value
+            headers_processed[key] = value
 
-    webhook = EmailMessageWebhook.objects.create(
+    webhook = email_message_webhook_create(
         body=payload,
-        headers=headers,
+        headers=headers_processed,
         status=constants.EmailMessageWebhook.Status.NEW,
     )
     logger.info(f"EmailMessageWebhook.id={webhook.id} received")
 
     return webhook
+
+
+def email_message_webhook_create(**kwargs) -> EmailMessageWebhook:
+    """Create an EmailMessageWebhook."""
+    email_message_webhook = EmailMessageWebhook(**kwargs)
+    email_message_webhook.full_clean()
+    email_message_webhook.save()
+    return email_message_webhook
 
 
 def email_message_webhook_update(

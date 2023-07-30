@@ -115,11 +115,11 @@ def get_email_display_name(
 
 
 def validate_request_body_json(
-    request: HttpRequest, required_keys: list | None = None
-) -> dict | None:
+    *, body: str, required_keys: list | None = None
+) -> list | dict:
     """Validate that the request body is JSON and return the parsed JSON."""
     try:
-        body = json.loads(request.body)
+        body_json = json.loads(body)
     except json.decoder.JSONDecodeError as e:
         raise ApplicationError("Invalid payload")
 
@@ -129,8 +129,8 @@ def validate_request_body_json(
 
     for key in required_keys:
         try:
-            body[key]
+            body_json[key]
         except KeyError:
             raise ApplicationError("Invalid payload")
 
-    return body
+    return body_json

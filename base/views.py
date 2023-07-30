@@ -1,6 +1,5 @@
 import waffle
 import logging
-from typing import TYPE_CHECKING
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
@@ -265,7 +264,9 @@ class AccountDeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin,
 @require_http_methods(["POST"])
 def email_message_webhook_view(request):
     try:
-        webhook = services.email_message_webhook_create(request=request)
+        webhook = services.email_message_webhook_create_from_request(
+            body=request.body, headers=request.headers
+        )
     except ApplicationError as e:
         return JsonResponse({"detail": str(e)}, status=400)
 
@@ -279,7 +280,9 @@ def email_message_webhook_view(request):
 @require_http_methods(["POST"])
 def event_emit_view(request):
     try:
-        payload = utils.validate_request_body_json(request, required_keys=["type"])
+        payload = utils.validate_request_body_json(
+            body=request.body, required_keys=["type"]
+        )
     except ApplicationError as e:
         return JsonResponse({"detail": str(e)}, status=400)
 
