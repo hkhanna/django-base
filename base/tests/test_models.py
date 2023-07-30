@@ -2,7 +2,7 @@ from pytest_django.asserts import assertRaisesMessage
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from .. import services, selectors, models, factories
+from .. import services, selectors, models, factories, constants
 
 User = get_user_model()
 
@@ -85,3 +85,51 @@ def test_change_user_name_org_name(user):
     user.save()
 
     assert user.personal_org.name == user.name
+
+
+def test_org_setting_boolean(org):
+    """OrgSettings of type bool may only have a value of 0 or 1."""
+    org_setting = models.OrgSetting.objects.create(
+        slug="for-test", type=constants.SettingType.BOOL, default=0
+    )
+    org_setting.default = 1
+    org_setting.full_clean()
+    org_setting.save()  # OK
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        org_setting.default = 2
+        org_setting.full_clean()
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        models.PlanOrgSetting(
+            plan=org.primary_plan, setting=org_setting, value=2
+        ).full_clean()
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        models.OverriddenOrgSetting(org=org, setting=org_setting, value=2).full_clean()
+
+
+def test_ou_setting_boolean(ou):
+    """OUSettings of type bool may only have a value of 0 or 1."""
+    ou_setting = models.OUSetting.objects.create(
+        slug="for-test", type=constants.SettingType.BOOL, default=0, owner_value=1
+    )
+    ou_setting.default = 1
+    ou_setting.full_clean()
+    ou_setting.save()  # OK
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        ou_setting.default = 2
+        ou_setting.full_clean()
+
+    ou_setting.refresh_from_db()
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        ou_setting.owner_value = 2
+        ou_setting.full_clean()
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        models.OUSettingDefault(org=ou.org, setting=ou_setting, value=2).full_clean()
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        models.OrgUserOUSetting(org_user=ou, setting=ou_setting, value=2).full_clean()

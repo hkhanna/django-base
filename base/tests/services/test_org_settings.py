@@ -1,10 +1,9 @@
 """Tests related to settings for Orgs, OrgUsers, and Plans."""
 import pytest
 from pytest_django.asserts import assertRaisesMessage
-from django.core.exceptions import ValidationError
 from datetime import timedelta
 from freezegun import freeze_time
-from ..models import (
+from ...models import (
     OrgSetting,
     PlanOrgSetting,
     OverriddenOrgSetting,
@@ -12,7 +11,7 @@ from ..models import (
     OUSettingDefault,
     OrgUserOUSetting,
 )
-from base import constants, selectors, services
+from base import constants, services
 
 
 @pytest.fixture
@@ -120,26 +119,6 @@ def test_org_get_setting_plan_never_expires(org, org_setting):
     assert result == 10
 
 
-def test_org_setting_boolean(org):
-    """OrgSettings of type bool may only have a value of 0 or 1."""
-    org_setting = OrgSetting.objects.create(
-        slug="for-test", type=constants.SettingType.BOOL, default=0
-    )
-    org_setting.default = 1
-    org_setting.full_clean()
-    org_setting.save()  # OK
-
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        org_setting.default = 2
-        org_setting.full_clean()
-
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        PlanOrgSetting(plan=org.primary_plan, setting=org_setting, value=2).full_clean()
-
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        OverriddenOrgSetting(org=org, setting=org_setting, value=2).full_clean()
-
-
 # -- OUSettings -- #
 
 
@@ -202,32 +181,6 @@ def test_ou_get_setting(ou, ou_setting):
     assert OrgUserOUSetting.objects.first().value == 20  # No change
 
     assert result == 20
-
-
-def test_ou_setting_boolean(ou):
-    """OUSettings of type bool may only have a value of 0 or 1."""
-    ou_setting = OUSetting.objects.create(
-        slug="for-test", type=constants.SettingType.BOOL, default=0, owner_value=1
-    )
-    ou_setting.default = 1
-    ou_setting.full_clean()
-    ou_setting.save()  # OK
-
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        ou_setting.default = 2
-        ou_setting.full_clean()
-
-    ou_setting.refresh_from_db()
-
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        ou_setting.owner_value = 2
-        ou_setting.full_clean()
-
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        OUSettingDefault(org=ou.org, setting=ou_setting, value=2).full_clean()
-
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        OrgUserOUSetting(org_user=ou, setting=ou_setting, value=2).full_clean()
 
 
 def test_ou_owner(org, ou, ou_setting):

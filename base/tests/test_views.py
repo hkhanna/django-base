@@ -141,7 +141,7 @@ def test_org_invitation_view_permissions():
 def test_invite_permission_ui(client, user, org):
     """Without can_invite_members permission, the UI doesn't show invitation, cancel, or resend button."""
     client.force_login(user)
-    client.post(reverse("org_invite"), {"email": base.factories.fake.email()})
+    client.post(reverse("org_invite"), {"email": factories.fake.email()})
     response = client.get(reverse("org_detail"))
     assert "Invite a Member" in str(response.content)
     assert "Cancel Invitation" in str(response.content)
