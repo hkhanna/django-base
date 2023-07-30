@@ -27,11 +27,11 @@ def process_email_message_webhook(webhook_id):
 
     try:
         webhook = get_object_or_404(models.EmailMessageWebhook, id=webhook_id)
-        if webhook.status != models.EmailMessageWebhook.Status.NEW:
+        if webhook.status != constants.EmailMessageWebhook.Status.NEW:
             raise RuntimeError(
                 f"EmailMessageWebhook.id={webhook_id} process_email_message_webhook called on a webhook that is not status=NEW"
             )
-        webhook.status = models.EmailMessageWebhook.Status.PENDING
+        webhook.status = constants.EmailMessageWebhook.Status.PENDING
         webhook.save()
 
         # Store the type
@@ -46,7 +46,6 @@ def process_email_message_webhook(webhook_id):
             if email_message:
                 webhook.email_message = email_message
                 if webhook.type in constants.WEBHOOK_TYPE_TO_EMAIL_STATUS:
-
                     # Make sure this is the most recent webhook, in case it arrived out of order.
                     all_ts = []
                     for other_webhook in models.EmailMessageWebhook.objects.filter(
@@ -70,10 +69,10 @@ def process_email_message_webhook(webhook_id):
                         email_message.status_updated_at = ts_dt
                         email_message.save()
 
-        webhook.status = models.EmailMessageWebhook.Status.PROCESSED
+        webhook.status = constants.EmailMessageWebhook.Status.PROCESSED
     except Exception as e:
         logger.exception(f"EmailMessageWebhook.id={webhook_id} in error state")
-        webhook.status = models.EmailMessageWebhook.Status.ERROR
+        webhook.status = constants.EmailMessageWebhook.Status.ERROR
         webhook.note = traceback.format_exc()
     finally:
         webhook.save()
@@ -85,11 +84,11 @@ def send_email_message(email_message_id, attachments=[]):
     logger.info(f"EmailMessage.id={email_message_id} send_email_message task started")
     email_message = get_object_or_404(models.EmailMessage, id=email_message_id)
 
-    if email_message.status != models.EmailMessage.Status.READY:
+    if email_message.status != constants.EmailMessage.Status.READY:
         raise RuntimeError(
             f"EmailMessage.id={email_message_id} send_email_message called on an email that is not status=READY"
         )
-    email_message.status = models.EmailMessage.Status.PENDING
+    email_message.status = constants.EmailMessage.Status.PENDING
     email_message.save()
 
     template_name = email_message.template_prefix + "_message.txt"
@@ -170,14 +169,14 @@ def send_email_message(email_message_id, attachments=[]):
                 email_message.message_id = message_ids[0]
 
     except Exception as e:
-        email_message.status = models.EmailMessage.Status.ERROR
+        email_message.status = constants.EmailMessage.Status.ERROR
         email_message.error_message = repr(e)
         email_message.save()
         logger.exception(
             f"EmailMessage.id={email_message_id} Exception caught in send_email_message"
         )
     else:
-        email_message.status = models.EmailMessage.Status.SENT
+        email_message.status = constants.EmailMessage.Status.SENT
         email_message.sent_at = timezone.now()
 
     email_message.save()

@@ -20,6 +20,14 @@ class EmailMessage:
         ERROR = "error"
 
 
+class EmailMessageWebhook:
+    class Status(models.TextChoices):
+        NEW = "new"
+        PENDING = "pending"
+        PROCESSED = "processed"
+        ERROR = "error"
+
+
 # This is a mapping of Postmark RecordTypes -- which end up as
 # EmailMessageWebhook.type to a new EmailMessage status when that
 # webhook is received and processed.

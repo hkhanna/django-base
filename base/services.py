@@ -196,7 +196,7 @@ def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook
     webhook = EmailMessageWebhook.objects.create(
         body=payload,
         headers=headers,
-        status=EmailMessageWebhook.Status.NEW,  # FIXME
+        status=constants.EmailMessageWebhook.Status.NEW,
     )
     logger.info(f"EmailMessageWebhook.id={webhook.id} received")
 

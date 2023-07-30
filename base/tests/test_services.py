@@ -446,7 +446,7 @@ def test_receive_webhook(client, emw_payload):
     assert len(webhook) == 1
     webhook = webhook[0]
     assert webhook.body == json.loads(emw_payload)
-    assert webhook.status == models.EmailMessageWebhook.Status.PROCESSED
+    assert webhook.status == constants.EmailMessageWebhook.Status.PROCESSED
 
 
 def test_bad_json(client):

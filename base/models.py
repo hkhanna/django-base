@@ -109,12 +109,7 @@ class EmailMessageWebhook(BaseModel):
     )
     note = models.TextField(blank=True)
 
-    class Status(models.TextChoices):
-        NEW = "new"
-        PENDING = "pending"
-        PROCESSED = "processed"
-        ERROR = "error"
-
+    Status = constants.EmailMessageWebhook.Status
     status = models.CharField(
         max_length=127, choices=Status.choices, default=Status.NEW
     )
