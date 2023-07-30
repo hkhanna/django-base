@@ -64,7 +64,7 @@ def test_send_email(user, mailoutbox, settings):
         },
     )
 
-    service.send_email()
+    service.email_message_send()
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
@@ -103,7 +103,7 @@ def test_send_email_sanitize(user, name, email, expected, mailoutbox):
         },
     )
 
-    service.send_email()
+    service.email_message_send()
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
@@ -130,7 +130,7 @@ def test_subject_newlines(user, mailoutbox):
         },
     )
 
-    service.send_email()
+    service.email_message_send()
     service.email_message.refresh_from_db()
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == "A subject Exciting!"
@@ -153,7 +153,7 @@ def test_subject_limit(user, mailoutbox, settings):
         },
     )
 
-    service.send_email()
+    service.email_message_send()
     service.email_message.refresh_from_db()
     assert len(mailoutbox) == 1
     assert expected == mailoutbox[0].subject
@@ -182,7 +182,7 @@ def test_email_attachment(user, mailoutbox):
         }
     ]
 
-    service.send_email(attachments)
+    service.email_message_send(attachments)
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
@@ -224,7 +224,7 @@ def test_email_attachment_from_instance_file_field(monkeypatch, user, mailoutbox
         },
     ]
 
-    service.send_email(attachments)
+    service.email_message_send(attachments)
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
@@ -246,7 +246,7 @@ def test_postmark_message_stream(user, mailoutbox):
         },
         postmark_message_stream="broadcast",
     )
-    service.send_email()
+    service.email_message_send()
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
@@ -270,7 +270,7 @@ def test_cooldown(user, mailoutbox):
 
     # Send the first email
     service = services.EmailMessageService(**email_message_args)
-    assert service.send_email() is True
+    assert service.email_message_send() is True
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.SENT
@@ -279,14 +279,14 @@ def test_cooldown(user, mailoutbox):
     service = services.EmailMessageService(
         **{**email_message_args, "to_email": "someone.else@example.com"}
     )
-    assert service.send_email() is True
+    assert service.email_message_send() is True
     assert len(mailoutbox) == 2
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.SENT
 
     # Cancel the third email that is identical to the first
     service = services.EmailMessageService(**email_message_args)
-    assert service.send_email() is False
+    assert service.email_message_send() is False
     assert len(mailoutbox) == 2
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.CANCELED
@@ -294,7 +294,7 @@ def test_cooldown(user, mailoutbox):
     # Send identical email if it is 181 seconds in the future
     with freeze_time(timezone.now() + timedelta(seconds=181)):
         service = services.EmailMessageService(**email_message_args)
-        assert service.send_email() is True
+        assert service.email_message_send() is True
         assert len(mailoutbox) == 3
         service.email_message.refresh_from_db()
         assert service.email_message.status == models.EmailMessage.Status.SENT
@@ -317,7 +317,7 @@ def test_cooldown_scopes(user, mailoutbox):
 
     # Send the first email
     service = services.EmailMessageService(**email_message_args)
-    assert service.send_email() is True
+    assert service.email_message_send() is True
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.SENT
@@ -326,7 +326,7 @@ def test_cooldown_scopes(user, mailoutbox):
     service = services.EmailMessageService(
         **{**email_message_args, "to_email": "someone.else@example.com"}
     )
-    assert service.send_email(scopes=["created_by", "template_prefix"]) is False
+    assert service.email_message_send(scopes=["created_by", "template_prefix"]) is False
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.CANCELED
@@ -335,7 +335,7 @@ def test_cooldown_scopes(user, mailoutbox):
     service = services.EmailMessageService(
         **{**email_message_args, "created_by": factories.user_create()}
     )
-    assert service.send_email(scopes=["template_prefix", "to"]) is False
+    assert service.email_message_send(scopes=["template_prefix", "to"]) is False
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.CANCELED
@@ -344,7 +344,7 @@ def test_cooldown_scopes(user, mailoutbox):
     service = services.EmailMessageService(
         **{**email_message_args, "template_prefix": "account/email/password_reset_key"}
     )
-    assert service.send_email(scopes=["created_by", "to"]) is False
+    assert service.email_message_send(scopes=["created_by", "to"]) is False
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.CANCELED
@@ -366,7 +366,7 @@ def test_disable_outbound_email_waffle_switch(user, mailoutbox):
         },
     )
 
-    service.send_email()
+    service.email_message_send()
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.ERROR
     assert (
@@ -393,7 +393,7 @@ def test_send_email_with_reply_to(user, mailoutbox, settings):
         },
     )
 
-    service.send_email()
+    service.email_message_send()
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
@@ -417,7 +417,7 @@ def test_reply_to_name_no_email(user, mailoutbox, settings):
     )
 
     with pytest.raises(RuntimeError):
-        service.send_email()
+        service.email_message_send()
     service.email_message.refresh_from_db()
     assert service.email_message.status == models.EmailMessage.Status.ERROR
     assert len(mailoutbox) == 0

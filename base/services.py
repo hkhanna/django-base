@@ -157,8 +157,7 @@ class EmailMessageService:
 
         return email_messages.count() >= allowed
 
-    # FIXME: should this be email_message_send?
-    def send_email(
+    def email_message_send(
         self,
         attachments=[],
         cooldown_period=180,
@@ -267,7 +266,7 @@ def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
             "action_url": "",
         },
     )
-    service.send_email()
+    service.email_message_send()
     org_invitation.save()
     org_invitation.email_messages.add(service.email_message)
 

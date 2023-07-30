@@ -61,7 +61,7 @@ class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
             template_prefix=template_prefix,
             template_context=context,
         )
-        service.send_email()
+        service.email_message_send()
 
 
 class SocialAccountAdapter(allauth.socialaccount.adapter.DefaultSocialAccountAdapter):
