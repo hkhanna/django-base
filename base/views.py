@@ -265,10 +265,9 @@ class AccountDeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin,
 @require_http_methods(["POST"])
 def email_message_webhook_view(request):
     try:
-        # FIXME: can use ApplicationError here now.
         webhook = services.email_message_webhook_create(request=request)
-    except TypeError:
-        return JsonResponse({"detail": "Invalid payload"}, status=400)
+    except ApplicationError as e:
+        return JsonResponse({"detail": str(e)}, status=400)
 
     logger.info(f"EmailMessageWebhook.id={webhook.id} received")
     tasks.process_email_message_webhook.delay(webhook.id)
@@ -279,10 +278,11 @@ def email_message_webhook_view(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def event_emit_view(request):
-    # FIXME: can use ApplicationError here now.
-    payload = utils.validate_request_body_json(request, required_keys=["type"])
-    if payload is None:
-        return JsonResponse({"detail": "Invalid payload"}, status=400)
+    try:
+        payload = utils.validate_request_body_json(request, required_keys=["type"])
+    except ApplicationError as e:
+        return JsonResponse({"detail": str(e)}, status=400)
+
     type = payload.pop("type")
 
     # Verify shared secret

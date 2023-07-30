@@ -1,5 +1,6 @@
 import json
 from django.http import HttpRequest
+from .exceptions import *
 
 
 # This is used to test formset submissions and to create synthetic formset data.
@@ -120,7 +121,7 @@ def validate_request_body_json(
     try:
         body = json.loads(request.body)
     except json.decoder.JSONDecodeError as e:
-        return None
+        raise ApplicationError("Invalid payload")
 
     # Ensure all required keys
     if required_keys is None:
@@ -130,6 +131,6 @@ def validate_request_body_json(
         try:
             body[key]
         except KeyError:
-            return None
+            raise ApplicationError("Invalid payload")
 
     return body

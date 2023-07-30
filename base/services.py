@@ -184,8 +184,8 @@ class EmailMessageService:
 def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook:
     """Create an EmailMessageWebhook from a request object."""
     payload = utils.validate_request_body_json(request)
-    if payload is None or type(payload) != dict:
-        raise TypeError("Invalid payload")
+    if type(payload) != dict:
+        raise ApplicationError("Invalid payload")
 
     headers = {}
     for key in request.headers:
