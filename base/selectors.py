@@ -17,7 +17,22 @@ from .models import (
     OrgUserOUSetting,
     Plan,
     PlanOrgSetting,
+    EmailMessage,
+    EmailMessageWebhook,
+    Event,
 )
+
+
+def email_message_list(**kwargs) -> QuerySet[EmailMessage]:
+    return model_list(klass=EmailMessage, **kwargs)
+
+
+def email_message_webhook_list(**kwargs) -> QuerySet[EmailMessageWebhook]:
+    return model_list(klass=EmailMessageWebhook, **kwargs)
+
+
+def event_list(**kwargs) -> QuerySet[Event]:
+    return model_list(klass=Event, **kwargs)
 
 
 def org_list(**kwargs) -> QuerySet[Org]:
@@ -65,6 +80,18 @@ def overridden_org_setting_list(**kwargs) -> QuerySet[OverriddenOrgSetting]:
 
 def org_setting_list(**kwargs) -> QuerySet[OrgSetting]:
     return model_list(klass=OrgSetting, **kwargs)
+
+
+def org_user_setting_list(**kwargs) -> QuerySet[OUSetting]:
+    return model_list(klass=OUSetting, **kwargs)
+
+
+def org_user_org_user_setting_list(**kwargs) -> QuerySet[OrgUserOUSetting]:
+    return model_list(klass=OrgUserOUSetting, **kwargs)
+
+
+def org_user_setting_default_list(**kwargs) -> QuerySet[OUSettingDefault]:
+    return model_list(klass=OUSettingDefault, **kwargs)
 
 
 def model_list(

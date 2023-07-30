@@ -72,6 +72,30 @@ def event_noop(event: Event) -> None:
     pass
 
 
+def event_create(**kwargs) -> Event:
+    """Create an Event object."""
+    event = Event(**kwargs)
+    event.full_clean()
+    event.save()
+    return event
+
+
+def event_update(instance: Event, **kwargs) -> Event:
+    return model_update(instance=instance, data=kwargs)
+
+
+def email_message_create(**kwargs) -> EmailMessage:
+    """Create an EmailMessage object."""
+    email_message = EmailMessage(**kwargs)
+    email_message.full_clean()
+    email_message.save()
+    return email_message
+
+
+def email_message_update(instance: EmailMessage, **kwargs) -> EmailMessage:
+    return model_update(instance=instance, data=kwargs)
+
+
 class EmailMessageService:
     """Service for sending emails."""
 
@@ -201,6 +225,12 @@ def email_message_webhook_create(*, request: HttpRequest) -> EmailMessageWebhook
     logger.info(f"EmailMessageWebhook.id={webhook.id} received")
 
     return webhook
+
+
+def email_message_webhook_update(
+    *, instance: EmailMessageWebhook, **kwargs
+) -> EmailMessageWebhook:
+    return model_update(instance=instance, data=kwargs)
 
 
 def org_invitation_validate_new(
@@ -358,6 +388,49 @@ def plan_update(*, instance: Plan, **kwargs) -> Plan:
                 )
         plan = model_update(instance=instance, data=kwargs)
     return plan
+
+
+def org_user_update(*, instance: OrgUser, **kwargs) -> OrgUser:
+    """Update an OrgUser and return the OrgUser."""
+    return model_update(instance=instance, data=kwargs)
+
+
+def org_invitation_update(*, instance: OrgInvitation, **kwargs) -> OrgInvitation:
+    """Update an OrgInvitation and return the OrgInvitation."""
+    return model_update(instance=instance, data=kwargs)
+
+
+def org_setting_update(*, instance: OrgSetting, **kwargs) -> OrgSetting:
+    """Update an OrgSetting and return the OrgSetting."""
+    return model_update(instance=instance, data=kwargs)
+
+
+def plan_org_setting_update(*, instance: PlanOrgSetting, **kwargs) -> PlanOrgSetting:
+    """Update a PlanOrgSetting and return the PlanOrgSetting."""
+    return model_update(instance=instance, data=kwargs)
+
+
+def overridden_org_setting_update(
+    *, instance: OverriddenOrgSetting, **kwargs
+) -> OverriddenOrgSetting:
+    """Update an OverriddenOrgSetting and return the OverriddenOrgSetting."""
+    return model_update(instance=instance, data=kwargs)
+
+
+def org_user_setting_update(*, instance: OUSetting, **kwargs) -> OUSetting:
+    return model_update(instance=instance, data=kwargs)
+
+
+def org_user_org_user_setting_update(
+    *, instance: OrgUserOUSetting, **kwargs
+) -> OrgUserOUSetting:
+    return model_update(instance=instance, data=kwargs)
+
+
+def org_user_setting_default_update(
+    *, instance: OUSettingDefault, **kwargs
+) -> OUSettingDefault:
+    return model_update(instance=instance, data=kwargs)
 
 
 def model_update(
@@ -519,3 +592,51 @@ def plan_org_setting_create(**kwargs) -> PlanOrgSetting:
     plan_org_setting.full_clean()
     plan_org_setting.save()
     return plan_org_setting
+
+
+def org_invitation_create(**kwargs) -> OrgInvitation:
+    """Create an OrgInvitation and return the OrgInvitation."""
+    org_invitation = OrgInvitation(**kwargs)
+    org_invitation.full_clean()
+    org_invitation.save()
+    return org_invitation
+
+
+def overridden_org_setting_create(**kwargs) -> OverriddenOrgSetting:
+    """Create an OverriddenOrgSetting and return the OverriddenOrgSetting."""
+    overridden_org_setting = OverriddenOrgSetting(**kwargs)
+    overridden_org_setting.full_clean()
+    overridden_org_setting.save()
+    return overridden_org_setting
+
+
+def org_user_ou_setting_create(**kwargs) -> OrgUserOUSetting:
+    """Create an OrgUserOUSetting and return the OrgUserOUSetting."""
+    org_user_ou_setting = OrgUserOUSetting(**kwargs)
+    org_user_ou_setting.full_clean()
+    org_user_ou_setting.save()
+    return org_user_ou_setting
+
+
+def org_user_setting_create(**kwargs) -> OUSetting:
+    """Create an OrgUserSetting and return the OrgUserSetting."""
+    org_user_setting = OUSetting(**kwargs)
+    org_user_setting.full_clean()
+    org_user_setting.save()
+    return org_user_setting
+
+
+def org_user_org_user_setting_create(**kwargs) -> OrgUserOUSetting:
+    """Create an OrgUserOrgUserSetting and return the OrgUserOrgUserSetting."""
+    org_user_org_user_setting = OrgUserOUSetting(**kwargs)
+    org_user_org_user_setting.full_clean()
+    org_user_org_user_setting.save()
+    return org_user_org_user_setting
+
+
+def org_user_setting_default_create(**kwargs) -> OUSettingDefault:
+    """Create an OrgUserSettingDefault and return the OrgUserSettingDefault."""
+    org_user_setting_default = OUSettingDefault(**kwargs)
+    org_user_setting_default.full_clean()
+    org_user_setting_default.save()
+    return org_user_setting_default
