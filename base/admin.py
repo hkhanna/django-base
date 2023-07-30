@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 
 from base import constants
-from . import models
+from . import models, services
 
 
 @admin.register(models.User)
@@ -150,6 +150,12 @@ class OrgAdmin(admin.ModelAdmin):
         OrgUserAdminInline,
     ]
 
+    def save_model(self, request, obj, form, change):
+        if change:
+            services.org_update(instance=obj, **form.cleaned_data)
+        else:
+            services.org_create(**form.cleaned_data)
+
 
 @admin.register(models.OrgUser)
 class OrgUserAdmin(admin.ModelAdmin):
@@ -179,6 +185,12 @@ class PlanAdmin(admin.ModelAdmin):
     readonly_fields = ("id", "slug", "created_at", "updated_at")
     search_fields = ("name",)
     inlines = [PlanOrgSettingAdminInline]
+
+    def save_model(self, request, obj, form, change):
+        if change:
+            services.plan_update(instance=obj, **form.cleaned_data)
+        else:
+            services.plan_create(**form.cleaned_data)
 
 
 @admin.register(models.OrgSetting)

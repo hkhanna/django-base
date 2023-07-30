@@ -8,13 +8,26 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import models
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
 
 from base import constants
 
 logger = logging.getLogger(__name__)
+
+
+class UniqueConstraintNoValidation(models.UniqueConstraint):
+    """Allows us to skip application-level validation of unique constraints.
+    This is useful if we only want to enforce it at the database level because
+    we fix the data during saving of the model.
+
+    See. e.g., how Plan defaults are handled in services.plan_create or
+    services.plan_update.
+    """
+
+    def validate(self, *args, **kwargs):
+        pass
 
 
 class BaseModel(models.Model):
@@ -249,7 +262,7 @@ class Plan(BaseModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
+            UniqueConstraintNoValidation(
                 fields=["is_default"],
                 condition=models.Q(is_default=True),
                 name="unique_default_plan",
@@ -258,18 +271,6 @@ class Plan(BaseModel):
 
     def __str__(self):
         return self.slug
-
-    def save(self, *args, **kwargs):
-        # FIXME: Move this to the admin.
-        with transaction.atomic():
-            # If this plan is set to the default, unset default on all other plans.
-            if self.is_default:
-                count = Plan.objects.exclude(pk=self.pk).update(is_default=False)
-                if count:
-                    logger.warning(
-                        f"Unset is_default on {count} Plans. This is okay if you meant to change the default Plan."
-                    )
-            super().save(*args, **kwargs)
 
 
 class OrgSetting(BaseModel):

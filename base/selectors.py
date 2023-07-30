@@ -104,6 +104,10 @@ def org_user_get_setting(*, org_user: OrgUser, slug: str) -> bool | int:
     return best
 
 
+def plan_list(**kwargs) -> QuerySet[Plan]:
+    return model_list(klass=Plan, **kwargs)
+
+
 def model_list(
     *, klass: Type[ModelType], **kwargs: Union[Model, str, bool]
 ) -> QuerySet[ModelType]:

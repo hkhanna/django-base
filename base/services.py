@@ -24,7 +24,8 @@ from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import force_str
-from django.db import models
+from django.db import models, transaction
+from django.db.models import QuerySet
 
 from . import selectors, tasks, utils
 from .exceptions import *
@@ -290,7 +291,6 @@ def org_user_create(*, org: Org, user: UserType) -> OrgUser:
 
 def org_create(**kwargs) -> Org:
     """Create an Org and return the Org."""
-    # FIXME: admin need to use this and the update function
     org = Org(**kwargs)
     org.full_clean()
     org.save()
@@ -311,7 +311,7 @@ def org_update(*, instance: Org, **kwargs) -> Org:
             Org._meta.get_field("slug").create_slug(instance, True)
         )
 
-    org, _ = model_update(instance=instance, data=kwargs)
+    org = model_update(instance=instance, data=kwargs)
 
     # If owner isn't an OrgUser, create one.
     if not selectors.org_user_list(org=org, user=org.owner).exists():
@@ -320,12 +320,47 @@ def org_update(*, instance: Org, **kwargs) -> Org:
     return org
 
 
-# Borrowed from https://github.com/HackSoftware/Django-Styleguide-Example/blob/master/styleguide_example/common/services.py
+def plan_create(**kwargs) -> Plan:
+    """Create a Plan and return the Plan."""
+    plan = Plan(**kwargs)
+
+    with transaction.atomic():
+        # If this plan is set to the default, unset default on all other plans.
+        if plan.is_default:
+            count = model_bulk_update(
+                qs=selectors.plan_list(is_default=True), is_default=False
+            )
+            if count:
+                logger.warning(
+                    f"Unset is_default on {count} Plans. This is okay if you meant to change the default Plan."
+                )
+        plan.full_clean()
+        plan.save()
+    return plan
+
+
+def plan_update(*, instance: Plan, **kwargs) -> Plan:
+    """Update a Plan and return the Plan."""
+    with transaction.atomic():
+        # If this plan is set to the default, unset default on all other plans.
+        if instance.is_default:
+            count = model_bulk_update(
+                qs=selectors.plan_list(is_default=True).exclude(pk=instance.pk),
+                is_default=False,
+            )
+            if count:
+                logger.warning(
+                    f"Unset is_default on {count} Plans. This is okay if you meant to change the default Plan."
+                )
+        plan = model_update(instance=instance, data=kwargs)
+    return plan
+
+
 def model_update(
     *,
     instance: ModelType,
     data: Dict[str, Any],
-) -> Tuple[ModelType, bool]:
+) -> ModelType:
     """
     Generic update service meant to be reused in local update services.
 
@@ -347,17 +382,11 @@ def model_update(
         - There's a strict assertion that all values in `fields` are actual fields in `instance`.
         - `data` can support m2m fields, which are handled after the update on `instance`.
     """
-    has_updated = False
     m2m_data = {}
-    update_fields = []
 
     model_fields = {field.name: field for field in instance._meta.get_fields()}
 
     for field in data:
-        # Skip if a field is not present in the actual data
-        if field not in data:
-            continue
-
         # If field is not an actual model field, raise an error
         model_field = model_fields.get(field)
 
@@ -370,25 +399,18 @@ def model_update(
             m2m_data[field] = data[field]
             continue
 
-        if getattr(instance, field) != data[field]:
-            has_updated = True
-            update_fields.append(field)
-            setattr(instance, field, data[field])
+        setattr(instance, field, data[field])
 
-    # Perform an update only if any of the fields were actually changed
-    if has_updated:
         instance.full_clean()
-        # Update only the fields that are meant to be updated.
-        # Django docs reference:
-        # https://docs.djangoproject.com/en/dev/ref/models/instances/#specifying-which-fields-to-save
-        instance.save(update_fields=update_fields)
+        instance.save()
 
     for field_name, value in m2m_data.items():
         related_manager = getattr(instance, field_name)
         related_manager.set(value)
 
-        # Still not sure about this.
-        # What if we only update m2m relations & nothing on the model? Is this still considered as updated?
-        has_updated = True
+    return instance
 
-    return instance, has_updated
+
+def model_bulk_update(*, qs: QuerySet, **kwargs) -> int:
+    """Bulk update a set of Plans and return the number of Plans updated."""
+    return qs.update(**kwargs)
