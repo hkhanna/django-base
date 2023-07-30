@@ -351,7 +351,7 @@ def org_update(*, instance: Org, **kwargs) -> Org:
 
     # If this is a personal org, update the slug.
     if instance.is_personal:
-        instance.slug = force_str(
+        kwargs["slug"] = force_str(
             Org._meta.get_field("slug").create_slug(instance, True)
         )
 
@@ -604,11 +604,12 @@ def plan_org_setting_create(**kwargs) -> PlanOrgSetting:
     return plan_org_setting
 
 
-def org_invitation_create(**kwargs) -> OrgInvitation:
+def org_invitation_create(*, save=True, **kwargs) -> OrgInvitation:
     """Create an OrgInvitation and return the OrgInvitation."""
     org_invitation = OrgInvitation(**kwargs)
-    org_invitation.full_clean()
-    org_invitation.save()
+    if save:
+        org_invitation.full_clean()
+        org_invitation.save()
     return org_invitation
 
 

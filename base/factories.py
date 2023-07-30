@@ -4,10 +4,13 @@ from django.contrib.auth import get_user_model
 from faker import Faker
 from allauth.account import models as auth_models
 from .models import EmailMessage, Org, Plan
+from . import services
 
 fake = Faker()
 
 User = get_user_model()
+
+# FIXME do i really need conftest AND factories AND services? feel like i can cut one out, maybe factories
 
 
 def user_create(**kwargs):
@@ -46,7 +49,7 @@ def org_create(**kwargs):
     )
     params = defaults | kwargs
 
-    return Org.objects.create(**params)
+    return services.org_create(**params)
 
 
 def plan_create():

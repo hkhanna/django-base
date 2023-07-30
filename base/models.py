@@ -525,10 +525,10 @@ class User(AbstractUser):
 
         super().save(*args, **kwargs)
 
-        # Auto-create a personal org if the user doesn't have any orgs.
+        # Auto-create a personal org if the user doesn't have any active orgs.
         from base import services
 
-        if not self.orgs.exists():
+        if not self.orgs.filter(is_active=True).exists():
             Plan = apps.get_model("base", "Plan")
             default_plan, _ = Plan.objects.get_or_create(
                 is_default=True, defaults={"name": "Default"}
@@ -544,7 +544,8 @@ class User(AbstractUser):
 
         if not adding:
             # Conform the name of the personal org if the user has one.
-            services.org_update(instance=self.personal_org)
+            if org := self.personal_org:
+                services.org_update(instance=org, name=self.name)
 
     def clean(self):
         # Case-insensitive email address uniqueness check
