@@ -27,7 +27,7 @@ from django.utils.encoding import force_str
 from django.db import models, transaction
 from django.db.models import QuerySet
 
-from . import selectors, tasks, utils
+from . import selectors, tasks, utils, constants
 from .exceptions import *
 from .models import (
     EmailMessage,
@@ -36,8 +36,13 @@ from .models import (
     Org,
     OrgInvitation,
     OrgSetting,
+    OUSetting,
+    OUSettingDefault,
+    OrgUserOUSetting,
     OrgUser,
     Plan,
+    PlanOrgSetting,
+    OverriddenOrgSetting,
 )
 from .types import ModelType, UserType
 
@@ -414,3 +419,104 @@ def model_update(
 def model_bulk_update(*, qs: QuerySet, **kwargs) -> int:
     """Bulk update a set of Plans and return the number of Plans updated."""
     return qs.update(**kwargs)
+
+
+def org_get_setting(*, org: Org, slug: str) -> bool | int:
+    # See test_org_settings.py for an explanation of how this works.
+    try:
+        setting = selectors.org_setting_list(slug=slug).get()
+    except OrgSetting.DoesNotExist:
+        setting = org_setting_create(
+            slug=slug, type=constants.SettingType.BOOL, default=0
+        )
+
+    try:
+        overridden_org_setting = selectors.overridden_org_setting_list(
+            org=org, setting=setting
+        ).get()
+        best = overridden_org_setting.value
+    except OverriddenOrgSetting.DoesNotExist:
+        plan = selectors.org_get_plan(org=org)
+        try:
+            plan_org_setting = selectors.plan_org_setting_list(
+                plan=plan, setting=setting
+            ).get()
+        except PlanOrgSetting.DoesNotExist:
+            plan_org_setting = plan_org_setting_create(
+                plan=plan, setting=setting, value=setting.default
+            )
+        best = plan_org_setting.value
+
+    if setting.type == constants.SettingType.BOOL:
+        return bool(best)
+
+    return best
+
+
+def org_user_get_setting(*, org_user: OrgUser, slug: str) -> bool | int:
+    try:
+        setting = selectors.ou_setting_list(slug=slug).get()
+    except OUSetting.DoesNotExist:
+        setting = ou_setting_create(
+            slug=slug, type=constants.SettingType.BOOL, default=0, owner_value=1
+        )
+
+    # Short-circuit if the OrgUser is the Org owner.
+    if org_user.org.owner == org_user.user:
+        if setting.type == constants.SettingType.BOOL:
+            return bool(setting.owner_value)
+        else:
+            return setting.owner_value
+
+    try:
+        org_user_ou_setting = selectors.org_user_ou_setting_list(
+            org_user=org_user, setting=setting
+        ).get()
+        best = org_user_ou_setting.value
+    except OrgUserOUSetting.DoesNotExist:
+        try:
+            ou_setting_default = selectors.ou_setting_default_list(
+                org=org_user.org, setting=setting
+            ).get()
+        except OUSettingDefault.DoesNotExist:
+            ou_setting_default = ou_setting_default_create(
+                org=org_user.org, setting=setting, value=setting.default
+            )
+        best = ou_setting_default.value
+
+    if setting.type == constants.SettingType.BOOL:
+        return bool(best)
+
+    return best
+
+
+def org_setting_create(**kwargs) -> OrgSetting:
+    """Create an OrgSetting and return the OrgSetting."""
+    org_setting = OrgSetting(**kwargs)
+    org_setting.full_clean()
+    org_setting.save()
+    return org_setting
+
+
+def ou_setting_create(**kwargs) -> OUSetting:
+    """Create an OUSetting and return the OUSetting."""
+    ou_setting = OUSetting(**kwargs)
+    ou_setting.full_clean()
+    ou_setting.save()
+    return ou_setting
+
+
+def ou_setting_default_create(**kwargs) -> OUSettingDefault:
+    """Create an OUSettingDefault and return the OUSettingDefault."""
+    ou_setting_default = OUSettingDefault(**kwargs)
+    ou_setting_default.full_clean()
+    ou_setting_default.save()
+    return ou_setting_default
+
+
+def plan_org_setting_create(**kwargs) -> PlanOrgSetting:
+    """Create a PlanOrgSetting and return the PlanOrgSetting."""
+    plan_org_setting = PlanOrgSetting(**kwargs)
+    plan_org_setting.full_clean()
+    plan_org_setting.save()
+    return plan_org_setting

@@ -39,73 +39,32 @@ def org_get_plan(*, org: Org) -> Plan:
     return org.primary_plan
 
 
-def org_get_setting(*, org: Org, slug: str) -> bool | int:
-    # See test_org_settings.py for an explanation of how this works.
-    # FIXME use selectors
-
-    setting, _ = OrgSetting.objects.get_or_create(
-        slug=slug, defaults={"type": constants.SettingType.BOOL, "default": 0}
-    )
-
-    overridden_org_setting = OverriddenOrgSetting.objects.filter(
-        org=org, setting=setting
-    ).first()
-
-    if overridden_org_setting:
-        best = overridden_org_setting.value
-    else:
-        plan = org_get_plan(org=org)
-        plan_org_setting, _ = PlanOrgSetting.objects.get_or_create(
-            plan=plan,
-            setting=setting,
-            defaults={"value": setting.default},
-        )
-        best = plan_org_setting.value
-
-    if setting.type == constants.SettingType.BOOL:
-        return bool(best)
-
-    return best
+def ou_setting_list(**kwargs) -> QuerySet[OUSetting]:
+    return model_list(klass=OUSetting, **kwargs)
 
 
-def org_user_get_setting(*, org_user: OrgUser, slug: str) -> bool | int:
-    # FIXME use selectors
+def org_user_ou_setting_list(**kwargs) -> QuerySet[OrgUserOUSetting]:
+    return model_list(klass=OrgUserOUSetting, **kwargs)
 
-    setting, _ = OUSetting.objects.get_or_create(
-        slug=slug,
-        defaults={
-            "type": constants.SettingType.BOOL,
-            "default": 0,
-            "owner_value": 1,
-        },
-    )
 
-    # Short-circuit if the OrgUser is the Org owner.
-    if org_user.org.owner == org_user.user:
-        if setting.type == constants.SettingType.BOOL:
-            return bool(setting.owner_value)
-        else:
-            return setting.owner_value
-
-    org_user_ou_setting = OrgUserOUSetting.objects.filter(
-        org_user=org_user, setting=setting
-    ).first()
-    if org_user_ou_setting:
-        best = org_user_ou_setting.value
-    else:
-        ou_setting_default, _ = OUSettingDefault.objects.get_or_create(
-            org=org_user.org, setting=setting, defaults={"value": setting.default}
-        )
-        best = ou_setting_default.value
-
-    if setting.type == constants.SettingType.BOOL:
-        return bool(best)
-
-    return best
+def ou_setting_default_list(**kwargs) -> QuerySet[OUSettingDefault]:
+    return model_list(klass=OUSettingDefault, **kwargs)
 
 
 def plan_list(**kwargs) -> QuerySet[Plan]:
     return model_list(klass=Plan, **kwargs)
+
+
+def plan_org_setting_list(**kwargs) -> QuerySet[PlanOrgSetting]:
+    return model_list(klass=PlanOrgSetting, **kwargs)
+
+
+def overridden_org_setting_list(**kwargs) -> QuerySet[OverriddenOrgSetting]:
+    return model_list(klass=OverriddenOrgSetting, **kwargs)
+
+
+def org_setting_list(**kwargs) -> QuerySet[OrgSetting]:
+    return model_list(klass=OrgSetting, **kwargs)
 
 
 def model_list(
