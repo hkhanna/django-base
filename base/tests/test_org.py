@@ -90,17 +90,15 @@ def test_auto_create_org():
     assert list(org.users.all()) == [user]
 
 
-def test_owner_org_user(user, settings):
+def test_owner_org_user(user):
     """Setting an Org owner automatically adds an OrgUser"""
-    org = Org(
+    org = services.org_create(
         name="Example Org",
         owner=user,
         is_personal=False,
         primary_plan=base.factories.plan_create(),
         default_plan=base.factories.plan_create(),
     )
-    org.full_clean()
-    org.save()
     assert org.org_users.filter(user=user, org=org).exists()
 
 
