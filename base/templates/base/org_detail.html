@@ -59,12 +59,12 @@
                     <form action="{% url 'org_invite' %}" method="POST">
                     {% csrf_token %}
                     {% component_block "submit_modal" variant="primary" title="Invite a Member" submit_button_text="Invite" icon="user-plus" %}
-                      {% slot modal_text %}
+                      {% fill "modal_text" %}
                         <div class="relative border border-gray-300 rounded-md px-3 py-2 my-4 shadow-sm focus-within:ring-1 focus-within:ring-indigo-600 focus-within:border-indigo-600 focus-within:outline-none">
                           <label for="invitee-email" class="absolute -top-2 left-2 -mt-px inline-block px-1 bg-white text-xs font-medium text-gray-700">Email Address</label>
                           <input id="invitee-email" type="email" class="w-full border-0 p-0 focus:ring-0 sm:text-sm" name="email" required />
                         </div>
-                      {% endslot %}
+                      {% endfill %}
                     {% endcomponent_block %}
                     </form>
                     </li>

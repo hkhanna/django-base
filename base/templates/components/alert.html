@@ -21,12 +21,12 @@
         </div>
       {% endif %}
     </div>
-    {% if has_subtext %}
+    {% if_filled "subtext" %}
       <div class="ml-8 mt-2 text-sm {{subtext_color}}">
-        {% slot subtext %}
+        {% slot "subtext" %}
           {{ subtext }}
         {% endslot %}
       </div>
-    {% endif %}
+    {% endif_filled %}
   </div>
 </div>

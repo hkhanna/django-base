@@ -17,8 +17,7 @@ class PageHeading(component.Component):
     template_name = "components/page_heading.html"
 
     def get_context_data(self, heading):
-        has_actions = "actions" in self.slots
-        return {"heading": heading, "has_actions": has_actions}
+        return {"heading": heading}
 
 
 @component.register("alert")
@@ -67,12 +66,10 @@ class Alert(component.Component):
             },
         }
 
-        has_subtext = "subtext" in self.slots
         return {
             "text": text,
             "dismissable": dismissable,
             "class": alertClass,
-            "has_subtext": has_subtext,
             **colors[variant],
         }
 
