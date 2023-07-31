@@ -56,12 +56,14 @@ class EmailMessage(BaseModel):
         on_delete=models.SET_NULL,
         help_text="User that caused the EmailMessage to be created.",
         null=True,
+        blank=True,
     )
     org = models.ForeignKey(
         "base.Org",
         on_delete=models.SET_NULL,
         help_text="The active Org of the User that caused the EmailMessage to be created.",
         null=True,
+        blank=True,
     )
     sender_name = models.CharField(max_length=254, blank=True)
     sender_email = models.EmailField()
@@ -236,9 +238,6 @@ class OrgInvitation(BaseModel):
         if not self.email_messages.exists():
             return "New"
         return "Sent"
-
-
-# -- Plans & Settings -- #
 
 
 class Plan(BaseModel):

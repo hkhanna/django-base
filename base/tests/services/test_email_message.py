@@ -13,7 +13,7 @@ from ... import constants, models, services
 
 def test_send_email(user, mailoutbox, settings):
     """Create and send an EmailMessage"""
-    service = services.EmailMessageService(
+    service = services.email_message_create(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",

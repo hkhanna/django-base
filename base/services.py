@@ -15,17 +15,20 @@ Does business logic - from simple model creation to complex cross-cutting concer
 """
 
 import logging
+import waffle
 from datetime import datetime, timedelta
 from importlib import import_module
 from typing import List, Optional, Union, Dict, Any, Type
 
 from django.conf import settings
 from django.http import HttpRequest
+from django.apps import apps
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.encoding import force_str
+from django.core.mail.message import EmailMultiAlternatives, sanitize_address
 from django.db import models, transaction
 from django.db.models import Model, QuerySet
+from django.template import TemplateDoesNotExist
 
 from . import selectors, tasks, utils, constants
 from .exceptions import *
@@ -80,23 +83,11 @@ def event_update(instance: Event, **kwargs) -> Event:
     return model_update(instance=instance, data=kwargs)
 
 
-def email_message_create(**kwargs) -> EmailMessage:
-    """Create an EmailMessage object."""
-    email_message = EmailMessage(**kwargs)
-    email_message.full_clean()
-    email_message.save()
-    return email_message
-
-
-def email_message_update(instance: EmailMessage, **kwargs) -> EmailMessage:
-    return model_update(instance=instance, data=kwargs)
-
-
 class EmailMessageService:
     """Service for sending emails."""
 
-    def __init__(self, **kwargs: Union[str, dict, UserType, Org]) -> None:
-        self.email_message = EmailMessage.objects.create(**kwargs)
+    def __init__(self, email_message: EmailMessage) -> None:
+        self.email_message = email_message
 
     def _trim_string(self, field: str) -> str:
         """Remove superfluous linebreaks and whitespace"""
@@ -187,7 +178,7 @@ class EmailMessageService:
         e = self.email_message
         if e.status != EmailMessage.Status.NEW:
             raise RuntimeError(
-                f"EmailMessage.id={e.id} EmailMessage.send() called on an email that is not status=NEW"
+                f"EmailMessage.id={e.id} email_message_send() called on an email that is not status=NEW"
             )
         self._prepare()
 
@@ -199,6 +190,122 @@ class EmailMessageService:
         else:
             tasks.send_email_message.delay(e.id, attachments)
             return True
+
+    def email_message_send_now(self, attachments=[]) -> None:
+        """FIXME the name. Need to merge and use vscode refactor"""
+        email_message = self.email_message
+        if email_message.status != constants.EmailMessage.Status.READY:
+            raise RuntimeError(
+                f"EmailMessage.id={email_message.id} send_email_message called on an email that is not status=READY"
+            )
+        email_message_update(
+            instance=email_message, status=constants.EmailMessage.Status.PENDING
+        )
+        template_name = email_message.template_prefix + "_message.txt"
+        html_template_name = email_message.template_prefix + "_message.html"
+
+        try:
+            msg = render_to_string(
+                template_name=template_name,
+                context=email_message.template_context,
+            )
+            html_msg = None
+            try:
+                html_msg = render_to_string(
+                    template_name=html_template_name,
+                    context=email_message.template_context,
+                )
+            except TemplateDoesNotExist:
+                logger.warning(
+                    f"EmailMessage.id={email_message.id} template not found {html_template_name}"
+                )
+
+            encoding = settings.DEFAULT_CHARSET
+            from_email = sanitize_address(
+                (email_message.sender_name, email_message.sender_email), encoding
+            )
+            to = [
+                sanitize_address(
+                    (email_message.to_name, email_message.to_email), encoding
+                ),
+            ]
+
+            if email_message.reply_to_email:
+                reply_to = [
+                    sanitize_address(
+                        (email_message.reply_to_name, email_message.reply_to_email),
+                        encoding,
+                    )
+                ]
+            else:
+                reply_to = None
+
+            django_email_message = EmailMultiAlternatives(
+                subject=email_message.subject,
+                from_email=from_email,
+                to=to,
+                body=msg,
+                reply_to=reply_to,
+            )
+            if html_msg:
+                django_email_message.attach_alternative(html_msg, "text/html")
+
+            for attachment in attachments:
+                assert not (
+                    "content" in attachment
+                    and "content_from_instance_file_field" in attachment
+                ), "Only one of 'content' or 'content_from_instance_file_field' allowed in an attachment"
+                if "content" in attachment:
+                    content = attachment["content"]
+                elif "content_from_instance_file_field" in attachment:
+                    spec = attachment["content_from_instance_file_field"]
+                    Model = apps.get_model(
+                        app_label=spec["app_label"], model_name=spec["model_name"]
+                    )
+                    instance = Model.objects.get(pk=spec["pk"])
+                    file = getattr(instance, spec["field_name"])
+                    content = file.read()
+
+                django_email_message.attach(
+                    attachment["filename"], content, attachment["mimetype"]
+                )
+            if email_message.postmark_message_stream:
+                django_email_message.message_stream = (  # type: ignore
+                    email_message.postmark_message_stream
+                )
+
+            if waffle.switch_is_active("disable_outbound_email"):
+                raise RuntimeError("disable_outbound_email waffle flag is True")
+            else:
+                message_ids = django_email_message.send()
+
+                # Postmark has a setting for returning MessageIDs
+                if isinstance(message_ids, list):
+                    if len(message_ids) == 1:
+                        email_message.message_id = message_ids[0]
+
+        except Exception as e:
+            email_message.status = constants.EmailMessage.Status.ERROR
+            email_message.error_message = repr(e)
+            email_message.save()
+            logger.exception(
+                f"EmailMessage.id={email_message.id} Exception caught in send_email_message"
+            )
+        else:
+            email_message.status = constants.EmailMessage.Status.SENT
+            email_message.sent_at = timezone.now()
+
+        email_message.save()
+
+
+def email_message_create(**kwargs) -> EmailMessageService:
+    """Creates an unpersisted EmailMessage and returns an EmailMessageService"""
+    email_message = model_create(klass=EmailMessage, save=False, **kwargs)
+    return EmailMessageService(email_message=email_message)
+
+
+def email_message_update(instance: EmailMessage, **kwargs) -> EmailMessage:
+    return model_update(instance=instance, data=kwargs)
 
 
 def email_message_webhook_create_from_request(
@@ -286,7 +393,7 @@ def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
     )
     reply_to_email = org_invitation.created_by.email
 
-    service = EmailMessageService(
+    service = email_message_create(
         created_by=org_invitation.created_by,
         org=org_invitation.org,
         subject=f"Invitation to join {org_invitation.org.name} on {settings.SITE_CONFIG['name']}",
