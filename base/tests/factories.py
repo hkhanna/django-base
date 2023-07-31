@@ -3,8 +3,8 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from faker import Faker
 from allauth.account import models as auth_models
-from .models import EmailMessage, Org, Plan
-from . import services
+from ..models import EmailMessage, Org, Plan
+from .. import services
 
 fake = Faker()
 

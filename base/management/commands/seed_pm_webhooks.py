@@ -3,9 +3,8 @@ from django.test.client import Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
-from django.db import transaction
 from django.db.utils import IntegrityError
-from ... import factories
+from ...tests import factories
 
 User = get_user_model()
 

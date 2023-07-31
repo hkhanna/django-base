@@ -1,5 +1,6 @@
+from .. import factories
 from ...models import Plan
-from ... import factories, services
+from ... import services
 
 
 def test_plan_default_unique_create(user):

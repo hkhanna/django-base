@@ -1,6 +1,8 @@
 import json
 import pytest
 from django.urls import reverse
+
+from . import factories
 from ..models import (
     Event,
     EmailMessageWebhook,
@@ -10,7 +12,7 @@ from ..models import (
     OrgInvitation,
 )
 from .assertions import assertMessageContains
-from .. import factories, views, permissions, services, selectors, constants
+from .. import views, permissions, services, selectors, constants
 
 # Generally, we prefer e2e tests with Playwright over view integration tests.
 # However, when the view is something like a webhook endpoint, its easier

@@ -2,7 +2,9 @@ from django.urls import reverse
 from allauth.account import models as auth_models
 from allauth.socialaccount import models as socialauth_models
 
-from .. import models, factories
+from . import factories
+
+from .. import models
 
 
 def test_get_settings(client, user):

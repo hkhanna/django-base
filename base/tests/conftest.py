@@ -1,5 +1,7 @@
 import pytest
-from .. import factories, models, constants
+
+from . import factories
+from .. import models, constants
 
 
 @pytest.fixture

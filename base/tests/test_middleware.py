@@ -4,7 +4,7 @@ from django.test import override_settings
 from django.utils import timezone
 from django.urls import reverse
 from django.test import Client
-from .. import factories
+from . import factories
 
 
 def test_request_id_middleware_user(client, caplog, user):

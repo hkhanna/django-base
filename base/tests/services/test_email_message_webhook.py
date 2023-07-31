@@ -6,7 +6,9 @@ import pytest
 from django.urls import reverse_lazy
 from django.utils import timezone
 
-from ... import constants, factories, models, services
+from .. import factories
+
+from ... import constants, models, services
 from ...exceptions import ApplicationError
 
 

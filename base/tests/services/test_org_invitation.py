@@ -6,7 +6,8 @@ from django.utils import timezone
 from freezegun import freeze_time
 from pytest_django.asserts import assertRaisesMessage
 
-from base import factories, services
+from base import services
+from base.tests import factories
 
 from ...exceptions import ApplicationError, ApplicationWarning
 from ...models import OrgInvitation

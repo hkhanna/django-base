@@ -2,7 +2,9 @@ from pytest_django.asserts import assertRaisesMessage
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from .. import services, selectors, models, factories, constants
+
+from . import factories
+from .. import services, selectors, models, constants
 
 User = get_user_model()
 

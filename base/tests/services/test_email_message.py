@@ -6,7 +6,9 @@ from django.utils import timezone
 from freezegun import freeze_time
 from waffle.testutils import override_switch
 
-from ... import constants, factories, models, services
+from .. import factories
+
+from ... import constants, models, services
 
 
 def test_send_email(user, mailoutbox, settings):
