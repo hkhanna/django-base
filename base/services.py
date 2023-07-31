@@ -379,7 +379,7 @@ def plan_update(*, instance: Plan, **kwargs) -> Plan:
     """Update a Plan and return the Plan."""
     with transaction.atomic():
         # If this plan is set to the default, unset default on all other plans.
-        if instance.is_default:
+        if kwargs.get("is_default"):
             count = model_bulk_update(
                 qs=selectors.plan_list(is_default=True).exclude(pk=instance.pk),
                 is_default=False,
