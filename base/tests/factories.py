@@ -36,6 +36,22 @@ def email_message_create(**kwargs):
     return EmailMessage.objects.create(**params)
 
 
+def email_message_webhook_create(**kwargs):
+    default_body = {
+        "RecordType": "some_type",
+        "MessageID": "id-abc123",
+    }
+
+    default_headers = {
+        "X-Some-Header": "id-xyz456",
+    }
+
+    defaults = dict(body=default_body, headers=default_headers)
+    params = defaults | kwargs
+
+    return services.email_message_webhook_create(**params)
+
+
 def org_create(**kwargs):
     defaults = dict(
         name=fake.company(),

@@ -16,9 +16,11 @@ Does business logic - from simple model creation to complex cross-cutting concer
 
 import logging
 import waffle
+import traceback
 from datetime import datetime, timedelta
 from importlib import import_module
 from typing import List, Optional, Union, Dict, Any, Type
+
 
 from django.conf import settings
 from django.http import HttpRequest
@@ -330,17 +332,69 @@ def email_message_webhook_create_from_request(
 
 
 def email_message_webhook_create(**kwargs) -> EmailMessageWebhook:
-    """Create an EmailMessageWebhook."""
-    email_message_webhook = EmailMessageWebhook(**kwargs)
-    email_message_webhook.full_clean()
-    email_message_webhook.save()
-    return email_message_webhook
+    return model_create(klass=EmailMessageWebhook, **kwargs)
 
 
 def email_message_webhook_update(
     *, instance: EmailMessageWebhook, **kwargs
 ) -> EmailMessageWebhook:
     return model_update(instance=instance, data=kwargs)
+
+
+def email_message_webhook_process(
+    *, email_message_webhook: EmailMessageWebhook
+) -> None:
+    webhook = email_message_webhook
+    try:
+        if webhook.status != constants.EmailMessageWebhook.Status.NEW:
+            raise RuntimeError(
+                f"EmailMessageWebhook.id={webhook.id} process_email_message_webhook called on a webhook that is not status=NEW"
+            )
+        webhook.status = constants.EmailMessageWebhook.Status.PENDING
+        webhook.save()
+
+        # Store the type
+        if "RecordType" in webhook.body:
+            webhook.type = webhook.body["RecordType"]
+
+        # Find the related EmailMessage and connect it
+        if "MessageID" in webhook.body:
+            email_message = EmailMessage.objects.filter(
+                message_id=webhook.body["MessageID"]
+            ).first()
+            if email_message:
+                webhook.email_message = email_message
+                if webhook.type in constants.WEBHOOK_TYPE_TO_EMAIL_STATUS:
+                    # Make sure this is the most recent webhook, in case it arrived out of order.
+                    all_ts = []
+                    for other_webhook in EmailMessageWebhook.objects.filter(
+                        email_message=email_message
+                    ):
+                        ts_key = constants.WEBHOOK_TYPE_TO_TIMESTAMP[other_webhook.type]
+                        ts = other_webhook.body[ts_key]
+                        ts = ts.replace("Z", "+00:00")
+                        all_ts.append(datetime.fromisoformat(ts))
+                    all_ts.sort()
+
+                    ts_key = constants.WEBHOOK_TYPE_TO_TIMESTAMP[webhook.type]
+                    ts = webhook.body[ts_key]
+                    ts = ts.replace("Z", "+00:00")
+                    ts_dt = datetime.fromisoformat(ts)
+                    if len(all_ts) == 0 or all_ts[-1] < ts_dt:
+                        new_status = constants.WEBHOOK_TYPE_TO_EMAIL_STATUS[
+                            webhook.type
+                        ]
+                        email_message.status = new_status
+                        email_message.save()
+
+        webhook.status = constants.EmailMessageWebhook.Status.PROCESSED
+    except Exception as e:
+        logger.exception(f"EmailMessageWebhook.id={webhook.id} in error state")
+        webhook.status = constants.EmailMessageWebhook.Status.ERROR
+        webhook.note = traceback.format_exc()
+    finally:
+        webhook.save()
+        logger.debug(f"Saved EmailMessageWebhook.id={webhook.id}")
 
 
 def org_invitation_validate_new(

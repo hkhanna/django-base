@@ -10,7 +10,7 @@ from django.conf import settings
 from django.http import Http404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views.generic import TemplateView, View, DetailView, CreateView, DeleteView
-from django.contrib.auth import update_session_auth_hash, get_user_model
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
@@ -23,8 +23,9 @@ from allauth.account import (
 from allauth.account.adapter import get_adapter
 
 
-from . import forms, models, services, selectors, utils, tasks
+from . import forms, models, services, selectors, utils
 from .types import UserType
+from .tasks import email_message_webhook_process as email_message_webhook_process_task
 from .permissions import OUSettingPermissionMixin
 from .exceptions import ApplicationError, ApplicationWarning
 
@@ -271,7 +272,7 @@ def email_message_webhook_view(request):
         return JsonResponse({"detail": str(e)}, status=400)
 
     logger.info(f"EmailMessageWebhook.id={webhook.id} received")
-    tasks.process_email_message_webhook.delay(webhook.id)
+    email_message_webhook_process_task.delay(webhook.id)
 
     return JsonResponse({"detail": "Created"}, status=201)
 
