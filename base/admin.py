@@ -90,6 +90,7 @@ class EmailMessageWebhookAdmin(admin.ModelAdmin):
     list_filter = ("email_message__template_prefix",)
 
 
+admin.site.register(models.Event)
 admin.site.unregister(Group)
 
 

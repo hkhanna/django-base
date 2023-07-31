@@ -129,6 +129,9 @@ class Event(BaseModel):
         blank=True,
     )
 
+    def __str__(self):
+        return f"{self.type} ({self.occurred_at})"
+
 
 class Org(BaseModel):
     """Organizations users can belong to. They must belong to at least one."""
