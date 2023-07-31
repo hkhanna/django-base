@@ -50,7 +50,7 @@ class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
         context["user_name"] = name or user.email
         context["user_email"] = user.email
 
-        service = services.EmailMessageService(
+        email_message = services.email_message_create(
             created_by=user,
             to_name=name,
             to_email=email,
@@ -61,7 +61,7 @@ class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
             template_prefix=template_prefix,
             template_context=context,
         )
-        service.email_message_send()
+        services.email_message_queue(email_message=email_message)
 
 
 class SocialAccountAdapter(allauth.socialaccount.adapter.DefaultSocialAccountAdapter):

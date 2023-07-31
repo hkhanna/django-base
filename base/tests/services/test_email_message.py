@@ -13,7 +13,7 @@ from ... import constants, models, services
 
 def test_send_email(user, mailoutbox, settings):
     """Create and send an EmailMessage"""
-    service = services.email_message_create(
+    email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",
@@ -26,9 +26,9 @@ def test_send_email(user, mailoutbox, settings):
         },
     )
 
-    service.email_message_send()
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.SENT
+    services.email_message_queue(email_message=email_message)
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == "A subject"
     assert mailoutbox[0].to == [f"{user.name} <{user.email}>"]
@@ -48,7 +48,7 @@ def test_send_email(user, mailoutbox, settings):
 )
 def test_send_email_sanitize(user, name, email, expected, mailoutbox):
     """Sending an email properly sanitizes the addresses"""
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",
@@ -65,9 +65,9 @@ def test_send_email_sanitize(user, name, email, expected, mailoutbox):
         },
     )
 
-    service.email_message_send()
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.SENT
+    services.email_message_queue(email_message=email_message)
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == "A subject"
     assert mailoutbox[0].to == [expected]
@@ -77,7 +77,7 @@ def test_send_email_sanitize(user, name, email, expected, mailoutbox):
 
 def test_subject_newlines(user, mailoutbox):
     """Subject newlines should be collapsed"""
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         created_by=user,
         subject="""A subject
         
@@ -92,8 +92,8 @@ def test_subject_newlines(user, mailoutbox):
         },
     )
 
-    service.email_message_send()
-    service.email_message.refresh_from_db()
+    services.email_message_queue(email_message=email_message)
+    email_message.refresh_from_db()
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == "A subject Exciting!"
 
@@ -102,7 +102,7 @@ def test_subject_limit(user, mailoutbox, settings):
     """Truncate subject lines of more than 78 characters"""
     subject = factories.fake.pystr(min_chars=100, max_chars=100)
     expected = subject[: settings.MAX_SUBJECT_LENGTH - 3] + "..."
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         created_by=user,
         subject=subject,
         template_prefix="account/email/email_confirmation",
@@ -115,8 +115,8 @@ def test_subject_limit(user, mailoutbox, settings):
         },
     )
 
-    service.email_message_send()
-    service.email_message.refresh_from_db()
+    services.email_message_queue(email_message=email_message)
+    email_message.refresh_from_db()
     assert len(mailoutbox) == 1
     assert expected == mailoutbox[0].subject
     assert len(expected) == settings.MAX_SUBJECT_LENGTH
@@ -124,7 +124,7 @@ def test_subject_limit(user, mailoutbox, settings):
 
 def test_email_attachment(user, mailoutbox):
     """Emails can have attachments"""
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",
@@ -144,9 +144,9 @@ def test_email_attachment(user, mailoutbox):
         }
     ]
 
-    service.email_message_send(attachments)
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.SENT
+    services.email_message_queue(email_message=email_message, attachments=attachments)
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert len(mailoutbox[0].attachments) == 1
 
@@ -160,7 +160,7 @@ def test_email_attachment_from_instance_file_field(monkeypatch, user, mailoutbox
     models.EmailMessage.file_field = ""
     monkeypatch.setattr(models.EmailMessage, "file_field", m)
 
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",
@@ -172,6 +172,7 @@ def test_email_attachment_from_instance_file_field(monkeypatch, user, mailoutbox
             "activate_url": "",
         },
     )
+    services.email_message_prepare(email_message=email_message)
 
     attachments = [
         {
@@ -180,22 +181,22 @@ def test_email_attachment_from_instance_file_field(monkeypatch, user, mailoutbox
                 "app_label": "base",
                 "model_name": "EmailMessage",
                 "field_name": "file_field",
-                "pk": service.email_message.pk,
+                "pk": email_message.pk,
             },
             "mimetype": "application/pdf",
         },
     ]
 
-    service.email_message_send(attachments)
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.SENT
+    services.email_message_queue(email_message=email_message, attachments=attachments)
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert len(mailoutbox[0].attachments) == 1
     assert mailoutbox[0].attachments[0][1] == b"12345"
 
 
 def test_postmark_message_stream(user, mailoutbox):
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",
@@ -208,9 +209,9 @@ def test_postmark_message_stream(user, mailoutbox):
         },
         postmark_message_stream="broadcast",
     )
-    service.email_message_send()
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.SENT
+    services.email_message_queue(email_message=email_message)
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].message_stream == "broadcast"
 
@@ -231,35 +232,35 @@ def test_cooldown(user, mailoutbox):
     )
 
     # Send the first email
-    service = services.EmailMessageService(**email_message_args)
-    assert service.email_message_send() is True
+    email_message = services.email_message_create(**email_message_args)
+    assert services.email_message_queue(email_message=email_message) is True
     assert len(mailoutbox) == 1
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.SENT
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SENT
 
     # Send an email with a different recipient
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         **{**email_message_args, "to_email": "someone.else@example.com"}
     )
-    assert service.email_message_send() is True
+    assert services.email_message_queue(email_message=email_message) is True
     assert len(mailoutbox) == 2
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.SENT
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SENT
 
     # Cancel the third email that is identical to the first
-    service = services.EmailMessageService(**email_message_args)
-    assert service.email_message_send() is False
+    email_message = services.email_message_create(**email_message_args)
+    assert services.email_message_queue(email_message=email_message) is False
     assert len(mailoutbox) == 2
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.CANCELED
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.CANCELED
 
     # Send identical email if it is 181 seconds in the future
     with freeze_time(timezone.now() + timedelta(seconds=181)):
-        service = services.EmailMessageService(**email_message_args)
-        assert service.email_message_send() is True
+        email_message = services.email_message_create(**email_message_args)
+        assert services.email_message_queue(email_message=email_message) is True
         assert len(mailoutbox) == 3
-        service.email_message.refresh_from_db()
-        assert service.email_message.status == constants.EmailMessage.Status.SENT
+        email_message.refresh_from_db()
+        assert email_message.status == constants.EmailMessage.Status.SENT
 
 
 def test_cooldown_scopes(user, mailoutbox):
@@ -278,44 +279,59 @@ def test_cooldown_scopes(user, mailoutbox):
     )
 
     # Send the first email
-    service = services.EmailMessageService(**email_message_args)
-    assert service.email_message_send() is True
+    email_message = services.email_message_create(**email_message_args)
+    assert services.email_message_queue(email_message=email_message) is True
     assert len(mailoutbox) == 1
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.SENT
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SENT
 
     # Email with different recipient cancels if "to" scope is removed
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         **{**email_message_args, "to_email": "someone.else@example.com"}
     )
-    assert service.email_message_send(scopes=["created_by", "template_prefix"]) is False
+    assert (
+        services.email_message_queue(
+            email_message=email_message, scopes=["created_by", "template_prefix"]
+        )
+        is False
+    )
     assert len(mailoutbox) == 1
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.CANCELED
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.CANCELED
 
     # Email with different user cancels if "created_by" scope is removed
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         **{**email_message_args, "created_by": factories.user_create()}
     )
-    assert service.email_message_send(scopes=["template_prefix", "to"]) is False
+    assert (
+        services.email_message_queue(
+            email_message=email_message, scopes=["template_prefix", "to"]
+        )
+        is False
+    )
     assert len(mailoutbox) == 1
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.CANCELED
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.CANCELED
 
     # Email with different template cancels if "template_prefix" scope is removed
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         **{**email_message_args, "template_prefix": "account/email/password_reset_key"}
     )
-    assert service.email_message_send(scopes=["created_by", "to"]) is False
+    assert (
+        services.email_message_queue(
+            email_message=email_message, scopes=["created_by", "to"]
+        )
+        is False
+    )
     assert len(mailoutbox) == 1
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.CANCELED
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.CANCELED
 
 
 @override_switch("disable_outbound_email", True)
 def test_disable_outbound_email_waffle_switch(user, mailoutbox):
     """disable_outbound_email waffle switch should disable all outbound emails."""
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",
@@ -328,19 +344,16 @@ def test_disable_outbound_email_waffle_switch(user, mailoutbox):
         },
     )
 
-    service.email_message_send()
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.ERROR
-    assert (
-        "disable_outbound_email waffle flag is True"
-        in service.email_message.error_message
-    )
+    services.email_message_queue(email_message=email_message)
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.ERROR
+    assert "disable_outbound_email waffle flag is True" in email_message.error_message
     assert len(mailoutbox) == 0
 
 
 def test_send_email_with_reply_to(user, mailoutbox, settings):
     """Create and send an EmailMessage with a reply to should work"""
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",
@@ -355,16 +368,16 @@ def test_send_email_with_reply_to(user, mailoutbox, settings):
         },
     )
 
-    service.email_message_send()
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.SENT
+    services.email_message_queue(email_message=email_message)
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].reply_to == ["Support <support@example.com>"]
 
 
 def test_reply_to_name_no_email(user, mailoutbox, settings):
     """Blank reply_to_email with a non-blank reply_to_name raises an error"""
-    service = services.EmailMessageService(
+    email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
         template_prefix="account/email/email_confirmation",
@@ -379,7 +392,7 @@ def test_reply_to_name_no_email(user, mailoutbox, settings):
     )
 
     with pytest.raises(RuntimeError):
-        service.email_message_send()
-    service.email_message.refresh_from_db()
-    assert service.email_message.status == constants.EmailMessage.Status.ERROR
+        services.email_message_queue(email_message=email_message)
+    email_message.refresh_from_db()
+    assert email_message.status == constants.EmailMessage.Status.ERROR
     assert len(mailoutbox) == 0

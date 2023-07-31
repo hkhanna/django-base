@@ -73,12 +73,11 @@ def process_email_message_webhook(webhook_id):
 
 
 @app.task(serializer="pickle")
-def send_email_message(email_message_id, attachments=[]):
+def email_message_send(email_message_id, attachments=[]):
     logger.info(f"EmailMessage.id={email_message_id} send_email_message task started")
 
-    from base.services import EmailMessageService
+    from base.services import email_message_send
     from base.selectors import email_message_list
 
     email_message = email_message_list(id=email_message_id).get()
-    service = EmailMessageService(email_message)
-    service.email_message_send_now(attachments=attachments)
+    email_message_send(email_message=email_message, attachments=attachments)

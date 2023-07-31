@@ -134,3 +134,15 @@ def validate_request_body_json(
             raise ApplicationError("Invalid payload")
 
     return body_json
+
+
+def trim_string(*, field: str) -> str:
+    """Remove superfluous linebreaks and whitespace"""
+    lines = field.splitlines()
+    sanitized_lines = []
+    for line in lines:
+        sanitized_line = line.strip()
+        if sanitized_line:  # Remove blank lines
+            sanitized_lines.append(line.strip())
+    sanitized = " ".join(sanitized_lines).strip()
+    return sanitized
