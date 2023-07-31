@@ -14,7 +14,7 @@ from ..models import (
 from .assertions import assertMessageContains
 from .. import views, permissions, services, selectors, constants
 
-# Generally, we prefer e2e tests with Playwright over view integration tests.
+# Generally, we prefer e2e tests with playwright over view integration tests.
 # However, when the view is something like a webhook endpoint, its easier
 # to test it here.
 

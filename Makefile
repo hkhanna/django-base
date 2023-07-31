@@ -21,6 +21,9 @@ check:
 mypy:
 	-mypy .
 
+playwright:
+	py.test */tests/playwright.py
+
 fmt:
 	find -name *.html -not -path "*node_modules*" -a -not -path "*.git*" -a -not -path "*.venv*" | xargs djhtml -i -t 2
 
@@ -40,6 +43,9 @@ build:
 	source .venv/bin/activate && pip install -r requirements/local.txt
 	@echo "Installing vite node dependencies"
 	npm install --prefix frontend/
+
+build-playwright:
+	playwright install
 	
 db:
 	@echo "Destroying postgres docker container"

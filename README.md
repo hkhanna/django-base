@@ -15,6 +15,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 - Clone the repo: `git clone git@github.com:hkhanna/fedora.git`
 - Copy `.env.example` to `.env` and make any appropriate changes.
 - From within the repo directory, run `make all`
+- If you want to be able to run the E2E tests via playwright, run `make build-playwright`.
 
 ### Running Locally
 
@@ -25,6 +26,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 - `make check` will run all tests. You can also directly run `py.test` if you have the virtualenv activated.
 - `make mypy` to run a manual typecheck on the repo.
+- `make playwright` to run e2e tests with playright.
 
 ### Updating Packages
 
