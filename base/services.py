@@ -17,7 +17,7 @@ Does business logic - from simple model creation to complex cross-cutting concer
 import logging
 from datetime import datetime, timedelta
 from importlib import import_module
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union, Dict, Any
+from typing import List, Optional, Union, Dict, Any, Type
 
 from django.conf import settings
 from django.http import HttpRequest
@@ -25,7 +25,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.db import models, transaction
-from django.db.models import QuerySet
+from django.db.models import Model, QuerySet
 
 from . import selectors, tasks, utils, constants
 from .exceptions import *
@@ -73,11 +73,7 @@ def event_noop(event: Event) -> None:
 
 
 def event_create(**kwargs) -> Event:
-    """Create an Event object."""
-    event = Event(**kwargs)
-    event.full_clean()
-    event.save()
-    return event
+    return model_create(klass=Event, **kwargs)
 
 
 def event_update(instance: Event, **kwargs) -> Event:
@@ -326,18 +322,12 @@ def org_switch(*, request: HttpRequest, slug: str) -> None:
 
 
 def org_user_create(*, org: Org, user: UserType) -> OrgUser:
-    """Create an OrgUser for an Org and return the OrgUser."""
-    org_user = OrgUser(org=org, user=user)
-    org_user.full_clean()
-    org_user.save()
-    return org_user
+    return model_create(klass=OrgUser, org=org, user=user)
 
 
 def org_create(**kwargs) -> Org:
     """Create an Org and return the Org."""
-    org = Org(**kwargs)
-    org.full_clean()
-    org.save()
+    org = model_create(klass=Org, **kwargs)
 
     # If owner isn't an OrgUser, create one.
     if not selectors.org_user_list(org=org, user=org.owner).exists():
@@ -490,8 +480,8 @@ def model_update(
 
         setattr(instance, field, data[field])
 
-        instance.full_clean()
-        instance.save()
+    instance.full_clean()
+    instance.save()
 
     for field_name, value in m2m_data.items():
         related_manager = getattr(instance, field_name)
@@ -575,81 +565,51 @@ def org_user_get_setting(*, org_user: OrgUser, slug: str) -> bool | int:
 
 
 def org_setting_create(**kwargs) -> OrgSetting:
-    """Create an OrgSetting and return the OrgSetting."""
-    org_setting = OrgSetting(**kwargs)
-    org_setting.full_clean()
-    org_setting.save()
-    return org_setting
+    return model_create(klass=OrgSetting, **kwargs)
 
 
 def ou_setting_create(**kwargs) -> OUSetting:
-    """Create an OUSetting and return the OUSetting."""
-    ou_setting = OUSetting(**kwargs)
-    ou_setting.full_clean()
-    ou_setting.save()
-    return ou_setting
+    return model_create(klass=OUSetting, **kwargs)
 
 
 def ou_setting_default_create(**kwargs) -> OUSettingDefault:
-    """Create an OUSettingDefault and return the OUSettingDefault."""
-    ou_setting_default = OUSettingDefault(**kwargs)
-    ou_setting_default.full_clean()
-    ou_setting_default.save()
-    return ou_setting_default
+    return model_create(klass=OUSettingDefault, **kwargs)
 
 
 def plan_org_setting_create(**kwargs) -> PlanOrgSetting:
-    """Create a PlanOrgSetting and return the PlanOrgSetting."""
-    plan_org_setting = PlanOrgSetting(**kwargs)
-    plan_org_setting.full_clean()
-    plan_org_setting.save()
-    return plan_org_setting
+    return model_create(klass=PlanOrgSetting, **kwargs)
 
 
-def org_invitation_create(*, save=True, **kwargs) -> OrgInvitation:
-    """Create an OrgInvitation and return the OrgInvitation."""
-    org_invitation = OrgInvitation(**kwargs)
-    if save:
-        org_invitation.full_clean()
-        org_invitation.save()
-    return org_invitation
+def org_invitation_create(**kwargs) -> OrgInvitation:
+    return model_create(klass=OrgInvitation, **kwargs)
 
 
 def overridden_org_setting_create(**kwargs) -> OverriddenOrgSetting:
-    """Create an OverriddenOrgSetting and return the OverriddenOrgSetting."""
-    overridden_org_setting = OverriddenOrgSetting(**kwargs)
-    overridden_org_setting.full_clean()
-    overridden_org_setting.save()
-    return overridden_org_setting
+    return model_create(klass=OverriddenOrgSetting, **kwargs)
 
 
 def org_user_ou_setting_create(**kwargs) -> OrgUserOUSetting:
-    """Create an OrgUserOUSetting and return the OrgUserOUSetting."""
-    org_user_ou_setting = OrgUserOUSetting(**kwargs)
-    org_user_ou_setting.full_clean()
-    org_user_ou_setting.save()
-    return org_user_ou_setting
+    return model_create(klass=OrgUserOUSetting, **kwargs)
 
 
 def org_user_setting_create(**kwargs) -> OUSetting:
-    """Create an OrgUserSetting and return the OrgUserSetting."""
-    org_user_setting = OUSetting(**kwargs)
-    org_user_setting.full_clean()
-    org_user_setting.save()
-    return org_user_setting
+    return model_create(klass=OUSetting, **kwargs)
 
 
 def org_user_org_user_setting_create(**kwargs) -> OrgUserOUSetting:
-    """Create an OrgUserOrgUserSetting and return the OrgUserOrgUserSetting."""
-    org_user_org_user_setting = OrgUserOUSetting(**kwargs)
-    org_user_org_user_setting.full_clean()
-    org_user_org_user_setting.save()
-    return org_user_org_user_setting
+    return model_create(klass=OrgUserOUSetting, **kwargs)
 
 
 def org_user_setting_default_create(**kwargs) -> OUSettingDefault:
-    """Create an OrgUserSettingDefault and return the OrgUserSettingDefault."""
-    org_user_setting_default = OUSettingDefault(**kwargs)
-    org_user_setting_default.full_clean()
-    org_user_setting_default.save()
-    return org_user_setting_default
+    return model_create(klass=OUSettingDefault, **kwargs)
+
+
+def model_create(
+    *, klass: Type[ModelType], save=True, **kwargs: Union[Model, str, bool]
+):
+    """Create a model instance and return the model instance."""
+    instance = klass(**kwargs)
+    if save:
+        instance.full_clean()
+        instance.save()
+    return instance
