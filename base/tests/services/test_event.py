@@ -26,7 +26,7 @@ def test_event_emit(test_handler_setting, caplog, monkeypatch):
     event = services.event_emit(type="example_evt", data={"hello": "world"})
     assert Event.objects.count() == 1
     assert event.data == {"hello": "world"}
-    assert str(event.id) in caplog.text
+    assert str(event.uuid) in caplog.text
     assert mock.call_count == 1
 
 
