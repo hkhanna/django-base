@@ -64,7 +64,7 @@ class OrgSwitchView(LoginRequiredMixin, View):
     def post(self, request):
         try:
             services.org_switch(request=request, slug=request.POST.get("slug"))
-        except ObjectDoesNotExist as e:
+        except models.Org.DoesNotExist as e:
             logger.exception(e)
             raise Http404()
         return redirect("index")

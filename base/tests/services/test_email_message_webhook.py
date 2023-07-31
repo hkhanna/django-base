@@ -10,6 +10,25 @@ from ... import constants, factories, models, services
 from ...exceptions import ApplicationError
 
 
+@pytest.fixture
+def headers():
+    return {
+        "X-Some-Header": "id-xyz456",
+    }
+
+
+def test_bad_json(headers):
+    """Bad JSON isn't processed"""
+    with pytest.raises(ApplicationError):
+        services.email_message_webhook_create_from_request(
+            body="bad json", headers=headers
+        )
+
+    assert models.EmailMessageWebhook.objects.count() == 0
+
+
+# FIXME - move these somewhere else or change them once we have tasks use services
+
 emw_url = reverse_lazy("email_message_webhook")
 
 
@@ -21,38 +40,6 @@ def body():
             "MessageID": "id-abc123",
         }
     )
-
-
-@pytest.fixture
-def headers():
-    return {
-        "X-Some-Header": "id-xyz456",
-    }
-
-
-def test_bad_json(body, headers):
-    """Bad JSON isn't processed"""
-    with pytest.raises(ApplicationError):
-        services.email_message_webhook_create_from_request(
-            body="bad json", headers=headers
-        )
-
-    assert models.EmailMessageWebhook.objects.count() == 0
-
-
-@pytest.mark.skip("FIXME - move to a views test")
-def test_receive_webhook(client, body):
-    """A EmailMessageWebhook is received"""
-    response = client.post(emw_url, body, content_type="application/json")
-    assert response.status_code == 201
-    webhook = models.EmailMessageWebhook.objects.all()
-    assert len(webhook) == 1
-    webhook = webhook[0]
-    assert webhook.body == json.loads(body)
-    assert webhook.status == constants.EmailMessageWebhook.Status.PROCESSED
-
-
-# FIXME - move these somewhere else or change them once we have tasks use services
 
 
 def test_type_recorded(client, body):

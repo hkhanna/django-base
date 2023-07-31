@@ -6,7 +6,6 @@ from django.utils import timezone
 from freezegun import freeze_time
 from waffle.testutils import override_switch
 
-# FIXME constants
 from ... import constants, factories, models, services
 
 
@@ -27,7 +26,7 @@ def test_send_email(user, mailoutbox, settings):
 
     service.email_message_send()
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.SENT
+    assert service.email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == "A subject"
     assert mailoutbox[0].to == [f"{user.name} <{user.email}>"]
@@ -66,7 +65,7 @@ def test_send_email_sanitize(user, name, email, expected, mailoutbox):
 
     service.email_message_send()
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.SENT
+    assert service.email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].subject == "A subject"
     assert mailoutbox[0].to == [expected]
@@ -145,7 +144,7 @@ def test_email_attachment(user, mailoutbox):
 
     service.email_message_send(attachments)
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.SENT
+    assert service.email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert len(mailoutbox[0].attachments) == 1
 
@@ -187,7 +186,7 @@ def test_email_attachment_from_instance_file_field(monkeypatch, user, mailoutbox
 
     service.email_message_send(attachments)
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.SENT
+    assert service.email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert len(mailoutbox[0].attachments) == 1
     assert mailoutbox[0].attachments[0][1] == b"12345"
@@ -209,7 +208,7 @@ def test_postmark_message_stream(user, mailoutbox):
     )
     service.email_message_send()
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.SENT
+    assert service.email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].message_stream == "broadcast"
 
@@ -234,7 +233,7 @@ def test_cooldown(user, mailoutbox):
     assert service.email_message_send() is True
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.SENT
+    assert service.email_message.status == constants.EmailMessage.Status.SENT
 
     # Send an email with a different recipient
     service = services.EmailMessageService(
@@ -243,14 +242,14 @@ def test_cooldown(user, mailoutbox):
     assert service.email_message_send() is True
     assert len(mailoutbox) == 2
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.SENT
+    assert service.email_message.status == constants.EmailMessage.Status.SENT
 
     # Cancel the third email that is identical to the first
     service = services.EmailMessageService(**email_message_args)
     assert service.email_message_send() is False
     assert len(mailoutbox) == 2
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.CANCELED
+    assert service.email_message.status == constants.EmailMessage.Status.CANCELED
 
     # Send identical email if it is 181 seconds in the future
     with freeze_time(timezone.now() + timedelta(seconds=181)):
@@ -258,7 +257,7 @@ def test_cooldown(user, mailoutbox):
         assert service.email_message_send() is True
         assert len(mailoutbox) == 3
         service.email_message.refresh_from_db()
-        assert service.email_message.status == models.EmailMessage.Status.SENT
+        assert service.email_message.status == constants.EmailMessage.Status.SENT
 
 
 def test_cooldown_scopes(user, mailoutbox):
@@ -281,7 +280,7 @@ def test_cooldown_scopes(user, mailoutbox):
     assert service.email_message_send() is True
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.SENT
+    assert service.email_message.status == constants.EmailMessage.Status.SENT
 
     # Email with different recipient cancels if "to" scope is removed
     service = services.EmailMessageService(
@@ -290,7 +289,7 @@ def test_cooldown_scopes(user, mailoutbox):
     assert service.email_message_send(scopes=["created_by", "template_prefix"]) is False
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.CANCELED
+    assert service.email_message.status == constants.EmailMessage.Status.CANCELED
 
     # Email with different user cancels if "created_by" scope is removed
     service = services.EmailMessageService(
@@ -299,7 +298,7 @@ def test_cooldown_scopes(user, mailoutbox):
     assert service.email_message_send(scopes=["template_prefix", "to"]) is False
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.CANCELED
+    assert service.email_message.status == constants.EmailMessage.Status.CANCELED
 
     # Email with different template cancels if "template_prefix" scope is removed
     service = services.EmailMessageService(
@@ -308,7 +307,7 @@ def test_cooldown_scopes(user, mailoutbox):
     assert service.email_message_send(scopes=["created_by", "to"]) is False
     assert len(mailoutbox) == 1
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.CANCELED
+    assert service.email_message.status == constants.EmailMessage.Status.CANCELED
 
 
 @override_switch("disable_outbound_email", True)
@@ -329,7 +328,7 @@ def test_disable_outbound_email_waffle_switch(user, mailoutbox):
 
     service.email_message_send()
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.ERROR
+    assert service.email_message.status == constants.EmailMessage.Status.ERROR
     assert (
         "disable_outbound_email waffle flag is True"
         in service.email_message.error_message
@@ -356,7 +355,7 @@ def test_send_email_with_reply_to(user, mailoutbox, settings):
 
     service.email_message_send()
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.SENT
+    assert service.email_message.status == constants.EmailMessage.Status.SENT
     assert len(mailoutbox) == 1
     assert mailoutbox[0].reply_to == ["Support <support@example.com>"]
 
@@ -380,5 +379,5 @@ def test_reply_to_name_no_email(user, mailoutbox, settings):
     with pytest.raises(RuntimeError):
         service.email_message_send()
     service.email_message.refresh_from_db()
-    assert service.email_message.status == models.EmailMessage.Status.ERROR
+    assert service.email_message.status == constants.EmailMessage.Status.ERROR
     assert len(mailoutbox) == 0

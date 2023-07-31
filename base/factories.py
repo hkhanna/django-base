@@ -10,8 +10,6 @@ fake = Faker()
 
 User = get_user_model()
 
-# FIXME do i really need conftest AND factories AND services? feel like i can cut one out, maybe factories
-
 
 def user_create(**kwargs):
     first_name = fake.first_name()

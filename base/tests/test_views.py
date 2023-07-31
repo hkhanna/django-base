@@ -1,13 +1,22 @@
+import json
 import pytest
-from pytest_django.asserts import assertRaisesMessage
 from django.urls import reverse
-from django.core.exceptions import PermissionDenied
-from ..models import Event, OrgUser, OUSetting, OrgUserOUSetting, OrgInvitation
+from ..models import (
+    Event,
+    EmailMessageWebhook,
+    OrgUser,
+    OUSetting,
+    OrgUserOUSetting,
+    OrgInvitation,
+)
 from .assertions import assertMessageContains
 from .. import factories, views, permissions, services, selectors, constants
 
+# Generally, we prefer e2e tests with Playwright over view integration tests.
+# However, when the view is something like a webhook endpoint, its easier
+# to test it here.
 
-# FIXME should we mock event_emit? -- more generally do we need view tests with mocks?
+
 def test_event_emit_view(client):
     """POST hook to emit event with good secret"""
     response = client.post(
@@ -35,7 +44,23 @@ def test_event_emit_view_insecure(client):
     assert Event.objects.count() == 0
 
 
-# FIXME: maybe use rf and move this to services?
+def test_receive_webhook_view(client):
+    """A EmailMessageWebhook is received and processed."""
+    url = reverse("email_message_webhook")
+    body = json.dumps(
+        {
+            "RecordType": "some_type",
+            "MessageID": "id-abc123",
+        }
+    )
+
+    response = client.post(url, body, content_type="application/json")
+    assert response.status_code == 201
+    webhook = EmailMessageWebhook.objects.all()
+    assert len(webhook) == 1
+    webhook = webhook[0]
+    assert webhook.body == json.loads(body)
+    assert webhook.status == constants.EmailMessageWebhook.Status.PROCESSED
 
 
 def test_org_switch(client, user, org):
@@ -61,6 +86,7 @@ def test_org_switch_inactive(client, user, org):
     assert response.wsgi_request.org == org
 
     response = client.post(reverse("org_switch"), {"slug": personal.slug})
+    assert response.status_code == 404
     assert response.wsgi_request.org == org
     assert response.wsgi_request.session["org_slug"] == org.slug
 
@@ -74,6 +100,7 @@ def test_org_switch_inactive_unauthorized(client, user):
     assert response.wsgi_request.org == user.personal_org
 
     response = client.post(reverse("org_switch"), {"slug": org.slug})
+    assert response.status_code == 404
     assert response.wsgi_request.org == user.personal_org
     assert response.wsgi_request.session["org_slug"] == user.personal_org.slug
 
