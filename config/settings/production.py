@@ -40,13 +40,14 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = "DENY"
 
 # STATIC FILES - WHITENOISE
-# The WhiteNoise middleware should go above everything else except the security middleware and cors middleware.
-MIDDLEWARE.insert(2, "whitenoise.middleware.WhiteNoiseMiddleware")
+# The WhiteNoise middleware should go above everything else except the security middleware.
+MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 # Allows WhiteNoise to compress and cache the static files
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # STATIC_ROOT is where collectstatic dumps all the static files
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "frontend/dist"]
+
 
 # Vite generates files with 8 hash digits
 def immutable_file_test(path, url):

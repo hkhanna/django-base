@@ -36,4 +36,4 @@ CHECK_HTML_IGNORE_MESSAGES = [
     "unescaped &",
     '<svg> attribute "stroke-width" has invalid value',
 ]
-MIDDLEWARE.insert(1, "check_html.CheckHTMLMiddleware")
+MIDDLEWARE.insert(-1, "check_html.CheckHTMLMiddleware")
