@@ -13,5 +13,6 @@ markdown==3.4.4
 python-postmark==0.6.0
 pytz==2023.3
 redis==4.6.0
+whitenoise==6.5.0
 
 # -- End base requirements -- #
