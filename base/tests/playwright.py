@@ -31,15 +31,15 @@ def user_admin(page: Page, live_server):
     return user
 
 
-def test_admin(page: Page, live_server, user_admin):
-    """Existing user can log in."""
-    url = live_server.url + reverse("admin:index")
-    page.goto(url)
-    expect(page.get_by_role("link", name="Events")).to_have_text("Events")
-
-
 def test_settings(page: Page, live_server, user):
     """Existing user can log in."""
     url = live_server.url + reverse("account_settings")
     page.goto(url)
     expect(page.get_by_label("First name")).to_have_value(user.first_name)
+
+
+def test_admin(page: Page, live_server, user_admin):
+    """Existing user can log in."""
+    url = live_server.url + reverse("admin:index")
+    page.goto(url)
+    expect(page.get_by_role("link", name="Events")).to_have_text("Events")

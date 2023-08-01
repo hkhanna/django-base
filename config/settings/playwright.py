@@ -3,8 +3,11 @@ from .test import *
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 
-# Static file handling needs to be like production
+# Turn off Vite HMR
 DJANGO_VITE_DEV_MODE = False
+
+# Point directly to manifest file so we don't need to collectstatic.
+DJANGO_VITE_MANIFEST_PATH = BASE_DIR / "frontend/dist/manifest.json"
 
 # STATIC FILES - WHITENOISE
 # The WhiteNoise middleware should go above everything else except the security middleware.
