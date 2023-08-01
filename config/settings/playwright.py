@@ -10,13 +10,15 @@ DJANGO_VITE_DEV_MODE = False
 DJANGO_VITE_MANIFEST_PATH = BASE_DIR / "frontend/dist/manifest.json"
 
 # STATIC FILES - WHITENOISE
+# We cannot use fancy manifests or anything because the live_server fixture does not look in the build
+# directory. It's a quirk of pytest-django. So we must use the django default storage backend.
+
 # The WhiteNoise middleware should go above everything else except the security middleware.
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
-# We cannot use fancy manifests or anything because the live_server fixture does not look in the build
-# directory. We must use the django default.
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 # STATIC_ROOT is where collectstatic dumps all the static files
-STATIC_ROOT = BASE_DIR / ".playwright/staticfiles"
+STATIC_ROOT = (
+    BASE_DIR / ".playwright"
+)  # This isn't actually used because we never call collectstatic for playwright.
 STATICFILES_DIRS = [BASE_DIR / "frontend/dist"]
 
 

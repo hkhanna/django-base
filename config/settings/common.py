@@ -129,11 +129,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-STATIC_URL = "/static/"
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -268,6 +263,20 @@ LOGROCKET_EXCLUDED_VIEWS = ["index"]
 # django-vite
 DJANGO_VITE_ASSETS_PATH = BASE_DIR / "frontend/dist"
 DJANGO_VITE_DEV_MODE = False
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
+
+STATIC_URL = "/static/"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}  # This is the default. Overriden by other settings later.
+
 
 # LOGGING
 LOGLEVEL = env("LOGLEVEL", default="INFO")

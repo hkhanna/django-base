@@ -43,7 +43,9 @@ X_FRAME_OPTIONS = "DENY"
 # The WhiteNoise middleware should go above everything else except the security middleware.
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 # Allows WhiteNoise to compress and cache the static files
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES["staticfiles"][
+    "BACKEND"
+] = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # STATIC_ROOT is where collectstatic dumps all the static files
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "frontend/dist"]
