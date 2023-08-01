@@ -22,7 +22,7 @@ mypy:
 	-mypy .
 
 playwright:
-	py.test */tests/playwright.py
+	py.test --headed --slowmo 500 */tests/playwright.py
 
 fmt:
 	find -name *.html -not -path "*node_modules*" -a -not -path "*.git*" -a -not -path "*.venv*" | xargs djhtml -i -t 2
