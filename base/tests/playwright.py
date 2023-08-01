@@ -31,7 +31,6 @@ def user_admin(page: Page, live_server):
     return user
 
 
-@pytest.mark.skip("")
 def test_admin(page: Page, live_server, user_admin):
     """Existing user can log in."""
     url = live_server.url + reverse("admin:index")

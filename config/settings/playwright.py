@@ -9,8 +9,9 @@ DJANGO_VITE_DEV_MODE = False
 # STATIC FILES - WHITENOISE
 # The WhiteNoise middleware should go above everything else except the security middleware.
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
-# Allows WhiteNoise to compress and cache the static files
-# FIXME - STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# We cannot use fancy manifests or anything because the live_server fixture does not look in the build
+# directory. We must use the django default.
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 # STATIC_ROOT is where collectstatic dumps all the static files
 STATIC_ROOT = BASE_DIR / ".playwright/staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "frontend/dist"]

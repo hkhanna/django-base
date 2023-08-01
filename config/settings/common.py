@@ -42,12 +42,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.sites",
+    "django.contrib.staticfiles",
     # Base must come before admin because it overrides an admin template
-    # Base must come before staticfiles because it overrides collectstatic
     # Base must come before allauth so that base templates take precedence
     "base.apps.BaseConfig",
     "django.contrib.admin",
-    "django.contrib.staticfiles",
     "waffle",
     "heroicons",
     "django_extensions",
@@ -267,7 +266,7 @@ LOGROCKET_APP_ID = env("LOGROCKET_APP_ID", default=None)
 LOGROCKET_EXCLUDED_VIEWS = ["index"]
 
 # django-vite
-DJANGO_VITE_ASSETS_PATH = BASE_DIR / "base" / "static"
+DJANGO_VITE_ASSETS_PATH = BASE_DIR / "frontend/dist"
 DJANGO_VITE_DEV_MODE = False
 
 # LOGGING

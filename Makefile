@@ -22,7 +22,12 @@ mypy:
 	-mypy .
 
 playwright:
-	py.test --headed --slowmo 500 */tests/playwright.py
+	npm run build --prefix frontend/
+	DJANGO_SETTINGS_MODULE=config.settings.playwright py.test --headed --slowmo 500 */tests/playwright.py
+
+playwright-ci:
+	npm run build --prefix frontend/
+	DJANGO_ALLOW_ASYNC_UNSAFE=true DJANGO_SETTINGS_MODULE=config.settings.playwright py.test */tests/playwright.py
 
 fmt:
 	find -name *.html -not -path "*node_modules*" -a -not -path "*.git*" -a -not -path "*.venv*" | xargs djhtml -i -t 2

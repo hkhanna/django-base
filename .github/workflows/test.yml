@@ -50,5 +50,5 @@ jobs:
           py.test
       - name: End-to-end tests with playwright
         run: |
-          playwright install
-          DJANGO_ALLOW_ASYNC_UNSAFE=true py.test */tests/playwright.py
+          make build-playwright
+          make playwright-ci
