@@ -1,16 +1,16 @@
-const { resolve } = require('path');
-const { loadEnv } = require('vite');
+const { resolve } = require("path");
+const { loadEnv } = require("vite");
 
-
-process.env = {...process.env, ...loadEnv(null, process.cwd() + '/../')};
+process.env = { ...process.env, ...loadEnv(null, process.cwd() + "/../") };
 
 module.exports = {
   plugins: [],
-  root: resolve('./src/'),
-  base: '/static/',
+  root: resolve("./src/"),
+  base: "/static/",
   server: {
-    host: 'localhost',
+    host: "localhost",
     port: process.env.VITE_PORT,
+    origin: "http://localhost:" + process.env.VITE_PORT,
     strictPort: true,
     open: false,
     watch: {
@@ -19,17 +19,17 @@ module.exports = {
     },
   },
   resolve: {
-    extensions: ['.js', '.json', '.ts'],
+    extensions: [".js", ".json", ".ts"],
   },
   build: {
-    outDir: resolve('./dist/'),
-    assetsDir: '',
+    outDir: resolve("./dist/"),
+    assetsDir: "",
     manifest: true,
     emptyOutDir: true,
-    target: 'es2017',
+    target: "es2017",
     rollupOptions: {
       input: {
-        main: resolve('./src/js/main.js')
+        main: resolve("./src/js/main.js"),
       },
       output: {
         chunkFileNames: undefined,
