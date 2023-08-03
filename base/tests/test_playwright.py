@@ -109,6 +109,7 @@ def test_organizations(page: Page, live_server, user):
     page.get_by_role("menuitem", name=org.name).click()
 
     # Access the org's settings
+    page.goto(url)
     page.get_by_role("link", name="Organization Settings").click()
 
     # Invite a new member
