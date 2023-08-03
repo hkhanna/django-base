@@ -49,5 +49,5 @@ jobs:
           mypy .
       - name: Test with pytest
         run: |
-          npm run build --prefix frontend/
-          DJANGO_ALLOW_ASYNC_UNSAFE=true DJANGO_VITE_DEV_MODE=false py.test -n auto
+          VITE_PORT=3000 npm run dev --prefix frontend/ < /dev/null &
+          DJANGO_ALLOW_ASYNC_UNSAFE=true VITE_PORT=3000 py.test -n auto
