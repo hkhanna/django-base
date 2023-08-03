@@ -15,7 +15,11 @@ def vite():
             "http://localhost:" + str(settings.DJANGO_VITE_DEV_SERVER_PORT), timeout=1
         )
     except request.URLError as e:
-        raise Exception("Vite server must be running") from e
+        if not isinstance(e, request.HTTPError):
+            raise Exception(
+                "Vite server must be running on port "
+                + str(settings.DJANGO_VITE_DEV_SERVER_PORT)
+            ) from e
 
 
 @pytest.fixture
