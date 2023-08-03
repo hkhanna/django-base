@@ -8,8 +8,10 @@ from .. import models, constants
 
 @pytest.fixture(scope="session")
 def vite():
-    """Ensures the vite server is running."""
+    """Ensures the vite server is running or the vite dev server has been set to off."""
     # Really only needed for playwright tests.
+    if not settings.DJANGO_VITE_DEV_MODE:
+        return
     try:
         request.urlopen(
             "http://localhost:" + str(settings.DJANGO_VITE_DEV_SERVER_PORT), timeout=1
