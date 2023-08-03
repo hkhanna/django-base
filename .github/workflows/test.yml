@@ -50,4 +50,4 @@ jobs:
       - name: Test with pytest
         run: |
           VITE_PORT=3000 npm run dev --prefix frontend/ < /dev/null &
-          VITE_PORT=3000 py.test
+          VITE_PORT=3000 py.test -n auto
