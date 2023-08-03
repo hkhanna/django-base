@@ -8,6 +8,11 @@ from . import factories
 from .. import selectors
 
 
+@pytest.fixture(autouse=True)
+def require_vite(vite):
+    pass
+
+
 @pytest.fixture
 def user(page: Page, live_server):
     user = factories.user_create(is_staff=True, is_superuser=True)

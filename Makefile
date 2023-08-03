@@ -16,14 +16,12 @@ vite:
 	npm run dev --prefix frontend/
 
 check:
-	npm run build --prefix frontend/
 	source .venv/bin/activate && py.test -n auto
 
 mypy:
 	-mypy .
 
 playwright:
-	npm run build --prefix frontend/
 	source .venv/bin/activate && py.test --headed --slowmo 250 */tests/test_playwright.py
 
 fmt:
