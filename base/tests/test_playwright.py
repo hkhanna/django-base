@@ -50,7 +50,6 @@ def test_settings(page: Page, live_server, user):
     page.get_by_placeholder("Current password", exact=True).click()
     page.get_by_placeholder("Current password", exact=True).fill("goodpass")
     page.get_by_placeholder("Current password", exact=True).press("Enter")
-    page.pause()
     expect(page.get_by_text("Personal information saved")).to_be_visible()
     user.refresh_from_db()
     assert user.first_name == "Example First"
@@ -81,7 +80,7 @@ def test_settings(page: Page, live_server, user):
     assert user.check_password("newpass123") is True
 
     # Log out
-    page.get_by_role("button", name="Open user menu").first.click()
+    page.get_by_role("button", name="Open user menu").click()
     page.get_by_role("menuitem", name="Sign out").click()
     page.wait_for_url(live_server.url + reverse("account_login"))
     assert page.url == live_server.url + reverse("account_login")
@@ -96,13 +95,13 @@ def test_organizations(page: Page, live_server, user):
     page.goto(url)
 
     # Initially on the personal org
-    expect(page.get_by_role("button", name=f"Open user menu").first).to_contain_text(
+    expect(page.get_by_role("button", name=f"Open user menu")).to_contain_text(
         user.name
     )
 
     # Switch to the new org
-    page.get_by_role("button", name="Open user menu").first.click()
-    page.get_by_role("menuitem", name=org.name).first.click()
+    page.get_by_role("button", name="Open user menu").click()
+    page.get_by_role("menuitem", name=org.name).click()
 
     # Access the org's settings
     page.get_by_role("link", name="Organization Settings").click()
