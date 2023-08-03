@@ -23,23 +23,20 @@ mypy:
 
 playwright:
 	npm run build --prefix frontend/
-	DJANGO_SETTINGS_MODULE=config.settings.playwright py.test --headed --slowmo 500 */tests/playwright.py
-
-playwright-ci:
-	npm run build --prefix frontend/
-	DJANGO_ALLOW_ASYNC_UNSAFE=true DJANGO_SETTINGS_MODULE=config.settings.playwright py.test */tests/playwright.py
+	source .venv/bin/activate && DJANGO_SETTINGS_MODULE=config.settings.playwright py.test --headed --slowmo 250 */tests/test_playwright.py
 
 fmt:
 	find -name *.html -not -path "*node_modules*" -a -not -path "*.git*" -a -not -path "*.venv*" | xargs djhtml -i -t 2
 
 # BUILD STEPS #
-all: clean build seed 
+all: clean build playwright-install seed 
 
 clean:
 	@echo "Removing python virtual environment"
 	rm -rf .venv
 	@echo "Removing vite node_modules"
 	rm -rf frontend/node_modules
+	rm -rf frontend/dist
 
 build:
 	@echo "Building python virtual environment"
@@ -49,7 +46,7 @@ build:
 	@echo "Installing vite node dependencies"
 	npm install --prefix frontend/
 
-build-playwright:
+playwright-install:
 	playwright install
 	
 db:

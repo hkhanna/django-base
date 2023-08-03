@@ -7,6 +7,7 @@ from django.db import transaction
 from allauth.socialaccount.models import SocialApp
 from config.settings.local import env
 import base.models
+from base import services
 
 User = get_user_model()
 
@@ -28,8 +29,8 @@ class Command(BaseCommand):
 
         # -- Orgs -- #
         # Create an additional Org for the user with the user as the owner.
-        plan = base.models.Plan.objects.create(name="Other Plan")
-        base.models.Org.objects.create(
+        plan = services.plan_create(name="Other Plan")
+        services.org_create(
             name="Example LLC",
             owner=user,
             is_personal=False,
