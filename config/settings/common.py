@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     # Core must come before allauth so that core templates take precedence
     "core.apps.CoreConfig",
     "django.contrib.admin",
-    "waffle",
     "heroicons",
     "django_extensions",
     "django_components",
@@ -68,7 +67,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "waffle.middleware.WaffleMiddleware",
     "core.middleware.DisableClientCacheMiddleware",
     "core.middleware.TimezoneMiddleware",
     "core.middleware.SetRemoteAddrFromForwardedFor",

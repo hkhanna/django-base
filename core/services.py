@@ -15,7 +15,6 @@ Does business logic - from simple model creation to complex cross-cutting concer
 """
 
 import logging
-import waffle
 import traceback
 from datetime import datetime, timedelta
 from importlib import import_module
@@ -39,6 +38,7 @@ from .models import (
     EmailMessage,
     EmailMessageWebhook,
     Event,
+    GlobalSetting,
     Org,
     OrgInvitation,
     OrgSetting,
@@ -273,8 +273,8 @@ def email_message_send(*, email_message: EmailMessage, attachments=[]) -> None:
                 email_message.postmark_message_stream
             )
 
-        if waffle.switch_is_active("disable_outbound_email"):
-            raise RuntimeError("disable_outbound_email waffle flag is True")
+        if global_setting_get("disable_outbound_email"):
+            raise RuntimeError("GlobalSetting disable_outbound_email is True")
         else:
             message_ids = django_email_message.send()
 
@@ -550,6 +550,11 @@ def plan_update(*, instance: Plan, **kwargs) -> Plan:
     return plan
 
 
+def global_setting_update(*, instance: GlobalSetting, **kwargs) -> GlobalSetting:
+    """Update a GlobalSetting and return the GlobalSetting."""
+    return model_update(instance=instance, data=kwargs)
+
+
 def org_user_update(*, instance: OrgUser, **kwargs) -> OrgUser:
     """Update an OrgUser and return the OrgUser."""
     return model_update(instance=instance, data=kwargs)
@@ -653,6 +658,18 @@ def model_bulk_update(*, qs: QuerySet, **kwargs) -> int:
     return qs.update(**kwargs)
 
 
+def global_setting_get(slug: str) -> bool | int:
+    """Get a GlobalSetting, creating it as False if it does not exist."""
+    try:
+        setting = selectors.global_setting_list(slug=slug).get()
+    except GlobalSetting.DoesNotExist:
+        setting = global_setting_create(
+            slug=slug, type=constants.SettingType.BOOL, value=0
+        )
+
+    return setting.value
+
+
 def org_get_setting(*, org: Org, slug: str) -> bool | int:
     # See test_org_settings.py for an explanation of how this works.
     try:
@@ -720,6 +737,10 @@ def org_user_get_setting(*, org_user: OrgUser, slug: str) -> bool | int:
         return bool(best)
 
     return best
+
+
+def global_setting_create(**kwargs) -> GlobalSetting:
+    return model_create(klass=GlobalSetting, **kwargs)
 
 
 def org_setting_create(**kwargs) -> OrgSetting:

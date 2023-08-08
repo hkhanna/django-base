@@ -1,4 +1,3 @@
-import waffle
 import logging
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -166,7 +165,7 @@ class UserSettingsView(LoginRequiredMixin, View):
                 "pi_form": forms.PersonalInformationForm(instance=request.user),
                 "password_form": password_formclass(user=request.user),
                 "disconnect_form": forms.DisconnectForm(request=request),
-                "disable_account_deletion": waffle.switch_is_active(
+                "disable_account_deletion": services.global_setting_get(
                     "disable_account_deletion"
                 ),
             }
@@ -250,7 +249,7 @@ class ResendConfirmationEmailView(LoginRequiredMixin, View):
 
 class AccountDeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin, View):
     def post(self, request, *args, **kwargs):
-        if waffle.switch_is_active("disable_account_deletion"):
+        if services.global_setting_get("disable_account_deletion"):
             raise Http404("Account deletion is disabled.")
 
         with transaction.atomic():

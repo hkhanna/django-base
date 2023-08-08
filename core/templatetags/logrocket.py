@@ -1,4 +1,3 @@
-import waffle
 from django import template
 from django.conf import settings
 from django.urls import resolve
@@ -13,9 +12,6 @@ def logrocket(context):
     # is missing on the request.
     try:
         request = context["request"]
-
-        if waffle.flag_is_active(request, "no_logrocket"):
-            return None
 
         current_view = resolve(request.path_info).view_name
         if current_view in settings.LOGROCKET_EXCLUDED_VIEWS:

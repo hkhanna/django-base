@@ -1,8 +1,6 @@
-import pytest
-from waffle.testutils import override_switch
 from django.urls import reverse
 
-from .. import models
+from .. import models, services, constants
 
 
 def test_signup_create(client):
@@ -85,9 +83,11 @@ def test_user_locked(client, user):
     assert "already registered" in str(response.content)
 
 
-@override_switch("disable_signup", active=True)
 def test_disable_user_creation(client):
-    """Prevent user signups when disable_signup is True"""
+    """Prevent user signups when disable_signup GlobalSetting is True"""
+    services.global_setting_create(
+        slug="disable_signup", type=constants.SettingType.BOOL, value=1
+    )
     payload = {
         "first_name": "Harry",
         "last_name": "Khanna",

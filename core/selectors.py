@@ -7,6 +7,7 @@ from core.types import ModelType
 
 from . import constants
 from .models import (
+    GlobalSetting,
     Org,
     OrgInvitation,
     OrgSetting,
@@ -33,6 +34,10 @@ def email_message_webhook_list(**kwargs) -> QuerySet[EmailMessageWebhook]:
 
 def event_list(**kwargs) -> QuerySet[Event]:
     return model_list(klass=Event, **kwargs)
+
+
+def global_setting_list(**kwargs) -> QuerySet[GlobalSetting]:
+    return model_list(klass=GlobalSetting, **kwargs)
 
 
 def org_list(**kwargs) -> QuerySet[Org]:

@@ -4,7 +4,6 @@ from unittest.mock import Mock
 import pytest
 from django.utils import timezone
 from freezegun import freeze_time
-from waffle.testutils import override_switch
 
 from .. import factories
 
@@ -328,9 +327,11 @@ def test_cooldown_scopes(user, mailoutbox):
     assert email_message.status == constants.EmailMessage.Status.CANCELED
 
 
-@override_switch("disable_outbound_email", True)
-def test_disable_outbound_email_waffle_switch(user, mailoutbox):
-    """disable_outbound_email waffle switch should disable all outbound emails."""
+def test_disable_outbound_email_global_setting(user, mailoutbox):
+    """disable_outbound_email GlobalSetting should disable all outbound emails."""
+    services.global_setting_create(
+        slug="disable_outbound_email", type=constants.SettingType.BOOL, value=1
+    )
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
@@ -347,7 +348,7 @@ def test_disable_outbound_email_waffle_switch(user, mailoutbox):
     services.email_message_queue(email_message=email_message)
     email_message.refresh_from_db()
     assert email_message.status == constants.EmailMessage.Status.ERROR
-    assert "disable_outbound_email waffle flag is True" in email_message.error_message
+    assert "GlobalSetting disable_outbound_email is True" in email_message.error_message
     assert len(mailoutbox) == 0
 
 

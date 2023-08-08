@@ -135,6 +135,24 @@ class Event(BaseModel):
         return f"{self.type} ({self.occurred_at})"
 
 
+class GlobalSetting(BaseModel):
+    """A setting that applies to the entire system."""
+
+    slug = models.SlugField(max_length=254, unique=True)
+    type = models.CharField(
+        max_length=127,
+        choices=constants.SettingType.choices,
+    )
+    value = models.IntegerField()
+
+    def __str__(self):
+        return f"GlobalSetting: {self.slug} ({self.pk})"
+
+    def clean(self):
+        if self.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError("Boolean GlobalSetting must have a value of 0 or 1.")
+
+
 class Org(BaseModel):
     """Organizations users can belong to. They must belong to at least one."""
 

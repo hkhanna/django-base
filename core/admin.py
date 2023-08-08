@@ -194,6 +194,17 @@ class PlanAdmin(admin.ModelAdmin):
             services.plan_create(**form.cleaned_data)
 
 
+@admin.register(models.GlobalSetting)
+class GlobalSettingAdmin(admin.ModelAdmin):
+    list_display = (
+        "slug",
+        "created_at",
+        "type",
+        "value",
+    )
+    search_fields = ("slug",)
+
+
 @admin.register(models.OrgSetting)
 class OrgSettingAdmin(admin.ModelAdmin):
     list_display = (

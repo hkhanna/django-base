@@ -1,4 +1,3 @@
-import waffle
 import allauth.account.adapter
 import allauth.socialaccount.adapter
 from allauth.account.utils import user_email
@@ -27,7 +26,7 @@ class AccountAdapter(allauth.account.adapter.DefaultAccountAdapter):
         Next to simply returning True/False you can also intervene the
         regular flow by raising an ImmediateHttpResponse
         """
-        return not waffle.switch_is_active("disable_signup")
+        return not services.global_setting_get("disable_signup")
 
     def respond_user_inactive(self, request, user):
         """We handle user active checking in the LoginForm.clean, so this function should never be reached."""
