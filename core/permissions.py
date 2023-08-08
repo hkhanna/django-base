@@ -20,6 +20,6 @@ class OrgUserSettingPermissionMixin(UserPassesTestMixin):
         ).get()
 
         # For now, we just return the truthiness of the setting but we can do value matching if it becomes necessary.
-        return services.org_user_get_setting(
+        return services.org_user_get_setting_value(
             org_user=org_user, slug=self.org_user_setting
         )

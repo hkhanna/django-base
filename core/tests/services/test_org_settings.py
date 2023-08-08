@@ -21,7 +21,7 @@ def test_org_get_setting_noexist(org):
     """org_get_setting() will create an OrgSetting with a default of False if it is accessed but does not exist"""
     assert OrgSetting.objects.count() == 0  # No OrgSettings yet.
 
-    result = services.org_get_setting(org=org, slug="for-test")
+    result = services.org_get_setting_value(org=org, slug="for-test")
     settings = OrgSetting.objects.all()
     assert len(settings) == 1
     setting = settings.first()
@@ -33,7 +33,7 @@ def test_org_get_setting_noexist(org):
 
 def test_org_get_setting_noplan(org, org_setting):
     """org_get_setting() will materialize an OrgSetting on the Plan if it isn't already on the Plan"""
-    result = services.org_get_setting(org=org, slug="for-test")
+    result = services.org_get_setting_value(org=org, slug="for-test")
     assert OrgSetting.objects.count() == 1
     # Setting shouldn't change
     assert org_setting.slug == "for-test"
@@ -49,7 +49,7 @@ def test_org_get_setting_plan(org, org_setting):
     """org_get_setting() in the normal case will retrieve the OrgSetting from the Plan"""
     PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
 
-    result = services.org_get_setting(org=org, slug="for-test")
+    result = services.org_get_setting_value(org=org, slug="for-test")
     assert OrgSetting.objects.count() == 1
     assert OrgSetting.objects.first().default == 5  # No change
     assert PlanOrgSetting.objects.count() == 1
@@ -62,7 +62,7 @@ def test_org_get_setting_override(org, org_setting):
     PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
     OverriddenOrgSetting.objects.create(org=org, setting=org_setting, value=20)
 
-    result = services.org_get_setting(org=org, slug="for-test")
+    result = services.org_get_setting_value(org=org, slug="for-test")
     assert OrgSetting.objects.count() == 1
     assert OrgSetting.objects.first().default == 5  # No change
     assert PlanOrgSetting.objects.count() == 1
@@ -76,7 +76,7 @@ def test_org_get_setting_plan_expired(org, org_setting):
     """If Org.current_period_end is expired, org_get_setting() should look to Org.default_plan"""
     PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
     with freeze_time(org.current_period_end + timedelta(seconds=1)):
-        result = services.org_get_setting(org=org, slug="for-test")
+        result = services.org_get_setting_value(org=org, slug="for-test")
         assert OrgSetting.objects.count() == 1
         assert OrgSetting.objects.first().default == 5  # No change
         assert (
@@ -88,10 +88,10 @@ def test_org_get_setting_plan_expired(org, org_setting):
         default_setting.value = 30
         default_setting.full_clean()
         default_setting.save()
-        result = services.org_get_setting(org=org, slug="for-test")
+        result = services.org_get_setting_value(org=org, slug="for-test")
         assert result == 30  # Use the specified
 
-    result = services.org_get_setting(org=org, slug="for-test")
+    result = services.org_get_setting_value(org=org, slug="for-test")
     assert result == 10  # Use the primary plan's now that we're not expired.
 
 
@@ -101,5 +101,5 @@ def test_org_get_setting_plan_never_expires(org, org_setting):
     org.current_period_end = None
     org.full_clean()
     org.save()
-    result = services.org_get_setting(org=org, slug="for-test")
+    result = services.org_get_setting_value(org=org, slug="for-test")
     assert result == 10

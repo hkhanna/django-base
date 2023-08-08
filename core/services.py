@@ -273,7 +273,7 @@ def email_message_send(*, email_message: EmailMessage, attachments=[]) -> None:
                 email_message.postmark_message_stream
             )
 
-        if global_setting_get("disable_outbound_email"):
+        if global_setting_get_value("disable_outbound_email"):
             raise RuntimeError("GlobalSetting disable_outbound_email is True")
         else:
             message_ids = django_email_message.send()
@@ -658,7 +658,7 @@ def model_bulk_update(*, qs: QuerySet, **kwargs) -> int:
     return qs.update(**kwargs)
 
 
-def global_setting_get(slug: str) -> bool | int:
+def global_setting_get_value(slug: str) -> bool | int:
     """Get a GlobalSetting, creating it as False if it does not exist."""
     try:
         setting = selectors.global_setting_list(slug=slug).get()
@@ -670,7 +670,7 @@ def global_setting_get(slug: str) -> bool | int:
     return setting.value
 
 
-def org_get_setting(*, org: Org, slug: str) -> bool | int:
+def org_get_setting_value(*, org: Org, slug: str) -> bool | int:
     # See test_org_settings.py for an explanation of how this works.
     try:
         setting = selectors.org_setting_list(slug=slug).get()
@@ -702,7 +702,7 @@ def org_get_setting(*, org: Org, slug: str) -> bool | int:
     return best
 
 
-def org_user_get_setting(*, org_user: OrgUser, slug: str) -> bool | int:
+def org_user_get_setting_value(*, org_user: OrgUser, slug: str) -> bool | int:
     try:
         setting = selectors.org_user_setting_list(slug=slug).get()
     except OrgUserSetting.DoesNotExist:
