@@ -230,16 +230,6 @@ SOCIALACCOUNT_PROVIDERS = {
     "github": {},
 }
 
-# django-waffle
-WAFFLE_CREATE_MISSING_SWITCHES = True
-
-# Create waffle flags when you use them otherwise they are silently off
-# This is because flags create cookies and are "sticky" for a user so
-# we should make sure it is intentionally configured before starting to affect
-# clients.
-WAFFLE_CREATE_MISSING_FLAGS = False  # Default
-WAFFLE_FLAG_DEFAULT = False  # Default
-
 # Event Handlers
 EVENT_HANDLERS = {"default": "core.services.event_noop"}
 EVENT_SECRET = env("EVENT_SECRET", default="insecure")
