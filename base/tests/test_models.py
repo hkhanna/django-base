@@ -131,7 +131,7 @@ def test_org_user_setting_boolean(ou):
         org_user_setting.full_clean()
 
     with assertRaisesMessage(ValidationError, "0 or 1"):
-        models.OUSettingDefault(
+        models.OrgUserSettingDefault(
             org=ou.org, setting=org_user_setting, value=2
         ).full_clean()
 

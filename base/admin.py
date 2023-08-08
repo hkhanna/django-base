@@ -118,8 +118,8 @@ class OverriddenOrgSettingAdminInline(admin.TabularInline):
     extra = 0
 
 
-class OUSettingDefaultAdminInline(admin.TabularInline):
-    model = models.OUSettingDefault
+class OrgUserSettingDefaultAdminInline(admin.TabularInline):
+    model = models.OrgUserSettingDefault
     extra = 0
 
 
@@ -147,7 +147,7 @@ class OrgAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
     inlines = [
         OverriddenOrgSettingAdminInline,
-        OUSettingDefaultAdminInline,
+        OrgUserSettingDefaultAdminInline,
         OrgUserAdminInline,
     ]
 

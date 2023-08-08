@@ -403,34 +403,35 @@ class OrgUserOrgUserSetting(BaseModel):
             )
 
 
-class OUSettingDefault(BaseModel):
+class OrgUserSettingDefault(BaseModel):
     """An Org can set defaults for its OrgUsers that have not specifically set certain settings."""
 
     org = models.ForeignKey(
-        "base.Org", on_delete=models.CASCADE, related_name="ou_setting_defaults"
+        "base.Org", on_delete=models.CASCADE, related_name="org_user_setting_defaults"
     )
     setting = models.ForeignKey(
         "base.OrgUserSetting",
         on_delete=models.CASCADE,
-        related_name="ou_setting_defaults",
+        related_name="org_user_setting_defaults",
     )
     value = models.IntegerField()
 
     class Meta:
-        verbose_name = "Org user setting default"
         constraints = [
             models.UniqueConstraint(
-                fields=["org", "setting"], name="unique_ou_setting_defaults"
+                fields=["org", "setting"], name="unique_org_user_setting_defaults"
             )
         ]
 
     def __str__(self):
-        return f"OUSettingDefault: {self.org.slug} / {self.setting.slug} ({self.pk})"
+        return (
+            f"OrgUserSettingDefault: {self.org.slug} / {self.setting.slug} ({self.pk})"
+        )
 
     def clean(self):
         if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
             raise ValidationError(
-                "Boolean OUSettingDefault must have a default of 0 or 1."
+                "Boolean OrgUserSettingDefault must have a default of 0 or 1."
             )
 
 

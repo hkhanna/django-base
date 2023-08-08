@@ -53,7 +53,7 @@ def test_change_name_slug_personal(user, org):
 """A user may not own more than 10 Orgs"""
 """Deleting an Org sets is_active to False"""
 """Only an owner may delete an Org and then only if the Org allows it."""
-"""Org information like name may be updated with the `can_change_org_name` OUSetting"""
+"""Org information like name may be updated with the `can_change_org_name` OrgUserSetting"""
 
 # Tests related to deleting a User
 """Can't delete your account if you own an org, unless its your personal Org"""
