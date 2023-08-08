@@ -2,25 +2,20 @@
 
 This repository is used as a template repository that I can clone for any new Django project. Those projects should keep this repo as a "base" remote so changes to this base repository can be easily merged into the children projects.
 
-Generally, you'll want to avoid making too many changes to the `base` app to avoid merge conflicts when you merge in updates to this base repo. In other words, put as much as you can into different apps, although some changes to the `base` app may be unavoidable.
+Generally, you'll want to avoid making too many changes to the `core` app to avoid merge conflicts when you merge in updates to this base repo. In other words, put as much as you can into different apps, although some changes to the `core` app may be unavoidable.
 
-# Creating a new Django project from `base-fedora`
+# Creating a new Django project from `fedora/base`
 
 - Pick a suitable project name.
-- Clone the repo into the new project name directory. E.g., `git clone git@github.com:getmagistrate/base-fedora.git <project_name>`
+- Clone the repo into the new project name directory. E.g., `git clone git@github.com:hkhanna/fedora.git <project_name>`
 - Rename the `origin` remote to `base`: `git remote rename origin base`
 - In the project directory: `git checkout base/base && git checkout -b base && git branch -D main && git branch -M main`.
 - Create a fresh Github repo for the project.
 - Point the `origin` remote to a fresh Github repo.
-- In the `base-fedora` repo, add the new application as it's own remote so you can cherry-pick commits if necessary.
+- In the `fedora` repo, add the new application as it's own remote so you can cherry-pick commits if necessary.
 - Remove or replace the LICENSE file.
 - Update `.env.example` to the desired defaults for the new project.
 - Grep for the string `base-fedora` and either replace that string with the project name or take the other described action.
-- Decide if `billing` should be installed at this point.
-  - You can always install billing later, but if you know for sure you need it, do it now.
-  - To install `billing`:
-    - [Follow the instructions](https://github.com/hkhanna/billing) to install the package.
-    - Add `billing.mixins.BilingMixin` to the `SettingsView` after `LoginRequiredMixin`.
 - Either disable social auth by removing it from the installed apps or obtain the relevant secrets and add them to local `.env`.
 - Do the "Local Installation" in the README.
 - Add to `ALLOWED_HOSTS` in production settings whatever the domain is going to be.

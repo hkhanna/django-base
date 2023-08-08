@@ -18,7 +18,7 @@ from django.conf import settings
 from django.urls import path, include
 
 
-handler403 = "base.views.permission_denied"
+handler403 = "core.views.permission_denied"
 
 urlpatterns = [
     path(
@@ -26,7 +26,7 @@ urlpatterns = [
         admin.site.urls,
         {"extra_context": {"ENVIRONMENT": settings.ENVIRONMENT}},
     ),
-    path("", include("base.urls")),
+    path("", include("core.urls")),
 ]
 
 if settings.DEBUG and "debug_toolbar" in settings.INSTALLED_APPS:

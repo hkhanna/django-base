@@ -8,12 +8,12 @@ from ...models import Event
 
 @pytest.fixture(autouse=True)
 def default_handler(settings):
-    settings.EVENT_HANDLERS["default"] = "base.services.event_noop"
+    settings.EVENT_HANDLERS["default"] = "core.services.event_noop"
 
 
 @pytest.fixture
 def test_handler_setting(settings):
-    settings.EVENT_HANDLERS["example_evt"] = "base.services.event_test_handler"
+    settings.EVENT_HANDLERS["example_evt"] = "core.services.event_test_handler"
     yield
     del settings.EVENT_HANDLERS["example_evt"]
 

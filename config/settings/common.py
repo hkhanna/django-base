@@ -43,9 +43,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.sites",
     "django.contrib.staticfiles",
-    # Base must come before admin because it overrides an admin template
-    # Base must come before allauth so that base templates take precedence
-    "base.apps.BaseConfig",
+    # Core must come before admin because it overrides an admin template
+    # Core must come before allauth so that core templates take precedence
+    "core.apps.CoreConfig",
     "django.contrib.admin",
     "waffle",
     "heroicons",
@@ -61,7 +61,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "base.middleware.RequestIDMiddleware",
+    "core.middleware.RequestIDMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -69,11 +69,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "waffle.middleware.WaffleMiddleware",
-    "base.middleware.DisableClientCacheMiddleware",
-    "base.middleware.TimezoneMiddleware",
-    "base.middleware.SetRemoteAddrFromForwardedFor",
-    "base.middleware.BadRouteDetectMiddleware",
-    "base.middleware.OrgMiddleware",
+    "core.middleware.DisableClientCacheMiddleware",
+    "core.middleware.TimezoneMiddleware",
+    "core.middleware.SetRemoteAddrFromForwardedFor",
+    "core.middleware.BadRouteDetectMiddleware",
+    "core.middleware.OrgMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -142,7 +142,7 @@ ENVIRONMENT = env.str("DJANGO_SETTINGS_MODULE").split(".")[-1]
 # This is a good article for how to build custom users with the email as username
 # inheriting from AbstractUser rather than AbstractUserBase:
 # https://www.fomfus.com/articles/how-to-use-email-as-username-for-django-authentication-removing-the-username
-AUTH_USER_MODEL = "base.User"
+AUTH_USER_MODEL = "core.User"
 ATOMIC_REQUESTS = False
 
 ADMIN_URL_PATH = env("ADMIN_URL_PATH", default="admin/")
@@ -190,7 +190,7 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 SESSION_COOKIE_AGE = 15_552_000  # 180 days
-ACCOUNT_ADAPTER = "base.adapter.AccountAdapter"
+ACCOUNT_ADAPTER = "core.adapter.AccountAdapter"
 LOGIN_REDIRECT_URL = "/accounts/settings/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
 ACCOUNT_LOGOUT_ON_GET = False
@@ -198,8 +198,8 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
 ACCOUNT_FORMS = {
-    "login": "base.forms.LoginForm",
-    "signup": "base.forms.SignupForm",
+    "login": "core.forms.LoginForm",
+    "signup": "core.forms.SignupForm",
     "add_email": "allauth.account.forms.AddEmailForm",
     "change_password": "allauth.account.forms.ChangePasswordForm",
     "set_password": "allauth.account.forms.SetPasswordForm",
@@ -218,7 +218,7 @@ ACCOUNT_SESSION_REMEMBER = True
 PERMISSION_DENIED_REDIRECT = LOGIN_REDIRECT_URL
 
 # django-allauth social
-SOCIALACCOUNT_ADAPTER = "base.adapter.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "core.adapter.SocialAccountAdapter"
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": [
@@ -243,7 +243,7 @@ WAFFLE_CREATE_MISSING_FLAGS = False  # Default
 WAFFLE_FLAG_DEFAULT = False  # Default
 
 # Event Handlers
-EVENT_HANDLERS = {"default": "base.services.event_noop"}
+EVENT_HANDLERS = {"default": "core.services.event_noop"}
 EVENT_SECRET = env("EVENT_SECRET", default="insecure")
 
 # Celery
@@ -289,7 +289,7 @@ logging.config.dictConfig(
     {
         "version": 1,
         "disable_existing_loggers": False,
-        "filters": {"request_id": {"()": "base.filters.RequestIDFilter"}},
+        "filters": {"request_id": {"()": "core.filters.RequestIDFilter"}},
         "formatters": {
             "default": {
                 "format": "[%(name)s] at=%(levelname)s timestamp=%(asctime)s request_id=%(request_id)s "

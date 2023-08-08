@@ -3,7 +3,7 @@ from typing import Union, Type
 from django.db.models import Model, QuerySet
 from django.utils import timezone
 
-from base.types import ModelType
+from core.types import ModelType
 
 from . import constants
 from .models import (

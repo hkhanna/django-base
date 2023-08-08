@@ -2,8 +2,7 @@ import typing
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import ImproperlyConfigured
 
-from base import services, selectors
-from base.models import OrgUser
+from core import services, selectors
 
 
 class OrgUserSettingPermissionMixin(UserPassesTestMixin):

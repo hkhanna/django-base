@@ -5,7 +5,7 @@ from ...models import (
     OrgUserSettingDefault,
     OrgUserOrgUserSetting,
 )
-from base import constants, services
+from core import constants, services
 
 
 @pytest.fixture

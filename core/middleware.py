@@ -147,7 +147,7 @@ class OrgMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        Org = apps.get_model("base", "Org")
+        Org = apps.get_model("core", "Org")
         request.org = None
 
         # Only assign Orgs for authenticated users

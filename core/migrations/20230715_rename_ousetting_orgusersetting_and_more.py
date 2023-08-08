@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
     dependencies = [
         (
-            "base",
+            "core",
             "20230714_alter_emailmessage_created_by_alter_emailmessage_org_and_more",
         ),
     ]

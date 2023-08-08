@@ -8,7 +8,7 @@ import uuid
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("base", "20230715_rename_ousetting_orgusersetting_and_more"),
+        ("core", "20230715_rename_ousetting_orgusersetting_and_more"),
     ]
 
     operations = [
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="org_user_org_user_settings",
-                        to="base.orguser",
+                        to="core.orguser",
                     ),
                 ),
                 (
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="org_user_org_user_settings",
-                        to="base.orgusersetting",
+                        to="core.orgusersetting",
                     ),
                 ),
             ],

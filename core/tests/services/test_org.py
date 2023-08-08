@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
-import base.tests.factories
-from base import services
+import core.tests.factories
+from core import services
 
 User = get_user_model()
 
@@ -11,8 +11,8 @@ def test_owner_org_user(user):
         name="Example Org",
         owner=user,
         is_personal=False,
-        primary_plan=base.tests.factories.plan_create(),
-        default_plan=base.tests.factories.plan_create(),
+        primary_plan=core.tests.factories.plan_create(),
+        default_plan=core.tests.factories.plan_create(),
     )
     assert org.org_users.filter(user=user, org=org).exists()
 

@@ -178,7 +178,7 @@ def test_email_attachment_from_instance_file_field(monkeypatch, user, mailoutbox
         {
             "filename": "test.pdf",
             "content_from_instance_file_field": {
-                "app_label": "base",
+                "app_label": "core",
                 "model_name": "EmailMessage",
                 "field_name": "file_field",
                 "pk": email_message.pk,

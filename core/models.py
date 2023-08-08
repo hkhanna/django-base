@@ -12,7 +12,7 @@ from django.db import models
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
 
-from base import constants
+from core import constants
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class EmailMessage(BaseModel):
         blank=True,
     )
     org = models.ForeignKey(
-        "base.Org",
+        "core.Org",
         on_delete=models.SET_NULL,
         help_text="The active Org of the User that caused the EmailMessage to be created.",
         null=True,
@@ -153,10 +153,10 @@ class Org(BaseModel):
     is_active = models.BooleanField(default=True)
     is_personal = models.BooleanField()
     primary_plan = models.ForeignKey(
-        "base.Plan", on_delete=models.PROTECT, related_name="primary_orgs"
+        "core.Plan", on_delete=models.PROTECT, related_name="primary_orgs"
     )
     default_plan = models.ForeignKey(
-        "base.Plan",
+        "core.Plan",
         on_delete=models.PROTECT,
         related_name="default_orgs",
         help_text="Default plan if the primary plan expires.",
@@ -229,7 +229,7 @@ class OrgInvitation(BaseModel):
 
     email = models.EmailField(help_text="Email address of the invitee")
     email_messages = models.ManyToManyField(
-        "base.EmailMessage",
+        "core.EmailMessage",
         related_name="org_invitations",
     )
 
@@ -289,10 +289,10 @@ class PlanOrgSetting(BaseModel):
     """The Org-wide settings for a particular Plan. Billing-related limitations go here."""
 
     plan = models.ForeignKey(
-        "base.Plan", on_delete=models.CASCADE, related_name="plan_org_settings"
+        "core.Plan", on_delete=models.CASCADE, related_name="plan_org_settings"
     )
     setting = models.ForeignKey(
-        "base.OrgSetting", on_delete=models.CASCADE, related_name="plan_org_settings"
+        "core.OrgSetting", on_delete=models.CASCADE, related_name="plan_org_settings"
     )
     value = models.IntegerField()
 
@@ -319,10 +319,10 @@ class OverriddenOrgSetting(BaseModel):
     # Useful if there's a custom plan for a customer or if there's only one Plan but customers
     # can make one-time purchases potentially unlocking certain settings.
     org = models.ForeignKey(
-        "base.Org", on_delete=models.CASCADE, related_name="overridden_org_settings"
+        "core.Org", on_delete=models.CASCADE, related_name="overridden_org_settings"
     )
     setting = models.ForeignKey(
-        "base.OrgSetting",
+        "core.OrgSetting",
         on_delete=models.CASCADE,
         related_name="overridden_org_settings",
     )
@@ -373,12 +373,12 @@ class OrgUserOrgUserSetting(BaseModel):
     """The specific mapping of an OrgUser to an OrgUserSetting."""
 
     org_user = models.ForeignKey(
-        "base.OrgUser",
+        "core.OrgUser",
         on_delete=models.CASCADE,
         related_name="org_user_org_user_settings",
     )
     setting = models.ForeignKey(
-        "base.OrgUserSetting",
+        "core.OrgUserSetting",
         on_delete=models.CASCADE,
         related_name="org_user_org_user_settings",
     )
@@ -407,10 +407,10 @@ class OrgUserSettingDefault(BaseModel):
     """An Org can set defaults for its OrgUsers that have not specifically set certain settings."""
 
     org = models.ForeignKey(
-        "base.Org", on_delete=models.CASCADE, related_name="org_user_setting_defaults"
+        "core.Org", on_delete=models.CASCADE, related_name="org_user_setting_defaults"
     )
     setting = models.ForeignKey(
-        "base.OrgUserSetting",
+        "core.OrgUserSetting",
         on_delete=models.CASCADE,
         related_name="org_user_setting_defaults",
     )
@@ -527,10 +527,10 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
         # Auto-create a personal org if the user doesn't have any active orgs.
-        from base import services
+        from core import services
 
         if not self.orgs.filter(is_active=True).exists():
-            Plan = apps.get_model("base", "Plan")
+            Plan = apps.get_model("core", "Plan")
             default_plan, _ = Plan.objects.get_or_create(
                 is_default=True, defaults={"name": "Default"}
             )

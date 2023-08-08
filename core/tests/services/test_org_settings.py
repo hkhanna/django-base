@@ -7,7 +7,7 @@ from ...models import (
     PlanOrgSetting,
     OverriddenOrgSetting,
 )
-from base import constants, services
+from core import constants, services
 
 
 @pytest.fixture

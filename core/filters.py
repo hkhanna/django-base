@@ -1,5 +1,5 @@
 import logging
-from base.middleware import local
+from core.middleware import local
 
 
 class RequestIDFilter(logging.Filter):

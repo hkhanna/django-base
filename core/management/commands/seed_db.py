@@ -6,8 +6,8 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from allauth.socialaccount.models import SocialApp
 from config.settings.local import env
-import base.models
-from base import services
+import core.models
+from core import services
 
 User = get_user_model()
 

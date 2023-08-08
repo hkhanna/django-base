@@ -6,9 +6,8 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("base", "20230713_event_orginvitation"),
+        ("core", "20230713_event_orginvitation"),
     ]
 
     operations = [
@@ -31,7 +30,7 @@ class Migration(migrations.Migration):
                 help_text="The active Org of the User that caused the EmailMessage to be created.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                to="base.org",
+                to="core.org",
             ),
         ),
         migrations.AlterField(

@@ -7,7 +7,7 @@ import uuid
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("base", "0001_squashed_20230708"),
+        ("core", "0001_squashed_20230708"),
     ]
 
     operations = [

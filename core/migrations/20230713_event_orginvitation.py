@@ -9,9 +9,8 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("base", "20230712_delete_event_delete_orginvitation"),
+        ("core", "20230712_delete_event_delete_orginvitation"),
     ]
 
     operations = [
@@ -102,7 +101,7 @@ class Migration(migrations.Migration):
                 (
                     "email_messages",
                     models.ManyToManyField(
-                        related_name="org_invitations", to="base.emailmessage"
+                        related_name="org_invitations", to="core.emailmessage"
                     ),
                 ),
                 (
@@ -120,7 +119,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="invitations",
-                        to="base.org",
+                        to="core.org",
                     ),
                 ),
             ],

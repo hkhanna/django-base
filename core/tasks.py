@@ -10,8 +10,8 @@ def email_message_webhook_process(webhook_id):
     logger.info(
         f"EmailMessageWebhook.id={webhook_id} process_email_message_webhook task started"
     )
-    from base.services import email_message_webhook_process
-    from base.selectors import email_message_webhook_list
+    from core.services import email_message_webhook_process
+    from core.selectors import email_message_webhook_list
 
     webhook = email_message_webhook_list(id=webhook_id).get()
     email_message_webhook_process(email_message_webhook=webhook)
@@ -21,8 +21,8 @@ def email_message_webhook_process(webhook_id):
 def email_message_send(email_message_id, attachments=[]):
     logger.info(f"EmailMessage.id={email_message_id} send_email_message task started")
 
-    from base.services import email_message_send
-    from base.selectors import email_message_list
+    from core.services import email_message_send
+    from core.selectors import email_message_list
 
     email_message = email_message_list(id=email_message_id).get()
     email_message_send(email_message=email_message, attachments=attachments)
