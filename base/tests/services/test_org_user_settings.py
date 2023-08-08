@@ -3,7 +3,7 @@ import pytest
 from ...models import (
     OrgUserSetting,
     OUSettingDefault,
-    OrgUserOUSetting,
+    OrgUserOrgUserSetting,
 )
 from base import constants, services
 
@@ -55,7 +55,7 @@ def test_ou_get_setting_defaults(ou, org_user_setting):
     assert OrgUserSetting.objects.first().default == 5  # No change
     assert OUSettingDefault.objects.count() == 1
     assert OUSettingDefault.objects.first().value == 10  # No change
-    assert OrgUserOUSetting.objects.count() == 0  # Did not materialize on OrgUser
+    assert OrgUserOrgUserSetting.objects.count() == 0  # Did not materialize on OrgUser
 
     assert result == 10
 
@@ -63,15 +63,17 @@ def test_ou_get_setting_defaults(ou, org_user_setting):
 def test_ou_get_setting(ou, org_user_setting):
     """org_user_get_setting() will prioritize a direct setting on the OrgUser"""
     OUSettingDefault.objects.create(org=ou.org, setting=org_user_setting, value=10)
-    OrgUserOUSetting.objects.create(org_user=ou, setting=org_user_setting, value=20)
+    OrgUserOrgUserSetting.objects.create(
+        org_user=ou, setting=org_user_setting, value=20
+    )
 
     result = services.org_user_get_setting(org_user=ou, slug="for-test")
     assert OrgUserSetting.objects.count() == 1
     assert OrgUserSetting.objects.first().default == 5  # No change
     assert OUSettingDefault.objects.count() == 1
     assert OUSettingDefault.objects.first().value == 10  # No change
-    assert OrgUserOUSetting.objects.count() == 1
-    assert OrgUserOUSetting.objects.first().value == 20  # No change
+    assert OrgUserOrgUserSetting.objects.count() == 1
+    assert OrgUserOrgUserSetting.objects.first().value == 20  # No change
 
     assert result == 20
 
@@ -83,14 +85,16 @@ def test_ou_owner(org, ou, org_user_setting):
     org.save()
 
     OUSettingDefault.objects.create(org=ou.org, setting=org_user_setting, value=10)
-    OrgUserOUSetting.objects.create(org_user=ou, setting=org_user_setting, value=20)
+    OrgUserOrgUserSetting.objects.create(
+        org_user=ou, setting=org_user_setting, value=20
+    )
 
     result = services.org_user_get_setting(org_user=ou, slug="for-test")
     assert OrgUserSetting.objects.count() == 1
     assert OrgUserSetting.objects.first().default == 5  # No change
     assert OUSettingDefault.objects.count() == 1
     assert OUSettingDefault.objects.first().value == 10  # No change
-    assert OrgUserOUSetting.objects.count() == 1
-    assert OrgUserOUSetting.objects.first().value == 20  # No change
+    assert OrgUserOrgUserSetting.objects.count() == 1
+    assert OrgUserOrgUserSetting.objects.first().value == 20  # No change
 
     assert result == 100

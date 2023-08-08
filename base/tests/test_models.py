@@ -111,7 +111,7 @@ def test_org_setting_boolean(org):
         models.OverriddenOrgSetting(org=org, setting=org_setting, value=2).full_clean()
 
 
-def test_ou_setting_boolean(ou):
+def test_org_user_setting_boolean(ou):
     """OrgUserSettings of type bool may only have a value of 0 or 1."""
     org_user_setting = models.OrgUserSetting.objects.create(
         slug="for-test", type=constants.SettingType.BOOL, default=0, owner_value=1
@@ -136,6 +136,6 @@ def test_ou_setting_boolean(ou):
         ).full_clean()
 
     with assertRaisesMessage(ValidationError, "0 or 1"):
-        models.OrgUserOUSetting(
+        models.OrgUserOrgUserSetting(
             org_user=ou, setting=org_user_setting, value=2
         ).full_clean()

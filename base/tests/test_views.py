@@ -8,7 +8,7 @@ from ..models import (
     EmailMessageWebhook,
     OrgUser,
     OrgUserSetting,
-    OrgUserOUSetting,
+    OrgUserOrgUserSetting,
     OrgInvitation,
 )
 from .assertions import assertMessageContains
@@ -178,7 +178,7 @@ def test_invite_permission_ui(client, user, org):
 
     ou = OrgUser.objects.get(user=user, org=org)
     setting = OrgUserSetting.objects.get(slug="can_invite_members")
-    OrgUserOUSetting.objects.create(
+    OrgUserOrgUserSetting.objects.create(
         org_user=ou, setting=setting, value=0
     )  # Remove can_invite_members from this OrgUser
 

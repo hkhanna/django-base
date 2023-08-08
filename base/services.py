@@ -44,7 +44,7 @@ from .models import (
     OrgSetting,
     OrgUserSetting,
     OUSettingDefault,
-    OrgUserOUSetting,
+    OrgUserOrgUserSetting,
     OrgUser,
     Plan,
     PlanOrgSetting,
@@ -582,8 +582,8 @@ def org_user_setting_update(*, instance: OrgUserSetting, **kwargs) -> OrgUserSet
 
 
 def org_user_org_user_setting_update(
-    *, instance: OrgUserOUSetting, **kwargs
-) -> OrgUserOUSetting:
+    *, instance: OrgUserOrgUserSetting, **kwargs
+) -> OrgUserOrgUserSetting:
     return model_update(instance=instance, data=kwargs)
 
 
@@ -701,11 +701,11 @@ def org_user_get_setting(*, org_user: OrgUser, slug: str) -> bool | int:
             return setting.owner_value
 
     try:
-        org_user_ou_setting = selectors.org_user_ou_setting_list(
+        org_user_ou_setting = selectors.org_user_org_user_setting_list(
             org_user=org_user, setting=setting
         ).get()
         best = org_user_ou_setting.value
-    except OrgUserOUSetting.DoesNotExist:
+    except OrgUserOrgUserSetting.DoesNotExist:
         try:
             ou_setting_default = selectors.ou_setting_default_list(
                 org=org_user.org, setting=setting
@@ -746,12 +746,8 @@ def overridden_org_setting_create(**kwargs) -> OverriddenOrgSetting:
     return model_create(klass=OverriddenOrgSetting, **kwargs)
 
 
-def org_user_ou_setting_create(**kwargs) -> OrgUserOUSetting:
-    return model_create(klass=OrgUserOUSetting, **kwargs)
-
-
-def org_user_org_user_setting_create(**kwargs) -> OrgUserOUSetting:
-    return model_create(klass=OrgUserOUSetting, **kwargs)
+def org_user_org_user_setting_create(**kwargs) -> OrgUserOrgUserSetting:
+    return model_create(klass=OrgUserOrgUserSetting, **kwargs)
 
 
 def org_user_setting_default_create(**kwargs) -> OUSettingDefault:

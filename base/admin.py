@@ -103,8 +103,8 @@ class OrgUserAdminInline(admin.TabularInline):
     extra = 0
 
 
-class OrgUserOUSettingAdminInline(admin.TabularInline):
-    model = models.OrgUserOUSetting
+class OrgUserOrgUserSettingAdminInline(admin.TabularInline):
+    model = models.OrgUserOrgUserSetting
     extra = 0
 
 
@@ -170,7 +170,7 @@ class OrgUserAdmin(admin.ModelAdmin):
     fields = ("id", "user", "org", "created_at", "updated_at", "last_accessed_at")
     readonly_fields = ("id", "created_at", "updated_at", "last_accessed_at")
     date_hierarchy = "last_accessed_at"
-    inlines = [OrgUserOUSettingAdminInline]
+    inlines = [OrgUserOrgUserSettingAdminInline]
 
 
 @admin.register(models.Plan)

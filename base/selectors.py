@@ -14,7 +14,7 @@ from .models import (
     OverriddenOrgSetting,
     OrgUserSetting,
     OUSettingDefault,
-    OrgUserOUSetting,
+    OrgUserOrgUserSetting,
     Plan,
     PlanOrgSetting,
     EmailMessage,
@@ -58,8 +58,8 @@ def org_user_setting_list(**kwargs) -> QuerySet[OrgUserSetting]:
     return model_list(klass=OrgUserSetting, **kwargs)
 
 
-def org_user_ou_setting_list(**kwargs) -> QuerySet[OrgUserOUSetting]:
-    return model_list(klass=OrgUserOUSetting, **kwargs)
+def org_user_org_user_setting_list(**kwargs) -> QuerySet[OrgUserOrgUserSetting]:
+    return model_list(klass=OrgUserOrgUserSetting, **kwargs)
 
 
 def ou_setting_default_list(**kwargs) -> QuerySet[OUSettingDefault]:
@@ -80,10 +80,6 @@ def overridden_org_setting_list(**kwargs) -> QuerySet[OverriddenOrgSetting]:
 
 def org_setting_list(**kwargs) -> QuerySet[OrgSetting]:
     return model_list(klass=OrgSetting, **kwargs)
-
-
-def org_user_org_user_setting_list(**kwargs) -> QuerySet[OrgUserOUSetting]:
-    return model_list(klass=OrgUserOUSetting, **kwargs)
 
 
 def org_user_setting_default_list(**kwargs) -> QuerySet[OUSettingDefault]:
