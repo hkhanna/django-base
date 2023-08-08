@@ -4,7 +4,7 @@ from django.urls import reverse
 register = template.Library()
 
 
-@register.inclusion_tag("base/_org_switcher.html", takes_context=True)
+@register.inclusion_tag("core/_org_switcher.html", takes_context=True)
 def org_switcher(context):
     request = context["request"]
     org_name_extended = request.org.name

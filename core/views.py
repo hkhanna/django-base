@@ -72,7 +72,7 @@ class OrgSwitchView(LoginRequiredMixin, View):
 
 
 class OrgDetailView(LoginRequiredMixin, DetailView):
-    template_name = "base/org_detail.html"
+    template_name = "core/org_detail.html"
 
     def get_object(self, *args, **kwargs):
         return self.request.org

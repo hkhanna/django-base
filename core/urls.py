@@ -12,12 +12,12 @@ urlpatterns = [
     path("", RedirectView.as_view(url=settings.LOGIN_URL), name="index"),
     path(
         "terms/",
-        TemplateView.as_view(template_name="base/terms.html"),
+        TemplateView.as_view(template_name="core/terms.html"),
         name="terms_of_use",
     ),
     path(
         "privacy/",
-        TemplateView.as_view(template_name="base/privacy.html"),
+        TemplateView.as_view(template_name="core/privacy.html"),
         name="privacy_policy",
     ),
     path("org/switch/", views.OrgSwitchView.as_view(), name="org_switch"),
@@ -79,7 +79,7 @@ urlpatterns = [
     path(
         "robots.txt",
         views.TemplateView.as_view(
-            template_name="base/robots.txt", content_type="text/plain"
+            template_name="core/robots.txt", content_type="text/plain"
         ),
     ),
 ]

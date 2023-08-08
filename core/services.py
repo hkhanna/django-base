@@ -453,7 +453,7 @@ def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
         sender_email=sender_email,
         reply_to_name=reply_to_name,
         reply_to_email=reply_to_email,
-        template_prefix="base/email/org_invitation",
+        template_prefix="core/email/org_invitation",
         template_context={
             "org_name": org_invitation.org.name,
             "inviter": org_invitation.created_by.name,

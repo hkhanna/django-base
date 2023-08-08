@@ -6,7 +6,7 @@ from django.urls import resolve
 register = template.Library()
 
 
-@register.inclusion_tag("base/logrocket.html", takes_context=True)
+@register.inclusion_tag("core/logrocket.html", takes_context=True)
 def logrocket(context):
     # If there's a problem with any of this, don't bother.
     # This can happen, e.g., in a 404 situation where some info
