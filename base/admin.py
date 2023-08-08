@@ -205,8 +205,8 @@ class OrgSettingAdmin(admin.ModelAdmin):
     search_fields = ("slug",)
 
 
-@admin.register(models.OUSetting)
-class OUSettingAdmin(admin.ModelAdmin):
+@admin.register(models.OrgUserSetting)
+class OrgUserSettingAdmin(admin.ModelAdmin):
     list_display = (
         "slug",
         "created_at",

@@ -112,26 +112,30 @@ def test_org_setting_boolean(org):
 
 
 def test_ou_setting_boolean(ou):
-    """OUSettings of type bool may only have a value of 0 or 1."""
-    ou_setting = models.OUSetting.objects.create(
+    """OrgUserSettings of type bool may only have a value of 0 or 1."""
+    org_user_setting = models.OrgUserSetting.objects.create(
         slug="for-test", type=constants.SettingType.BOOL, default=0, owner_value=1
     )
-    ou_setting.default = 1
-    ou_setting.full_clean()
-    ou_setting.save()  # OK
+    org_user_setting.default = 1
+    org_user_setting.full_clean()
+    org_user_setting.save()  # OK
 
     with assertRaisesMessage(ValidationError, "0 or 1"):
-        ou_setting.default = 2
-        ou_setting.full_clean()
+        org_user_setting.default = 2
+        org_user_setting.full_clean()
 
-    ou_setting.refresh_from_db()
-
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        ou_setting.owner_value = 2
-        ou_setting.full_clean()
+    org_user_setting.refresh_from_db()
 
     with assertRaisesMessage(ValidationError, "0 or 1"):
-        models.OUSettingDefault(org=ou.org, setting=ou_setting, value=2).full_clean()
+        org_user_setting.owner_value = 2
+        org_user_setting.full_clean()
 
     with assertRaisesMessage(ValidationError, "0 or 1"):
-        models.OrgUserOUSetting(org_user=ou, setting=ou_setting, value=2).full_clean()
+        models.OUSettingDefault(
+            org=ou.org, setting=org_user_setting, value=2
+        ).full_clean()
+
+    with assertRaisesMessage(ValidationError, "0 or 1"):
+        models.OrgUserOUSetting(
+            org_user=ou, setting=org_user_setting, value=2
+        ).full_clean()

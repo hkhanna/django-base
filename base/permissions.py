@@ -6,16 +6,21 @@ from base import services, selectors
 from base.models import OrgUser
 
 
-class OUSettingPermissionMixin(UserPassesTestMixin):
-    ou_setting: typing.Optional[str] = None
+class OrgUserSettingPermissionMixin(UserPassesTestMixin):
+    org_user_setting: typing.Optional[str] = None
 
     def test_func(self):
-        if self.ou_setting is None:
+        if self.org_user_setting is None:
             raise ImproperlyConfigured(
-                "%(cls)s is missing ou_setting_slug." % {"cls": self.__class__.__name__}
+                "%(cls)s is missing org_user_setting."
+                % {"cls": self.__class__.__name__}
             )
 
-        ou = selectors.org_user_list(user=self.request.user, org=self.request.org).get()
+        org_user = selectors.org_user_list(
+            user=self.request.user, org=self.request.org
+        ).get()
 
         # For now, we just return the truthiness of the setting but we can do value matching if it becomes necessary.
-        return services.org_user_get_setting(org_user=ou, slug=self.ou_setting)
+        return services.org_user_get_setting(
+            org_user=org_user, slug=self.org_user_setting
+        )

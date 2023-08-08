@@ -7,7 +7,7 @@ from ..models import (
     Event,
     EmailMessageWebhook,
     OrgUser,
-    OUSetting,
+    OrgUserSetting,
     OrgUserOUSetting,
     OrgInvitation,
 )
@@ -133,13 +133,13 @@ def test_org_invitation_cancel(client, user):
     assert OrgInvitation.objects.count() == 0
 
 
-def test_ou_setting_permission_mixin(rf, user, org):
-    """The OUSettingPermissionMixin is a mixin that requires a given OUSetting to be True."""
+def test_org_user_setting_permission_mixin(rf, user, org):
+    """The OrgUserSettingPermissionMixin is a mixin that requires a given OrgUserSetting to be True."""
     org_user_setting = services.org_user_setting_create(
         type=constants.SettingType.BOOL, slug="test_setting", default=0, owner_value=1
     )
-    mixin = views.OUSettingPermissionMixin()
-    mixin.ou_setting = "test_setting"
+    mixin = views.OrgUserSettingPermissionMixin()
+    mixin.org_user_setting = "test_setting"
     request = rf.post("/test")
     request.user = user
     request.org = org
@@ -162,8 +162,8 @@ def test_org_invitation_view_permissions():
         views.OrgInvitationResendView,
     ):
         assert views.LoginRequiredMixin in view.__bases__
-        assert permissions.OUSettingPermissionMixin in view.__bases__
-        assert view.ou_setting == "can_invite_members"
+        assert permissions.OrgUserSettingPermissionMixin in view.__bases__
+        assert view.org_user_setting == "can_invite_members"
 
 
 @pytest.mark.skip("Not implemented")
@@ -177,7 +177,7 @@ def test_invite_permission_ui(client, user, org):
     assert "Resend Invitation" in str(response.content)
 
     ou = OrgUser.objects.get(user=user, org=org)
-    setting = OUSetting.objects.get(slug="can_invite_members")
+    setting = OrgUserSetting.objects.get(slug="can_invite_members")
     OrgUserOUSetting.objects.create(
         org_user=ou, setting=setting, value=0
     )  # Remove can_invite_members from this OrgUser

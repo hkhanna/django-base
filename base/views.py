@@ -26,7 +26,7 @@ from allauth.account.adapter import get_adapter
 from . import forms, models, services, selectors, utils
 from .types import UserType
 from .tasks import email_message_webhook_process as email_message_webhook_process_task
-from .permissions import OUSettingPermissionMixin
+from .permissions import OrgUserSettingPermissionMixin
 from .exceptions import ApplicationError, ApplicationWarning
 
 logger = logging.getLogger(__name__)
@@ -78,10 +78,12 @@ class OrgDetailView(LoginRequiredMixin, DetailView):
         return self.request.org
 
 
-class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, CreateView):
+class OrgInvitationCreateView(
+    LoginRequiredMixin, OrgUserSettingPermissionMixin, CreateView
+):
     model = models.OrgInvitation
     fields = ("email",)
-    ou_setting = "can_invite_members"
+    org_user_setting = "can_invite_members"
     permission_denied_message = "You don't have permission to invite a user."
 
     def form_valid(self, form):
@@ -109,12 +111,12 @@ class OrgInvitationCreateView(LoginRequiredMixin, OUSettingPermissionMixin, Crea
 
 
 class OrgInvitationCancelView(
-    LoginRequiredMixin, OUSettingPermissionMixin, SuccessMessageMixin, DeleteView
+    LoginRequiredMixin, OrgUserSettingPermissionMixin, SuccessMessageMixin, DeleteView
 ):
     object: UserType  # mypy: Workaround to a mypy bug. See https://github.com/typeddjango/django-stubs/issues/1227
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
-    ou_setting = "can_invite_members"
+    org_user_setting = "can_invite_members"
     permission_denied_message = "You don't have permission to cancel an invitation."
     success_url = reverse_lazy("org_detail")
     success_message = "Invitation canceled."
@@ -125,10 +127,10 @@ class OrgInvitationCancelView(
 
 class OrgInvitationResendView(
     LoginRequiredMixin,
-    OUSettingPermissionMixin,
+    OrgUserSettingPermissionMixin,
     View,
 ):
-    ou_setting = "can_invite_members"
+    org_user_setting = "can_invite_members"
     permission_denied_message = "You don't have permission to resend an invitation."
 
     def post(self, request, uuid):

@@ -347,7 +347,7 @@ class OverriddenOrgSetting(BaseModel):
             )
 
 
-class OUSetting(BaseModel):
+class OrgUserSetting(BaseModel):
     """Settings for members of an Org, i.e., OrgUsers"""
 
     slug = models.SlugField(max_length=254, unique=True)
@@ -357,23 +357,20 @@ class OUSetting(BaseModel):
         help_text="The value that will be enforced for the org owner over all other defaults and values."
     )
 
-    class Meta:
-        verbose_name = "Org user setting"
-
     def clean(self):
         if self.type == constants.SettingType.BOOL and (
             self.default not in (0, 1) or self.owner_value not in (0, 1)
         ):
             raise ValidationError(
-                "Boolean OUSetting must have a default and owner_value of 0 or 1."
+                "Boolean OrgUserSetting must have a default and owner_value of 0 or 1."
             )
 
     def __str__(self):
-        return f"OUSetting: {self.slug} ({self.pk})"
+        return f"OrgUserSetting: {self.slug} ({self.pk})"
 
 
 class OrgUserOUSetting(BaseModel):
-    """The specific mapping of an OrgUser to an OUSetting."""
+    """The specific mapping of an OrgUser to an OrgUserSetting."""
 
     org_user = models.ForeignKey(
         "base.OrgUser",
@@ -381,7 +378,7 @@ class OrgUserOUSetting(BaseModel):
         related_name="org_user_ou_settings",
     )
     setting = models.ForeignKey(
-        "base.OUSetting",
+        "base.OrgUserSetting",
         on_delete=models.CASCADE,
         related_name="org_user_ou_settings",
     )
@@ -412,7 +409,7 @@ class OUSettingDefault(BaseModel):
         "base.Org", on_delete=models.CASCADE, related_name="ou_setting_defaults"
     )
     setting = models.ForeignKey(
-        "base.OUSetting",
+        "base.OrgUserSetting",
         on_delete=models.CASCADE,
         related_name="ou_setting_defaults",
     )

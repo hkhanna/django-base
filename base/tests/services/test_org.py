@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from ...models import Org, OrgUser, Plan, OrgInvitation, OUSetting, OrgUserOUSetting
 from ..assertions import assertMessageContains
 import base.tests.factories
 from base import constants, services

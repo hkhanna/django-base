@@ -12,7 +12,7 @@ from .models import (
     OrgSetting,
     OrgUser,
     OverriddenOrgSetting,
-    OUSetting,
+    OrgUserSetting,
     OUSettingDefault,
     OrgUserOUSetting,
     Plan,
@@ -54,8 +54,8 @@ def org_get_plan(*, org: Org) -> Plan:
     return org.primary_plan
 
 
-def ou_setting_list(**kwargs) -> QuerySet[OUSetting]:
-    return model_list(klass=OUSetting, **kwargs)
+def org_user_setting_list(**kwargs) -> QuerySet[OrgUserSetting]:
+    return model_list(klass=OrgUserSetting, **kwargs)
 
 
 def org_user_ou_setting_list(**kwargs) -> QuerySet[OrgUserOUSetting]:
@@ -80,10 +80,6 @@ def overridden_org_setting_list(**kwargs) -> QuerySet[OverriddenOrgSetting]:
 
 def org_setting_list(**kwargs) -> QuerySet[OrgSetting]:
     return model_list(klass=OrgSetting, **kwargs)
-
-
-def org_user_setting_list(**kwargs) -> QuerySet[OUSetting]:
-    return model_list(klass=OUSetting, **kwargs)
 
 
 def org_user_org_user_setting_list(**kwargs) -> QuerySet[OrgUserOUSetting]:
