@@ -1,16 +1,35 @@
-import freezegun
 from datetime import timedelta
+from urllib import request
+
+import freezegun
 import pytest
-from playwright.sync_api import Page, expect
+from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
-from . import factories
+from playwright.sync_api import Page, expect
+
 from .. import selectors
+from . import factories
 
 
-@pytest.fixture(autouse=True)
-def require_vite(vite):
-    pass
+def vite_not_running():
+    """Ensures the vite server is running."""
+    # Really only needed for playwright tests.
+    try:
+        request.urlopen(
+            "http://localhost:" + str(settings.DJANGO_VITE_DEV_SERVER_PORT), timeout=1
+        )
+    except request.URLError as e:
+        if not isinstance(e, request.HTTPError):
+            return True
+    return False
+
+
+pytestmark = pytest.mark.skipif(
+    vite_not_running(),
+    reason="Vite server must be running on "
+    + str(settings.DJANGO_VITE_DEV_SERVER_PORT),
+)
 
 
 @pytest.fixture
