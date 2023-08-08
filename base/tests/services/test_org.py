@@ -1,15 +1,6 @@
-import pytest
-from datetime import timedelta
-from pytest_django.asserts import assertRaisesMessage
-from freezegun import freeze_time
-from django.urls import reverse
-from django.core.exceptions import ValidationError
-from django.utils import timezone
-from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from ..assertions import assertMessageContains
 import base.tests.factories
-from base import constants, services
+from base import services
 
 User = get_user_model()
 
