@@ -181,4 +181,6 @@ def test_admin(page: Page, live_server):
 
     url = live_server.url + reverse("admin:index")
     page.goto(url)
-    expect(page.get_by_role("link", name="Events")).to_have_text("Events")
+    expect(page.get_by_role("link", name="Administration")).to_contain_text(
+        f"Administration ({settings.ENVIRONMENT})"
+    )
