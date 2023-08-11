@@ -16,7 +16,7 @@ class Command(BaseCommand):
         # -- EmailMessage -- #
         try:
             factories.email_message_create(
-                template_prefix="email/base",
+                template_prefix="core/email/base",
                 to_email="harry@example.com",
                 template_context={"some": "context"},
                 message_id="883953f4-6105-42a2-a16a-77a8eac79483",
