@@ -85,7 +85,7 @@
                 Open submit modal with all modifiers
             </button>
         </span>
-        <div x-modal:open.submit.danger.formnoaction.formnovalidate="{ icon: 'academic-cap', submitName: 'test_name', submitValue: 'test_value', title: 'Title', submitLabel: 'Confirm' }">
+        <div x-modal:open.submit.danger.formnovalidate="{ icon: 'academic-cap', submitName: 'test_name', submitValue: 'test_value', title: 'Title', submitLabel: 'Confirm', formAction: '' }">
             This is text in a submit modal.
         </div>
     </div>

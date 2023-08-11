@@ -1,3 +1,16 @@
+// Modal Usage
+// <div x-modal:<show>.<submit>.<variant>.<formnovalidate>="{icon, title, submitLabel, submitName, submitValue, formaction}">Modal Body</div>
+// show: name of Alpine variable that controls whether the modal is shown
+// submit: if present, renders a submit-style modal. If this is not present, the rest of the arguments are ignored.
+// variant: one of primary, secondary, or danger. Default is primary.
+// formnovalidate: if present, adds the formnovalidate attribute to the submit button
+// icon: name of the heroicon to use. Default is check-circle for primary, information for secondary, and exclamation-circle for danger.
+// title: title of the modal
+// submitLabel: label for the submit button. Default is "Submit".
+// submitName: name attribute for the submit button (optional)
+// submitValue: value attribute for the submit button (optional)
+// formaction: formaction attribute for the submit button (optional)
+
 const VARIANTS = {
   primary: {
     defaultIcon: "check-circle",
@@ -104,9 +117,9 @@ function renderSubmitModal({
       ${title}
     </h3>
     <div class="mt-2">
-      <p class="text-sm text-gray-800">
+      <div class="text-sm text-gray-800">
         <div id="modal-body"></div>
-      </p>
+      </div>
     </div>
   </div>
 </div>

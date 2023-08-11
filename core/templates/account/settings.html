@@ -240,7 +240,9 @@
             {% component "button" type="button" variant="white" text="Delete Account" click="modal = true" %}
             <form action="{% url 'account_delete' %}" method="POST">
               {% csrf_token %}
-              {% component "submit_modal" variant="danger" title="Delete Your Account" text="Do you really want to delete your account? This action is permanent." submit_button_text="Confirm Delete" %}
+              <div x-modal:modal.submit.danger="{title: 'Delete Your Account', submitLabel: 'Confirm Delete'}">
+                Do you really want to delete your account? This action is permanent.
+              </div>
             </form>
           </div>
         </div>

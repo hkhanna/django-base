@@ -1,11 +1,4 @@
 import json
-from django.contrib.messages.constants import (
-    DEFAULT_LEVELS,
-    SUCCESS,
-    WARNING,
-    INFO,
-    ERROR,
-)
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
@@ -18,63 +11,6 @@ class PageHeading(component.Component):
 
     def get_context_data(self, heading):
         return {"heading": heading}
-
-
-@component.register("modal")
-class Modal(component.Component):
-    template_name = "components/modal.html"
-
-    def get_context_data(self, aria_label, show="modal"):
-        return {"aria_label": aria_label, "show": show}
-
-
-@component.register("submit_modal")
-class SubmitModal(component.Component):
-    template_name = "components/submit_modal.html"
-
-    def get_context_data(
-        self,
-        title,
-        variant,
-        submit_button_text,
-        show="modal",
-        text=None,
-        icon=None,
-        name=None,
-        value=None,
-        formnovalidate=None,
-        formaction=None,
-    ):
-        variant_settings = {
-            "primary": {
-                "icon": icon or "check-circle",
-                "icon_bg_color": "bg-indigo-100",
-                "icon_color": "text-indigo-700",
-            },
-            "secondary": {
-                "icon": icon or "information",
-                "icon_bg_color": "bg-blue-100",
-                "icon_color": "text-blue-500",
-            },
-            "danger": {
-                "icon": icon or "exclamation-circle",
-                "icon_bg_color": "bg-red-100",
-                "icon_color": "text-red-600",
-            },
-        }
-        return {
-            "title": title,
-            "aria_label": title,
-            "text": text,
-            "variant": variant,
-            "submit_button_text": submit_button_text,
-            "show": show,
-            "name": name,
-            "value": value,
-            "formnovalidate": formnovalidate,
-            "formaction": formaction,
-            **variant_settings[variant],
-        }
 
 
 @component.register("button")
