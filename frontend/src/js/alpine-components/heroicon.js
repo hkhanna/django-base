@@ -5,7 +5,6 @@ export default function (Alpine) {
   Alpine.directive(
     "heroicon",
     (el, { value, modifiers, expression }, { effect, evaluate }) => {
-      console.log(value);
       const variant = value || "solid";
       const size =
         variant === "outline" ? "24" : modifiers.includes("20") ? "20" : "24";
