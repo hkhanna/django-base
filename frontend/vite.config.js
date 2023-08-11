@@ -1,10 +1,11 @@
 const { resolve } = require("path");
 const { loadEnv } = require("vite");
+const svgLoader = require("vite-svg-loader");
 
 process.env = { ...process.env, ...loadEnv(null, process.cwd() + "/../") };
 
 module.exports = {
-  plugins: [],
+  plugins: [svgLoader({ defaultImport: "raw" })],
   root: resolve("./src/"),
   base: "/static/",
   server: {

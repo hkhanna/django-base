@@ -1,6 +1,19 @@
 {% extends "layouts/base.html" %}
 {% block content %}
-<div x-data class="space-y-4 my-8">
+<div x-data class="space-y-4 m-8">
+    <h2 class="text-xl text-center font-semibold text-gray-700">Heroicons</h2>
+    <div class="flex space-x-2">
+    <div x-heroicon="check-circle" class="w-6 h-6 text-green-500"></div>
+    <div x-heroicon:solid="check-circle" class="w-6 h-6 text-green-500"></div>
+    <div x-heroicon:solid.20="check-circle" class="w-6 h-6 text-green-500"></div>
+    <div x-heroicon:solid.24="check-circle" class="w-6 h-6 text-green-500"></div>
+    <div x-heroicon:outline="check-circle" class="w-6 h-6 text-green-500"></div>
+    <div x-heroicon:outline.20="check-circle" class="w-6 h-6 text-green-500"></div>
+    <div x-heroicon:outline.24="check-circle" class="w-6 h-6 text-green-500"></div>
+    </div>
+</div>
+{% comment %}
+<div x-data class="space-y-4 m-8">
     <h2 class="text-xl text-center font-semibold text-gray-700">Alerts</h2>
 
     <div x-alert="No modifiers, no body.">
@@ -26,4 +39,5 @@
     </div>
 
 </div>
+{% endcomment %}
 {% endblock %}
