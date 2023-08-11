@@ -53,7 +53,7 @@
   {% block messages %}
     <section class="section-container my-4 space-y-4">
       {% for message in messages %}
-        {% component "alert" text=message variant=message.level alertClass="sm:w-full" %}
+        <div x-data x-alert:{{message.level_tag}}.dismissable="{{message}}" class="sm:w-full"></div>
       {% endfor %}
     </section>
   {% endblock messages %}

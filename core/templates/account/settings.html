@@ -17,15 +17,13 @@
     {% endif %}
 
     {% if not request.user.is_email_verified %}
-      {% component_block "alert" variant="warning" text="Your email address is not verified." alertClass="my-6 sm:w-full" dismissable=False %}
-        {% fill "subtext" %}
+      <div x-data x-alert:warning="Your email address is not verified." class="my-6 sm:w-full">
           <form action="{% url 'account_resend_confirmation_email' %}" method="POST">
             {% csrf_token %}
             If you did not receive a confirmation email, you may
             {% component "button" type="submit" variant="text-gray" text="click here to request another one." %}
           </form>
-        {% endfill %}
-      {% endcomponent_block %}
+      </div>
     {% endif %}
     <div>
       <div class="md:grid md:grid-cols-3 md:gap-6">
