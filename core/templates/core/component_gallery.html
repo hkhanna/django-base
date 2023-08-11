@@ -38,22 +38,42 @@
     </div>
 
 </div>
-<div x-data class="m-8">
+<div x-data class="m-8 space-y-4">
     <h2 class="text-xl text-center font-semibold text-gray-700">Modal</h2>
 
     <div x-data="{ open: false }">
-        <!-- Trigger -->
         <span x-on:click="open = true">
             <button type="button" class="bg-white px-5 py-2.5 rounded-md shadow">
                 Open modal
             </button>
         </span>
-     
-        <!-- Modal -->
-        <div x-modal="open">
+        <div x-modal:open>
         This is a bare modal.
         </div>
-        
     </div>
+
+    <div x-data="{ open: false }">
+        <span x-on:click="open = true">
+            <button type="button" class="bg-white px-5 py-2.5 rounded-md shadow">
+                Open submit modal with no modifiers
+            </button>
+        </span>
+        <div x-modal:open.submit="{title: 'Title'}">
+            This is text in a submit modal.
+        </div>
+    </div>
+
+
+    <div x-data="{ open: false }">
+        <span x-on:click="open = true">
+            <button type="button" class="bg-white px-5 py-2.5 rounded-md shadow">
+                Open submit modal with all modifiers
+            </button>
+        </span>
+        <div x-modal:open.submit.danger.formnoaction.formnovalidate="{ icon: 'academic-cap', submitName: 'test_name', submitValue: 'test_value', title: 'Title', submitLabel: 'Confirm' }">
+            This is text in a submit modal.
+        </div>
+    </div>
+
 </div>
 {% endblock %}
