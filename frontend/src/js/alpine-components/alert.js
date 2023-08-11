@@ -1,10 +1,13 @@
-import CheckCircleIcon from "heroicons/24/solid/check-circle.svg";
-import XMark from "heroicons/20/solid/x-mark.svg";
+const ICONS = {
+  success: "check-circle",
+  warning: "exclamation-circle",
+  info: "information-circle",
+  error: "x-circle",
+};
 
 const COLORS = {
   success: {
     bg: "bg-green-100",
-    iconSvg: CheckCircleIcon,
     icon: "text-green-500",
     headline: "text-green-800",
     body: "text-green-700",
@@ -13,7 +16,6 @@ const COLORS = {
   },
   warning: {
     bg: "bg-yellow-50",
-    iconSvg: "exclamation-circle",
     icon: "text-yellow-400",
     headline: "text-yellow-800",
     body: "text-yellow-600",
@@ -22,7 +24,6 @@ const COLORS = {
   },
   info: {
     bg: "bg-blue-100",
-    iconSvg: "information-circle",
     icon: "text-blue-500",
     headline: "text-blue-700",
     body: "text-blue-600",
@@ -30,7 +31,6 @@ const COLORS = {
   },
   error: {
     bg: "bg-red-50",
-    iconSvg: "x-circle",
     icon: "text-red-400",
     headline: "text-red-800",
     body: "text-red-700",
@@ -43,12 +43,10 @@ const render = (props) => {
   <div class="rounded-md ${props.colors.bg} p-4" x-data="{ open: true }" x-show="open">
     <div class="flex items-start">
       <div class="flex-shrink-0">
-        <svg class="h-5 w-5 ${props.colors.icon} xmlns="http://www.w3.org/2000/svg">
-          <use xlink:href="${props.colors.iconSvg}"></use>
-        </svg>
+        <div x-heroicon:solid=${props.icon} class="h-5 w-5 ${props.colors.icon}" aria-hidden="true"></div>
       </div>
       <div class="ml-3">
-        <h3 class="text-sm font-medium ${props.colors.headling}">
+        <h3 class="text-sm font-medium ${props.colors.headline}">
           ${props.headline}
         </h3>
       </div>
@@ -59,7 +57,7 @@ const render = (props) => {
           <div class="-mx-1.5 -my-1.5">
             <button type="button" class="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 ${props.colors.button}" x-on:click="open = !open">
               <span class="sr-only">Dismiss</span>
-              <img src=${XMark} class="h-5 w-5" aria-hidden="true" />
+              <div x-heroicon:solid.20="x-mark" class="h-5 w-5" aria-hidden="true"></div>
             </button>
           </div>
         </div>
@@ -86,13 +84,17 @@ export default function (Alpine) {
       const headline = expression;
 
       const colors = COLORS[value] || COLORS.info;
+      const icon = ICONS[value] || ICONS.info;
 
-      el.innerHTML = render({
-        colors: colors,
-        headline: headline,
+      const innerHTML = render({
+        colors,
+        icon,
+        headline,
         body: el.innerHTML.toString().trim(),
         dismissable: modifiers.includes("dismissable"),
       });
+
+      el.innerHTML = innerHTML;
     }
   );
 }
