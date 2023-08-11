@@ -244,10 +244,6 @@ CELERY_WORKER_LOG_COLOR = False
 CELERY_ACCEPT_CONTENT = ["json", "pickle"]
 CELERY_TASK_SERIALIZER = "json"
 
-# LogRocket
-LOGROCKET_APP_ID = env("LOGROCKET_APP_ID", default=None)
-LOGROCKET_EXCLUDED_VIEWS = ["index"]
-
 # django-vite
 DJANGO_VITE_ASSETS_PATH = BASE_DIR / "frontend/dist"
 DJANGO_VITE_DEV_MODE = False
