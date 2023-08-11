@@ -26,25 +26,28 @@ export default function (Alpine) {
       });
 
       if (modifiers.includes("submit")) {
-        const {
-          defaultIcon,
-          iconBgColor,
-          iconColor,
-          formnoaction,
-          formnovalidate,
-        } = processModifiers(modifiers);
+        const { variant, defaultIcon, iconBgColor, iconColor, formnovalidate } =
+          processModifiers(modifiers);
 
-        const { icon, title, submitLabel, submitName, submitValue } =
-          evaluate(expression);
+        const {
+          icon,
+          title,
+          submitLabel,
+          submitName,
+          submitValue,
+          formaction,
+        } = evaluate(expression);
 
         modalDoc.getElementById("modal-body").outerHTML = renderSubmitModal({
+          show: value,
+          variant,
           icon: icon || defaultIcon,
           iconBgColor,
           iconColor,
           title,
           submitLabel,
           formnovalidate,
-          formnoaction,
+          formaction,
           submitName,
           submitValue,
         });
@@ -58,13 +61,13 @@ export default function (Alpine) {
 }
 
 function processModifiers(modifiers) {
-  let props = { ...VARIANTS.primary };
+  let props = { variant: "primary", ...VARIANTS.primary };
 
   if (modifiers.includes("secondary")) {
-    props = { ...VARIANTS.secondary };
+    props = { variant: "secondary", ...VARIANTS.secondary };
   }
   if (modifiers.includes("danger")) {
-    props = { ...VARIANTS.danger };
+    props = { variant: "danger", ...VARIANTS.danger };
   }
 
   if (modifiers.includes("formnoaction")) {
@@ -79,6 +82,8 @@ function processModifiers(modifiers) {
 }
 
 function renderSubmitModal({
+  show,
+  variant,
   icon,
   iconBgColor,
   iconColor,
@@ -106,8 +111,18 @@ function renderSubmitModal({
   </div>
 </div>
   <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-    {% component "button" variant=variant name=name value=value type="submit" size="lg" extra_class="w-full justify-center sm:col-start-2" text=submit_button_text formnovalidate=formnovalidate formaction=formaction %}
-    {% component "button" variant="white" type="button" size="lg" extra_class="mt-3 w-full justify-center sm:mt-0 sm:col-start-1" text="Cancel" click=show|add:" = false" %}
+    <button 
+      x-btn:${variant}.lg 
+      type="submit" 
+      class="w-full justify-center sm:col-start-2"
+      ${submitName ? `name="${submitName}"` : ""}
+      ${submitValue ? `value="${submitValue}"` : ""}
+      ${formnovalidate ? "formnovalidate" : ""}
+      ${formaction ? `formaction="${formaction}"` : ""}
+    >
+      ${submitLabel || "Submit"}
+    </button>
+    <button x-btn:white.lg type="button" x-on:click="${show} = false" class="mt-3 w-full justify-center sm:mt-0 sm:col-start-1">Cancel</button>
   </div>
   `;
 }
