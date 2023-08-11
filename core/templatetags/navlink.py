@@ -15,7 +15,7 @@ default_classes = {
 }
 
 
-@register.inclusion_tag("core/navlink.html", takes_context=True)
+@register.inclusion_tag("core/includes/navlink.html", takes_context=True)
 def navlink(context, url_name, name, mobile=False):
     classes = context.get("navlink_classes", default_classes)
     if mobile:
