@@ -15,7 +15,7 @@ export default function (Alpine) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(svgString.default, "image/svg+xml");
         replaceClasses(el, doc.documentElement);
-        el.replaceChildren(doc.documentElement);
+        el.parentNode.replaceChild(doc.documentElement, el);
       });
     }
   );
