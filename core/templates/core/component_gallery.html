@@ -13,6 +13,21 @@
     </div>
 </div>
 <div x-data class="space-y-4 m-8">
+    <h2 class="text-xl text-center font-semibold text-gray-700">Buttons</h2>
+    <div class="flex space-x-2">
+        <button x-btn:primary.xs>Primary</button>
+        <button x-btn:secondary.sm>Secondary</button>
+        <button x-btn:white.md>White</button>
+        <button x-btn:danger.lg>Danger</button>
+
+        <button x-btn:primary.xs.disabled>Primary</button>
+        <button x-btn:secondary.sm.disabled>Secondary</button>
+        <button x-btn:white.md.disabled>White</button>
+        <button x-btn:danger.lg.disabled>Danger</button>
+    </div>
+
+</div>
+<div x-data class="space-y-4 m-8">
     <h2 class="text-xl text-center font-semibold text-gray-700">Alerts</h2>
 
     <div x-alert="No modifiers, no body.">
