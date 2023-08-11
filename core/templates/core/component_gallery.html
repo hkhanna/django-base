@@ -1,9 +1,29 @@
 {% extends "layouts/base.html" %}
 {% block content %}
-<div x-data>
-    <h2>Alert</h2>
-    <div x-alert="Hello">
-        <p>This is some text.</p>
+<div x-data class="space-y-4 my-8">
+    <h2 class="text-xl text-center font-semibold text-gray-700">Alerts</h2>
+
+    <div x-alert="No modifiers, no body.">
     </div>
+
+    <div x-alert.dismissable="Dismissable, no body">
+    </div>
+
+    <div x-alert:info.dismissable="Info">
+        <p>Hello, world!</p>
+    </div>
+
+    <div x-alert:success.dismissable="Success">
+        <p>Hello, world!</p>
+    </div>
+
+    <div x-alert:warning.dismissable="Warning">
+        <p>Hello, world!</p>
+    </div>
+
+    <div x-alert:error.dismissable="Error">
+        <p>Hello, world!</p>
+    </div>
+
 </div>
 {% endblock %}
