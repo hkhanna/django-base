@@ -2,7 +2,9 @@
 {% load socialaccount %}
 {% block title %}User Settings{% endblock %}
 {% block page_heading %}
-  {% component "page_heading" heading="User Settings" %}
+    <section class="section-container">
+      <h2 class="my-6 text-3xl font-bold leading-7 text-gray-700">User Settings</h2>
+    </section>
 {% endblock page_heading %}
 {% block main %}
   {% get_providers as socialaccount_providers %}
