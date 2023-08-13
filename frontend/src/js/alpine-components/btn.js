@@ -1,6 +1,14 @@
 // Pass the variant as the value, e.g., x-btn:primary
 // disabled can be passed as a modifier or in the expression
 
+/*
+ * We do styling of the button via this Alpine directive.
+ * It would be more accessible to non-JS enabled browsers if we used
+ * tailwind @apply, so this is a tradeoff we're making for better DX.
+ * If it becomes an issue, we can always switch to @apply and remove the styling
+ * here.
+ */
+
 export default function (Alpine) {
   Alpine.directive(
     "btn",

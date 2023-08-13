@@ -1,3 +1,5 @@
+// Heroicon Usage
+// <span x-heroicon:<outline|solid>.<20|24>="<icon name>" class="w-<width> h-<height>"></span>
 // Defaults to Solid 24px
 // There's no outline 20px, so we ensure outlines use 24px.
 

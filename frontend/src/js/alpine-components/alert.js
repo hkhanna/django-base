@@ -1,3 +1,6 @@
+// Alert Usage
+// <div x-alert:<level>.<dismissable>="<headline>">Optional body</div>
+
 const ICONS = {
   success: "check-circle",
   warning: "exclamation-circle",
