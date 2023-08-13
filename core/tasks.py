@@ -33,7 +33,7 @@ def email_message_send(email_message_id, attachments=[]):
 def database_backup():
     from core.services import event_emit
 
-    call_command("dbbackup", "--noinput", "--compress")
+    call_command("dbbackup", "--noinput", "--compress", "--encrypt")
     event_emit(type="database_backup_completed", data={})
 
 
@@ -41,5 +41,5 @@ def database_backup():
 def media_backup():
     from core.services import event_emit
 
-    call_command("mediabackup", "--noinput", "--compress")
+    call_command("mediabackup", "--noinput", "--compress", "--encrypt")
     event_emit(type="media_backup_completed", data={})

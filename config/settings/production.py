@@ -56,6 +56,7 @@ X_FRAME_OPTIONS = "DENY"
 #     "default_acl": "private",  # type: ignore
 #     "location": "base-fedora/",  # type: ignore
 # }
+# DBBACKUP_GPG_RECIPIENT = "base-fedora@<domain>"
 
 
 # STATIC FILES - WHITENOISE

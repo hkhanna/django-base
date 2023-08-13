@@ -32,8 +32,14 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 
 # Enable AWS for backups if desired
 
+1. Set up the GPG encryption:
+   1. `gpg --gen-key`
+   1. For the name, put the name of the project. For the email, put `<project>@<domain>.`
+   1. Make a note of the key's id.
+   1. `gpg --output <project>.asc --armor --export <project>@<domain>`.
+   1. Uncomment gpg line in build.sh.
 1. Uncomment django-dbbackup section in common.py and production.py settings.
-1. In production.py settings, put the name of the backup bucket.
+1. In production.py settings, put the name of the backup bucket and the GPG key ID.
 1. Uncomment django-dbbackup and python-gnupg in requirements/common.txt.
 1. Uncomment dbbackup in common.py INSTALLED_APPS.
 1. Uncomment the `BACKUP_AWS_*` environment variables in render.yaml.
@@ -57,7 +63,6 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 1. Uncomment the redis and celery worker sections of `render.yaml` including the redis env var setting.
 1. In production settings, uncomment the `CELERY_BROKER_URL` setting.
 1. In production settings, add `CELERY_TASK_ALWAYS_EAGER = False`.
-1. Uncomment the `main_worker` entry in the `Procfile`.
 1. Do a deploy.
 
 ## Override templates if desired
