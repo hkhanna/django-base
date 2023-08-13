@@ -1,6 +1,5 @@
 // Btn Usage
-// <button x-btn:<size>.<primary|secondary|white|danger>.<disabled>="{<disabled: true/false>, <iconLeft: icon name>, <iconRight: icon name>}">Button label</button>
-// disabled can be passed as a modifier or in the expression
+// <button x-btn:<size>.<primary|secondary|white|danger>="{<iconLeft: icon name>, <iconRight: icon name>}">Button label</button>
 
 /*
  * We do styling of the button via this Alpine directive.
@@ -13,7 +12,7 @@
 export default function (Alpine) {
   Alpine.directive(
     "btn",
-    (el, { value, modifiers, expression }, { effect, evaluate }) => {
+    (el, { value, modifiers, expression }, { cleanup, evaluate }) => {
       const data = expression ? evaluate(expression) : {};
 
       let classes = [
@@ -27,8 +26,7 @@ export default function (Alpine) {
       const variant = getVariant(modifiers);
       classes = classes.concat(VARIANTS[variant].common);
 
-      const disabled = modifiers.includes("disabled") || data.disabled;
-      if (disabled) {
+      if (el.disabled) {
         classes = classes.concat(VARIANTS[variant].disabled);
       } else {
         classes = classes.concat(VARIANTS[variant].enabled);
@@ -40,12 +38,10 @@ export default function (Alpine) {
       el.classList.add(...classes);
 
       // Add any icons to the left or right.
-
       if (data.iconLeft) {
         const iconLeft = document.createElement("div");
         iconLeft.classList.add(...ICON_SIZES[size]);
         iconLeft.classList.add(...ICON_SPACING_LEFT[size]);
-        // iconLeft.classList.add(ICON_COLORS[variant]);
         iconLeft.setAttribute("x-heroicon:solid.20", data.iconLeft);
         el.prepend(iconLeft);
       }
@@ -53,7 +49,6 @@ export default function (Alpine) {
         const iconRight = document.createElement("div");
         iconRight.classList.add(...ICON_SIZES[size]);
         iconRight.classList.add(...ICON_SPACING_RIGHT[size]);
-        // iconRight.classList.add(ICON_COLORS[variant]);
         iconRight.setAttribute("x-heroicon:solid.20", data.iconRight);
         el.append(iconRight);
       }
