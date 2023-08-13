@@ -10,7 +10,9 @@
             <p class="mt-1 text-base text-gray-500">{% block error_message %}{% endblock %}</p>
           </div>
           <div class="mt-10 flex space-x-3 sm:border-l sm:border-transparent sm:pl-6">
-            {% component "button" href="index" variant="primary" text="Go back home" %}
+            <a href="{% url 'index' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+              Go back home
+            </a>
           </div>
         </div>
       </main>

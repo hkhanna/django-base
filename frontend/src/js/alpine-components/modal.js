@@ -125,7 +125,7 @@ function renderSubmitModal({
 </div>
   <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
     <button 
-      x-btn:${variant}.lg 
+      x-btn:lg.${variant}
       type="submit" 
       class="w-full justify-center sm:col-start-2"
       ${submitName ? `name="${submitName}"` : ""}
@@ -135,7 +135,7 @@ function renderSubmitModal({
     >
       ${submitLabel || "Submit"}
     </button>
-    <button x-btn:white.lg type="button" x-on:click="${show} = false" class="mt-3 w-full justify-center sm:mt-0 sm:col-start-1">Cancel</button>
+    <button x-btn:lg.white type="button" x-on:click="${show} = false" class="mt-3 w-full justify-center sm:mt-0 sm:col-start-1">Cancel</button>
   </div>
   `;
 }
@@ -143,6 +143,7 @@ function renderSubmitModal({
 function renderModalDoc(props) {
   const templ = `
     <div 
+    x-data
     x-show="${props.show}"
     x-on:keyup.document.escape="${props.show} = false"
     x-cloak

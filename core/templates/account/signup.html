@@ -77,7 +77,7 @@
             </div>
           {% endif %}
           <div class="col-span-6">
-            {% component "button" type="submit" variant="primary" text="Create Account" extra_class="w-full flex justify-center" %}
+            <button x-data x-btn.primary type="submit" class="w-full flex justify-center">Create Account</button>
           </div>
         </div>
           <p class="mt-8 text-xs text-gray-400">By clicking "Continue with Google/Github" above or by creating an account with your email address, you acknowledge that you have read and understood, and agree to the <a href="{% url 'terms_of_use' %}" class="text-indigo-700 hover:text-indigo-500">Terms of Use</a> and <a href="{% url 'privacy_policy'%}" class="text-indigo-700 hover:text-indigo-500">Privacy Policy</a>.

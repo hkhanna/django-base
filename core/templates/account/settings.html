@@ -23,7 +23,7 @@
           <form action="{% url 'account_resend_confirmation_email' %}" method="POST">
             {% csrf_token %}
             If you did not receive a confirmation email, you may
-            {% component "button" type="submit" variant="text-gray" text="click here to request another one." %}
+            <button type="submit" class="text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium focus:outline-none">click here to request another one.</button>
           </form>
       </div>
     {% endif %}
@@ -60,7 +60,7 @@
                   {% component "input_field" field=pi_form.oldpassword input_class="w-full sm:w-auto" %}
                 </div>
                 {% endif %}
-                {% component "button" type="submit" name="form_name" value="pi" variant="primary" text="Save Changes" %}
+                <button x-data x-btn.primary type="submit" name="form_name" value="pi">Save Changes</button>
               </div>
             </div>
           </form>
@@ -103,9 +103,9 @@
                 <div>
                   {% component "input_field" field=password_form.oldpassword input_class="w-full sm:w-auto" %}
                 </div>
-                {% component "button" type="submit" name="form_name" value="password" variant="primary" text="Change Password" %}
+                <button x-data x-btn.primary type="submit" name="form_name" value="password">Change Password</button>
                 {% else %}
-                {% component "button" type="submit" name="form_name" value="password" variant="primary" text="Set Password" %}
+                <button x-data x-btn.primary type="submit" name="form_name" value="password">Set Password</button>
                 {% endif %}
               </div>
             </div>
@@ -239,7 +239,7 @@
             </div>
           </div>
           <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0" x-data="{ modal: false }">
-            {% component "button" type="button" variant="white" text="Delete Account" click="modal = true" %}
+            <button x-btn.white type="button" x-on:click="modal = true">Delete Account</button>
             <form action="{% url 'account_delete' %}" method="POST">
               {% csrf_token %}
               <div x-modal:modal.submit.danger="{title: 'Delete Your Account', submitLabel: 'Confirm Delete'}">

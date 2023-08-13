@@ -64,7 +64,7 @@
               {{form.non_field_errors}}
             </div>
             <div>
-              {% component "button" type="submit" variant="primary" text="Sign in" extra_class="w-full flex justify-center" %}
+              <button x-data x-btn:md.primary type="submit" class="w-full flex justify-center">Sign in</button>
             </div>
             <div class="flex items-center {% if form.remember %}justify-between{% else %}justify-center{% endif %}">
               {% if form.remember %}
