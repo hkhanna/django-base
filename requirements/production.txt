@@ -2,6 +2,7 @@
 
 # -- Begin base requirements -- #
 
+# boto3==1.28.25
 gunicorn==21.2.0
 psycopg2==2.9.6 --no-binary psycopg2
 sentry-sdk==1.29.0

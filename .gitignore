@@ -5,6 +5,8 @@ __pycache__/
 *$py.class
 .venv/
 .playwright/
+.media/
+.backups/
 
 ## C extensions
 *.so

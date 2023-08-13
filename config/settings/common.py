@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.staticfiles",
     "heroicons",
+    # "dbbackup",
     "django_extensions",
     "django_components",
     "django_vite",
@@ -149,6 +150,14 @@ ADMIN_URL_PATH = env("ADMIN_URL_PATH", default="admin/")
 # If someday Render passes us a request id, we can use it in the request
 # logging middleware.
 REQUEST_ID_HEADER = None
+
+# User media
+# This is unset in production if we use django-storages / S3.
+MEDIA_ROOT = BASE_DIR / ".media/"
+
+# django_dbbackup
+# DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
+# DBBACKUP_STORAGE_OPTIONS = {"location": BASE_DIR / ".backups/"}
 
 # EMAIL
 # If there's a POSTMARK_API_KEY (for the Sandbox server), use the Postmark backend.

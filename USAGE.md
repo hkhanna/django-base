@@ -22,6 +22,24 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 - Update `SITE_CONFIG`.
 - Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
 
+# Enable AWS for media storage if desired
+
+1. Uncomment django-storages section in production settings.
+1. Uncomment django-storages in requirements/common.txt.
+1. Uncomment boto3 in requirements/test.txt and requirements/production.txt
+1. Uncomment the `MEDIA_AWS_*` environment variables in render.yaml.
+1. Create the appropriate bucket and the appropriate keys.
+
+# Enable AWS for backups if desired
+
+1. Uncomment django-dbbackup section in common.py and production.py settings.
+1. In production.py settings, put the name of the backup bucket.
+1. Uncomment django-dbbackup and python-gnupg in requirements/common.txt.
+1. Uncomment dbbackup in common.py INSTALLED_APPS.
+1. Uncomment the `BACKUP_AWS_*` environment variables in render.yaml.
+1. Point it at an appropriate backup bucket. Backups will be created in a subdirectory.
+1. Using celery beat or cron, call core.tasks.database_backup and core.tasks.media_backup as appropriate.
+
 # Deploy to Render
 
 1. Make any changes to `render.yaml`. Look at the comments in the file.

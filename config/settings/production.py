@@ -39,6 +39,25 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = "DENY"
 
+# django-storages
+# MEDIA_ROOT = ""  # Reset to blank when using S3
+# STORAGES["default"]["BACKEND"] = "storages.backends.s3boto3.S3Boto3Storage"
+# AWS_S3_ACCESS_KEY_ID = env("MEDIA_AWS_S3_ACCESS_KEY_ID")
+# AWS_S3_SECRET_ACCESS_KEY = env("MEDIA_AWS_S3_SECRET_ACCESS_KEY")
+# AWS_STORAGE_BUCKET_NAME = "base-fedora-production"
+# AWS_LOCATION = "media/"
+
+# django_dbbackup
+# DBBACKUP_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+# DBBACKUP_STORAGE_OPTIONS = {
+#     "access_key": env("BACKUP_AWS_S3_ACCESS_KEY_ID"),
+#     "secret_key": env("BACKUP_AWS_S3_SECRET_ACCESS_KEY"),
+#     "bucket_name": BACKUP BUCKET NAME,
+#     "default_acl": "private",  # type: ignore
+#     "location": "base-fedora/",  # type: ignore
+# }
+
+
 # STATIC FILES - WHITENOISE
 # The WhiteNoise middleware should go above everything else except the security middleware.
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")

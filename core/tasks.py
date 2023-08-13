@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from celery.utils.log import get_task_logger
 from config.celery import app
 
@@ -26,3 +27,19 @@ def email_message_send(email_message_id, attachments=[]):
 
     email_message = email_message_list(id=email_message_id).get()
     email_message_send(email_message=email_message, attachments=attachments)
+
+
+@app.task
+def database_backup():
+    from core.services import event_emit
+
+    call_command("dbbackup", "--noinput", "--compress")
+    event_emit(type="database_backup_completed", data={})
+
+
+@app.task
+def media_backup():
+    from core.services import event_emit
+
+    call_command("mediabackup", "--noinput", "--compress")
+    event_emit(type="media_backup_completed", data={})

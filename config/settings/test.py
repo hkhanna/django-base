@@ -29,6 +29,6 @@ CHECK_HTML_IGNORE_MESSAGES = list(CheckHTMLMiddleware.ignore_messages_default) +
 ]
 MIDDLEWARE.insert(1, "check_html.CheckHTMLMiddleware")
 
-# Turn off Vite HMR
+# django_vite
 DJANGO_VITE_DEV_MODE = True
 DJANGO_VITE_DEV_SERVER_PORT = env("VITE_PORT", default=3000)
