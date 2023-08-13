@@ -1,4 +1,5 @@
-// Pass the variant as the value, e.g., x-btn:primary
+// Btn Usage
+// <button x-btn:<size>.<primary|secondary|white|danger>.<disabled>="{<disabled: true/false>, <iconLeft: icon name>, <iconRight: icon name>}">Button label</button>
 // disabled can be passed as a modifier or in the expression
 
 /*
@@ -23,7 +24,7 @@ export default function (Alpine) {
         "focus:outline-none",
       ];
 
-      const variant = value || "primary";
+      const variant = getVariant(modifiers);
       classes = classes.concat(VARIANTS[variant].common);
 
       const disabled = modifiers.includes("disabled") || data.disabled;
@@ -33,28 +34,45 @@ export default function (Alpine) {
         classes = classes.concat(VARIANTS[variant].enabled);
       }
 
-      const size = getSize(modifiers);
+      const size = value || "md";
       classes = classes.concat(SIZES[size]);
 
       el.classList.add(...classes);
+
+      // Add any icons to the left or right.
+
+      if (data.iconLeft) {
+        const iconLeft = document.createElement("div");
+        iconLeft.classList.add(...ICON_SIZES[size]);
+        iconLeft.classList.add(...ICON_SPACING_LEFT[size]);
+        // iconLeft.classList.add(ICON_COLORS[variant]);
+        iconLeft.setAttribute("x-heroicon:solid.20", data.iconLeft);
+        el.prepend(iconLeft);
+      }
+      if (data.iconRight) {
+        const iconRight = document.createElement("div");
+        iconRight.classList.add(...ICON_SIZES[size]);
+        iconRight.classList.add(...ICON_SPACING_RIGHT[size]);
+        // iconRight.classList.add(ICON_COLORS[variant]);
+        iconRight.setAttribute("x-heroicon:solid.20", data.iconRight);
+        el.append(iconRight);
+      }
     }
   );
 }
 
-function getSize(modifiers) {
-  if (modifiers.includes("xs")) {
-    return "xs";
-  } else if (modifiers.includes("sm")) {
-    return "sm";
-  } else if (modifiers.includes("md")) {
-    return "md";
-  } else if (modifiers.includes("lg")) {
-    return "lg";
-  } else if (modifiers.includes("xl")) {
-    return "xl";
+function getVariant(modifiers) {
+  if (modifiers.includes("primary")) {
+    return "primary";
+  } else if (modifiers.includes("secondary")) {
+    return "secondary";
+  } else if (modifiers.includes("white")) {
+    return "white";
+  } else if (modifiers.includes("danger")) {
+    return "danger";
   }
 
-  return "md";
+  return "primary";
 }
 
 const VARIANTS = {
@@ -127,11 +145,11 @@ const SIZES = {
 };
 
 const ICON_SIZES = {
-  xs: "h-4 w-4",
-  sm: "h-4 w-4",
-  md: "h-5 w-5",
-  lg: "h-6 w-6",
-  xl: "h-6 w-6",
+  xs: ["h-4", "w-4"],
+  sm: ["h-4", "w-4"],
+  md: ["h-5", "w-5"],
+  lg: ["h-6", "w-6"],
+  xl: ["h-6", "w-6"],
 };
 
 const ICON_SPACING_LEFT = {
