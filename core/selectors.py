@@ -3,7 +3,7 @@ from typing import Union, Type
 from django.db.models import Model, QuerySet
 from django.utils import timezone
 
-from core.types import ModelType
+from core.types import BaseModelType
 
 from . import constants
 from .models import (
@@ -88,6 +88,6 @@ def org_setting_list(**kwargs) -> QuerySet[OrgSetting]:
 
 
 def model_list(
-    *, klass: Type[ModelType], **kwargs: Union[Model, str, bool]
-) -> QuerySet[ModelType]:
+    *, klass: Type[BaseModelType], **kwargs: Union[Model, str, bool]
+) -> QuerySet[BaseModelType]:
     return klass.objects.filter(**kwargs)

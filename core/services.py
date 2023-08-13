@@ -50,7 +50,7 @@ from .models import (
     PlanOrgSetting,
     OverriddenOrgSetting,
 )
-from .types import ModelType, UserType
+from .types import BaseModelType, UserType
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ def event_emit(
 ) -> Event:
     if not occurred_at:
         occurred_at = timezone.now()
-    event = Event.objects.create(type=type, data=data, occurred_at=occurred_at)
+    event = event_create(type=type, data=data, occurred_at=occurred_at)
 
     logger.info(f"Event.uuid={event.uuid} Event.type={event.type} emitted.")
 
@@ -600,9 +600,9 @@ def org_user_setting_default_update(
 
 def model_update(
     *,
-    instance: ModelType,
+    instance: BaseModelType,
     data: Dict[str, Any],
-) -> ModelType:
+) -> BaseModelType:
     """
     Generic update service meant to be reused in local update services.
 
@@ -644,6 +644,7 @@ def model_update(
         setattr(instance, field, data[field])
 
     instance.full_clean()
+    instance._allow_save = True
     instance.save()
 
     for field_name, value in m2m_data.items():
@@ -772,11 +773,12 @@ def org_user_org_user_setting_create(**kwargs) -> OrgUserOrgUserSetting:
 
 
 def model_create(
-    *, klass: Type[ModelType], save=True, **kwargs: Union[Model, str, bool]
+    *, klass: Type[BaseModelType], save=True, **kwargs: Union[Model, str, bool]
 ):
     """Create a model instance and return the model instance."""
     instance = klass(**kwargs)
     if save:
         instance.full_clean()
+        instance._allow_save = True
         instance.save()
     return instance

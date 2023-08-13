@@ -46,6 +46,41 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+    def __init__(self, *args, **kwargs):
+        # This is set to true by the services to enforce use of services to save models.
+        self._allow_save = False
+
+        return super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        """Enforce use of services to save models."""
+
+        # HACK: Incremental enforcement while we're transitioning
+        if self._meta.model_name not in (
+            "emailmessagewebhook",
+            "emailmessage",
+            "orginvitation",
+            "orguser",
+            "org",
+            "user",
+            "plan",
+            "orgsetting",
+            "planorgsetting",
+            "overriddenorgsetting",
+            "orgusersetting",
+            "orguserorgusersetting",
+            "orgusersettingdefault",
+        ):
+            if self._allow_save is True:
+                self._allow_save = False
+                return super().save(*args, **kwargs)
+            else:
+                raise RuntimeError(
+                    f"Must use services to save {self._meta.model_name} models."
+                )
+        else:
+            return super().save(*args, **kwargs)
+
 
 class EmailMessage(BaseModel):
     """Keep a record of every email sent in the DB."""
