@@ -4,20 +4,19 @@
 {% block page_heading %}
     <section class="section-container">
       <h2 class="my-6 text-3xl font-bold leading-7 text-gray-700">User Settings</h2>
+      {% if not request.org.is_personal %}
+        <div class="my-4 lg:my-8 px-3 lg:px-0">
+          <nav class="relative flex space-x-4" aria-label="Tabs">
+              <a href="{% url 'account_settings' %}" class="bg-indigo-100 text-indigo-700 px-3 py-2 font-medium text-sm rounded-md">User Settings</a>
+              <a href="{% url 'org_detail' %}" class="text-gray-500 hover:text-gray-700 px-3 py-2 font-medium text-sm rounded-md">Organization Settings</a>
+          </nav>
+      </div>
+      {% endif %}
     </section>
 {% endblock page_heading %}
 {% block main %}
   {% get_providers as socialaccount_providers %}
   <section class="section-container mb-20">
-    {% if not request.org.is_personal %}
-     <div class="my-4 lg:my-8 px-3 lg:px-0">
-      <nav class="relative flex space-x-4" aria-label="Tabs">
-          <a href="{% url 'account_settings' %}" class="bg-indigo-100 text-indigo-700 px-3 py-2 font-medium text-sm rounded-md">User Settings</a>
-          <a href="{% url 'org_detail' %}" class="text-gray-500 hover:text-gray-700 px-3 py-2 font-medium text-sm rounded-md">Organization Settings</a>
-      </nav>
-    </div>
-    {% endif %}
-
     {% if not request.user.is_email_verified %}
       <div x-data x-alert:warning="Your email address is not verified." class="my-6 sm:w-full">
           <form action="{% url 'account_resend_confirmation_email' %}" method="POST">
@@ -113,50 +112,6 @@
         </div>
       </div>
     </div>
-
-    {% if billing_enabled %}
-      <div class="hidden sm:block" aria-hidden="true">
-        <div class="py-5">
-          <div class="border-t border-gray-200"></div>
-        </div>
-      </div>
-
-      <div class="mt-10 sm:mt-0">
-        <div class="md:grid md:grid-cols-3 md:gap-6">
-          <div class="md:col-span-1">
-            <div class="px-4 sm:px-0">
-              <h3 class="text-lg font-medium leading-6 text-gray-900">Billing Plan</h3>
-              <p class="mt-1 text-sm text-gray-600">
-                Choose a plan, update or cancel your subscription.
-              </p>
-            </div>
-          </div>
-          <div class="mt-5 md:mt-0 md:col-span-2">
-            <div class="shadow sm:rounded-md sm:overflow-hidden">
-              <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-                <p class="text-sm">
-                  You are currently on the <span class="font-semibold">{{current_plan.name}} (${{current_plan.display_price}}/mo)</span> plan.
-                </p>
-                {% if billing_state_note %}
-                  <p class="text-sm">
-                    {{billing_state_note}}
-                  </p>
-                {% endif %}
-                {% if stripe_session_url %}
-                  <form action="{{ stripe_session_url }}" method="POST">
-                    {% csrf_token %}
-                    {% if paid_plan_id %}
-                      <input type="hidden" name="plan_id" value="{{paid_plan_id}}" />
-                    {% endif %}
-                    {% component "button" type="submit" variant="primary" text=stripe_session_button_text %}
-                  </form>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
 
     {% if socialaccount_providers %}
     <div class="hidden sm:block" aria-hidden="true">

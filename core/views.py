@@ -146,30 +146,20 @@ class OrgInvitationResendView(
 class UserSettingsView(LoginRequiredMixin, View):
     template_name = "account/settings.html"
 
-    def get_context_data(self, **kwargs):
-        try:
-            context = super().get_context_data(**kwargs)
-        except AttributeError:
-            context = {"billing_enabled": False}
-        return context
-
     def get(self, request, *args, **kwargs):
-        context = self.get_context_data()
         if request.user.has_usable_password():
             password_formclass = auth_forms.ChangePasswordForm
         else:
             password_formclass = auth_forms.SetPasswordForm
 
-        context.update(
-            {
-                "pi_form": forms.PersonalInformationForm(instance=request.user),
-                "password_form": password_formclass(user=request.user),
-                "disconnect_form": forms.DisconnectForm(request=request),
-                "disable_account_deletion": services.global_setting_get_value(
-                    "disable_account_deletion"
-                ),
-            }
-        )
+        context = {
+            "pi_form": forms.PersonalInformationForm(instance=request.user),
+            "password_form": password_formclass(user=request.user),
+            "disconnect_form": forms.DisconnectForm(request=request),
+            "disable_account_deletion": services.global_setting_get_value(
+                "disable_account_deletion"
+            ),
+        }
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -195,14 +185,11 @@ class UserSettingsView(LoginRequiredMixin, View):
         else:
             disconnect_form = forms.DisconnectForm(request=request)
 
-        context = self.get_context_data()
-        context.update(
-            {
-                "pi_form": pi_form,
-                "password_form": password_form,
-                "disconnect_form": disconnect_form,
-            }
-        )
+        context = {
+            "pi_form": pi_form,
+            "password_form": password_form,
+            "disconnect_form": disconnect_form,
+        }
 
         if pi_form.is_valid():
             pi_form.save()
