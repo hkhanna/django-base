@@ -42,6 +42,14 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 1. Uncomment the `main_worker` entry in the `Procfile`.
 1. Do a deploy.
 
+## Override templates if desired
+
+The `core` app contains some default application layouts in `core/templates/core/layouts`. The `core` views like those related to authentication use these layouts. But the layouts can be overriden by creating a `templates/core/layouts` directory in an app that comes above `core` in `INSTALLED_APPS`.
+
+Avoid making changes directly to the `core` directory to avoid merge conflicts when we update the `base` repo.
+
+## Finalize Differentiation
+
 - Update the README as appropriate.
 - Delete this file.
 

@@ -43,14 +43,15 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.sites",
     "django.contrib.staticfiles",
-    # Core must come before admin because it overrides an admin template
-    # Core must come before allauth so that core templates take precedence
-    "core.apps.CoreConfig",
-    "django.contrib.admin",
     "heroicons",
     "django_extensions",
     "django_components",
     "django_vite",
+    # Non-core apps should come before core so layouts can be overriden.
+    # core must come before admin because it overrides an admin template
+    # core must come before allauth so that core templates take precedence
+    "core.apps.CoreConfig",
+    "django.contrib.admin",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
