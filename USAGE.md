@@ -30,7 +30,7 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
    1. Make a note of the key's id.
    1. `gpg --output <project>.asc --armor --export <project>@<domain>`.
    1. Commit the new `.asc` file to the repo.
-   1. Uncomment gpg line in build.sh.
+   1. Uncomment both gpg lines in build.sh.
 1. Store the private key & passphrase safely offline. E.g., paper or 1Password.
    1. `gpg --output <project>.secret.asc --armor --export-secret-keys <project>@<domain>`
    1. Don't commit this file to the repo!
