@@ -34,7 +34,7 @@ services:
     env: python
     region: ohio
     plan: free # base-fedora -- set to starter
-    buildCommand: "./build.sh"
+    buildCommand: "./build-web.sh"
     startCommand: "gunicorn config.wsgi:application --access-logfile None"
     healthCheckPath: /health_check/
     envVars:
@@ -56,7 +56,7 @@ services:
   #   plan: free  # base-fedora -- set to starter
   #   region: ohio
   #   env: python
-  #   buildCommand: "pip install -r requirements/production.txt"
+  #   buildCommand: "./build-worker.sh"
   #   startCommand: "celery --app=config.celery worker --loglevel=INFO --concurrency 4"
   #   envVars:
   #     - fromGroup: base-fedora-env
