@@ -33,7 +33,6 @@ def email_message_send(email_message_id):
 def database_backup():
     from core.services import event_emit
 
-    call_command("import_gpg_pubkey")
     call_command("dbbackup", "--noinput", "--compress", "--encrypt")
     event_emit(type="database_backup_completed", data={})
 
@@ -42,6 +41,5 @@ def database_backup():
 def media_backup():
     from core.services import event_emit
 
-    call_command("import_gpg_pubkey")
     call_command("mediabackup", "--noinput", "--compress", "--encrypt")
     event_emit(type="media_backup_completed", data={})

@@ -37,6 +37,9 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 1. Uncomment django-dbbackup section in common.py and production.py settings.
 1. Uncomment django-dbbackup and python-gnupg in requirements/common.txt.
 1. Uncomment dbbackup in common.py INSTALLED_APPS.
+1. Uncomment the gpg line in build.sh.
+1. Uncomment the GNUPGHOME environment variable in render.yaml.
+   - This is needed because Render's build and runtime containers are different and only things in `/opt/render/project` make are taken from build to runtime.
 1. Using celery beat or cron, call core.tasks.database_backup and core.tasks.media_backup as appropriate.
 
 # Create the AWS IAM User to obtain the access keys
