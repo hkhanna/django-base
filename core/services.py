@@ -36,6 +36,7 @@ from .tasks import email_message_send as email_message_send_task
 from .exceptions import *
 from .models import (
     EmailMessage,
+    EmailMessageAttachment,
     EmailMessageWebhook,
     Event,
     GlobalSetting,
@@ -304,6 +305,16 @@ def email_message_create(save=False, **kwargs) -> EmailMessage:
 
 
 def email_message_update(instance: EmailMessage, **kwargs) -> EmailMessage:
+    return model_update(instance=instance, data=kwargs)
+
+
+def email_message_attachment_create(**kwargs) -> EmailMessageAttachment:
+    return model_create(klass=EmailMessageAttachment, **kwargs)
+
+
+def email_message_attachment_update(
+    *, instance: EmailMessageAttachment, **kwargs
+) -> EmailMessageAttachment:
     return model_update(instance=instance, data=kwargs)
 
 

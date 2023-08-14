@@ -19,6 +19,7 @@ from .models import (
     Plan,
     PlanOrgSetting,
     EmailMessage,
+    EmailMessageAttachment,
     EmailMessageWebhook,
     Event,
 )
@@ -26,6 +27,10 @@ from .models import (
 
 def email_message_list(**kwargs) -> QuerySet[EmailMessage]:
     return model_list(klass=EmailMessage, **kwargs)
+
+
+def email_message_attachment_list(**kwargs) -> QuerySet[EmailMessageAttachment]:
+    return model_list(klass=EmailMessageAttachment, **kwargs)
 
 
 def email_message_webhook_list(**kwargs) -> QuerySet[EmailMessageWebhook]:

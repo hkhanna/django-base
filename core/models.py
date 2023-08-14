@@ -133,6 +133,27 @@ class EmailMessage(BaseModel):
         return f"{template_prefix} - {self.to_email}"
 
 
+class EmailMessageAttachment(BaseModel):
+    """File attachments for EmailMessages"""
+
+    email_message = models.ForeignKey(
+        EmailMessage, on_delete=models.CASCADE, related_name="attachments"
+    )
+
+    # Files are stored with the uuid.ext as the filename on S3 to avoid
+    # collisions. We also store the original filename to allow us to
+    # reproduce it when necessary.
+    file = models.FileField(upload_to="email_message_attachments/")
+    filename = models.CharField(max_length=254)
+    mimetype = models.CharField(max_length=254)
+
+    class Meta:
+        order_with_respect_to = "email_message"
+
+    def __str__(self):
+        return f"{self.email_message} / {self.filename} ({self.uuid})"
+
+
 class EmailMessageWebhook(BaseModel):
     """Webhooks related to an outgoing EmailMessage, like bounces, spam complaints, etc."""
 
