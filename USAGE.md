@@ -15,6 +15,7 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 - In the `fedora` repo, add the new application as it's own remote so you can cherry-pick commits if necessary.
 - Remove or replace the LICENSE file.
 - Update `.env.example` to the desired defaults for the new project.
+- Create an AWS bucket for media ideally named `<project>-production` and the appropriate keys. This will hold things like attachments to EmailMessages.
 - Grep for the string `base-fedora` and either replace that string with the project name or take the other described action.
 - Either disable social auth by removing it from the installed apps or obtain the relevant secrets and add them to local `.env`.
 - Do the "Local Installation" in the README.
@@ -34,25 +35,13 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
    1. `gpg --output <project>.secret.asc --armor --export-secret-keys <project>@<domain>`
    1. Don't commit this file to the repo!
 1. Uncomment django-dbbackup section in common.py and production.py settings.
-1. In production.py settings, put the name of the backup bucket and the GPG key ID.
-1. Uncomment django-dbbackup, django-storages and python-gnupg in requirements/common.txt.
-1. Uncomment boto3 in requirements/test.txt and requirements/production.txt
+1. Uncomment django-dbbackup and python-gnupg in requirements/common.txt.
 1. Uncomment dbbackup in common.py INSTALLED_APPS.
-1. Uncomment the `AWS_*` environment variables in render.yaml.
-1. Point it at an appropriate backup bucket. Backups will be created in a subdirectory.
 1. Using celery beat or cron, call core.tasks.database_backup and core.tasks.media_backup as appropriate.
-
-# Enable AWS for media storage if desired
-
-1. Uncomment django-storages section in production settings.
-1. Uncomment django-storages in requirements/common.txt.
-1. Uncomment boto3 in requirements/test.txt and requirements/production.txt
-1. Uncomment the `AWS_*` environment variables in render.yaml.
-1. Create the appropriate bucket ideally named `<project>-production` and the appropriate keys.
 
 # Create the AWS IAM User to obtain the access keys
 
-If AWS access is needed, an IAM user will be needed with the following inline policy:
+Because django-storages is required, an IAM user will be needed with the following inline policy. If you're not using the automated backups, you can remove the first statement, but it doesn't hurt to keep it there in case you enable dbbackups someday.
 
 ```
 {
@@ -64,7 +53,7 @@ If AWS access is needed, an IAM user will be needed with the following inline po
                 "s3:PutObject"
             ],
             "Resource": [
-                "arn:aws:s3:::backup-outshoot-flatworm/<project>/*"
+               "arn:aws:s3:::<backup-bucket-name>/<project>/*"
             ]
         },
         {
