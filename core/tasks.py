@@ -41,5 +41,5 @@ def database_backup():
 def media_backup():
     from core.services import event_emit
 
-    call_command("mediabackup", "--noinput", "--encrypt")
+    call_command("mediabackup", "--noinput", "--compress", "--encrypt")
     event_emit(type="media_backup_completed", data={})
