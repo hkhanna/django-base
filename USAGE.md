@@ -43,6 +43,8 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
    - This is needed because Render's build and runtime containers are different and only things in `/opt/render/project` make are taken from build to runtime.
 1. Using celery beat or cron, call core.tasks.database_backup and core.tasks.media_backup as appropriate.
 
+Note that an AWS lifecycle rule ("Prune Backups") will expire backups after approximately six months and permanently delete them approximately six months later.
+
 # Create the AWS IAM User to obtain the access keys
 
 Because django-storages is required, an IAM user will be needed with the following inline policy. If you're not using the automated backups, you can remove the first statement, but it doesn't hurt to keep it there in case you enable dbbackups someday.
