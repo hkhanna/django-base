@@ -14,11 +14,13 @@ Interacts with the database, other resources & other parts of your system.
 Does business logic - from simple model creation to complex cross-cutting concerns, to calling external services & tasks.
 """
 
+from uuid import uuid4
+import mimetypes
 import logging
 import traceback
 from datetime import datetime, timedelta
 from importlib import import_module
-from typing import List, Optional, Union, Dict, Any, Type
+from typing import List, Optional, Union, Dict, Any, Type, IO, AnyStr
 
 
 from django.conf import settings
@@ -27,6 +29,7 @@ from django.apps import apps
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.core.mail.message import EmailMultiAlternatives, sanitize_address
+from django.core.files import File
 from django.db import models, transaction
 from django.db.models import Model, QuerySet
 from django.template import TemplateDoesNotExist
@@ -165,10 +168,32 @@ def email_message_prepare(*, email_message: EmailMessage) -> None:
     e.save()
 
 
+def email_message_attach(
+    *, email_message: EmailMessage, fp: IO[AnyStr], filename: str, mimetype: str
+) -> EmailMessageAttachment:
+    """Attach a file to an EmailMessage via EmailMessageAttachment."""
+    if email_message.status != constants.EmailMessage.Status.READY:
+        raise RuntimeError(
+            f"EmailMessage.id={email_message.id} email_message_attach called on an email that is not status=READY. Did you run email_message_prepare()?"
+        )
+    # FIXME Ensure extension matches mimetype
+
+    ext = mimetypes.guess_extension(mimetype)  # For storage on S3
+    uuid = uuid4()
+    file = File(fp, name=f"{uuid}{ext}")
+    attachment = email_message_attachment_create(
+        uuid=uuid,
+        email_message=email_message,
+        filename=filename,
+        mimetype=mimetype,
+        file=file,
+    )
+    return attachment
+
+
 def email_message_queue(
     *,
     email_message: EmailMessage,
-    attachments=[],
     cooldown_period=180,
     cooldown_allowed=1,
     scopes: List[str] = ["created_by", "template_prefix", "to"],
@@ -190,15 +215,15 @@ def email_message_queue(
         e.save()
         return False
     else:
-        email_message_send_task.delay(e.id, attachments)
+        email_message_send_task.delay(e.id)
         return True
 
 
-def email_message_send(*, email_message: EmailMessage, attachments=[]) -> None:
+def email_message_send(*, email_message: EmailMessage) -> None:
     """Send an email_message immediately. Normally called by a celery task."""
     if email_message.status != constants.EmailMessage.Status.READY:
         raise RuntimeError(
-            f"EmailMessage.id={email_message.id} send_email_message called on an email that is not status=READY"
+            f"EmailMessage.id={email_message.id} email_message_send called on an email that is not status=READY. Did you run email_message_queue()"
         )
     email_message_update(
         instance=email_message, status=constants.EmailMessage.Status.PENDING
@@ -250,24 +275,9 @@ def email_message_send(*, email_message: EmailMessage, attachments=[]) -> None:
         if html_msg:
             django_email_message.attach_alternative(html_msg, "text/html")
 
-        for attachment in attachments:
-            assert not (
-                "content" in attachment
-                and "content_from_instance_file_field" in attachment
-            ), "Only one of 'content' or 'content_from_instance_file_field' allowed in an attachment"
-            if "content" in attachment:
-                content = attachment["content"]
-            elif "content_from_instance_file_field" in attachment:
-                spec = attachment["content_from_instance_file_field"]
-                Model = apps.get_model(
-                    app_label=spec["app_label"], model_name=spec["model_name"]
-                )
-                instance = Model.objects.get(pk=spec["pk"])
-                file = getattr(instance, spec["field_name"])
-                content = file.read()
-
+        for attachment in email_message.attachments.all():
             django_email_message.attach(
-                attachment["filename"], content, attachment["mimetype"]
+                attachment.filename, attachment.file.read(), attachment.mimetype
             )
         if email_message.postmark_message_stream:
             django_email_message.message_stream = (  # type: ignore

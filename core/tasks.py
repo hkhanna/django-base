@@ -18,15 +18,15 @@ def email_message_webhook_process(webhook_id):
     email_message_webhook_process(email_message_webhook=webhook)
 
 
-@app.task(serializer="pickle")
-def email_message_send(email_message_id, attachments=[]):
+@app.task
+def email_message_send(email_message_id):
     logger.info(f"EmailMessage.id={email_message_id} send_email_message task started")
 
     from core.services import email_message_send
     from core.selectors import email_message_list
 
     email_message = email_message_list(id=email_message_id).get()
-    email_message_send(email_message=email_message, attachments=attachments)
+    email_message_send(email_message=email_message)
 
 
 @app.task

@@ -1,3 +1,4 @@
+import tempfile
 from datetime import timedelta
 from unittest.mock import Mock
 
@@ -7,7 +8,14 @@ from freezegun import freeze_time
 
 from .. import factories
 
-from ... import constants, models, services
+from ... import constants, services
+
+
+@pytest.fixture
+def fp():
+    fp = tempfile.TemporaryFile(mode="w+b")
+    fp.write(factories.fake.binary())
+    return fp
 
 
 def test_send_email(user, mailoutbox, settings):
@@ -121,44 +129,8 @@ def test_subject_limit(user, mailoutbox, settings):
     assert len(expected) == settings.MAX_SUBJECT_LENGTH
 
 
-def test_email_attachment(user, mailoutbox):
+def test_email_attachment(user, mailoutbox, fp):
     """Emails can have attachments"""
-    email_message = services.email_message_create(
-        created_by=user,
-        subject="A subject",
-        template_prefix="account/email/email_confirmation",
-        to_name=user.name,
-        to_email=user.email,
-        template_context={
-            "user_name": user.name,
-            "user_email": user.email,
-            "activate_url": "",
-        },
-    )
-    attachments = [
-        {
-            "filename": "test.txt",
-            "content": factories.fake.paragraph(),
-            "mimetype": "text/plain",
-        }
-    ]
-
-    services.email_message_queue(email_message=email_message, attachments=attachments)
-    email_message.refresh_from_db()
-    assert email_message.status == constants.EmailMessage.Status.SENT
-    assert len(mailoutbox) == 1
-    assert len(mailoutbox[0].attachments) == 1
-
-
-def test_email_attachment_from_instance_file_field(monkeypatch, user, mailoutbox):
-    """Email can have attachments sourced from model instances (for binary files)"""
-    # This is required for binary files since you can't put binary files
-    # in a celery task message.
-    m = Mock()
-    m.read.return_value = b"12345"
-    models.EmailMessage.file_field = ""
-    monkeypatch.setattr(models.EmailMessage, "file_field", m)
-
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
@@ -173,25 +145,28 @@ def test_email_attachment_from_instance_file_field(monkeypatch, user, mailoutbox
     )
     services.email_message_prepare(email_message=email_message)
 
-    attachments = [
-        {
-            "filename": "test.pdf",
-            "content_from_instance_file_field": {
-                "app_label": "core",
-                "model_name": "EmailMessage",
-                "field_name": "file_field",
-                "pk": email_message.pk,
-            },
-            "mimetype": "application/pdf",
-        },
-    ]
+    filename = factories.fake.file_name(extension="pdf")
+    email_message_attachment = services.email_message_attach(
+        email_message=email_message,
+        fp=fp,
+        filename=filename,
+        mimetype="application/pdf",
+    )
 
-    services.email_message_queue(email_message=email_message, attachments=attachments)
+    services.email_message_queue(email_message=email_message)
     email_message.refresh_from_db()
     assert email_message.status == constants.EmailMessage.Status.SENT
+    assert email_message.attachments.count() == 1
     assert len(mailoutbox) == 1
     assert len(mailoutbox[0].attachments) == 1
-    assert mailoutbox[0].attachments[0][1] == b"12345"
+    assert (
+        email_message_attachment.file.name
+        == f"email_message_attachments/{email_message_attachment.uuid}.pdf"
+    )
+    assert mailoutbox[0].attachments[0][0] == filename
+    fp.seek(0)
+    assert mailoutbox[0].attachments[0][1] == fp.read()
+    assert mailoutbox[0].attachments[0][2] == "application/pdf"
 
 
 def test_postmark_message_stream(user, mailoutbox):
