@@ -54,27 +54,34 @@ class EmailMessageWebhookAdminInline(admin.TabularInline):
         return False
 
 
+class EmailMessageAttachmentAdminInline(admin.TabularInline):
+    model = models.EmailMessageAttachment
+    fields = ("uuid", "filename", "file", "mimetype", "created_at")
+    readonly_fields = ("uuid", "created_at")
+    can_delete = True
+    extra = 0
+
+
 @admin.register(models.EmailMessage)
 class EmailMessageAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at",)
-    list_display = ("__str__", "created_at", "status")
+    list_display = ("__str__", "to_email", "created_at", "status")
     list_filter = ("status", "template_prefix")
-    inlines = [EmailMessageWebhookAdminInline]
+    inlines = [EmailMessageAttachmentAdminInline, EmailMessageWebhookAdminInline]
     actions = ["resend"]
 
-    @admin.action(description="Resend emails (no attachments)")
+    def save_model(self, request, obj, form, change):
+        if change:
+            services.email_message_update(instance=obj, **form.cleaned_data)
+        else:
+            services.email_message_create(**form.cleaned_data)
+
+    @admin.action(description="Resend emails")
     def resend(self, request, queryset):
         count = 0
         for email_message in queryset.all():
-            email_message.pk = None
-            email_message.status = constants.EmailMessage.Status.NEW
-            email_message.error_message = ""
-            email_message.message_id = None
-            email_message.sent_at = None
-            email_message.full_clean()
-            email_message.save()
-
-            email_message.send(cooldown_allowed=2)
+            duplicate = services.email_message_duplicate(original=email_message)
+            services.email_message_queue(email_message=duplicate, cooldown_allowed=2)
             count += 1
 
         if count == 1:

@@ -320,8 +320,33 @@ def email_message_create(save=False, **kwargs) -> EmailMessage:
     return model_create(klass=EmailMessage, save=save, **kwargs)
 
 
-def email_message_update(instance: EmailMessage, **kwargs) -> EmailMessage:
+def email_message_update(*, instance: EmailMessage, **kwargs) -> EmailMessage:
     return model_update(instance=instance, data=kwargs)
+
+
+def email_message_duplicate(*, original: EmailMessage) -> EmailMessage:
+    """Duplicate an EmailMessage and return the new EmailMessage."""
+    duplicate = model_duplicate(instance=original)
+
+    email_message_update(
+        instance=duplicate,
+        status=constants.EmailMessage.Status.NEW,
+        error_message="",
+        message_id=None,
+        sent_at=None,
+    )
+
+    email_message_prepare(email_message=duplicate)
+
+    for attachment in original.attachments.all():
+        email_message_attach(
+            email_message=duplicate,
+            fp=attachment.file,
+            filename=attachment.filename,
+            mimetype=attachment.mimetype,
+        )
+
+    return duplicate
 
 
 def email_message_attachment_create(**kwargs) -> EmailMessageAttachment:
@@ -809,3 +834,17 @@ def model_create(
         instance._allow_save = True
         instance.save()
     return instance
+
+
+def model_duplicate(*, instance: BaseModelType) -> BaseModelType:
+    """Duplicate a model instance and return the new model instance."""
+    # Get a new handle to the instance to avoid mutating the original.
+    duplicate = selectors.model_list(klass=instance.__class__, pk=instance.pk).get()
+
+    duplicate.pk = None
+    duplicate.uuid = uuid4()
+    duplicate._state.adding = True
+    duplicate.full_clean()
+    duplicate._allow_save = True
+    duplicate.save()
+    return duplicate

@@ -59,6 +59,7 @@ class BaseModel(models.Model):
         if self._meta.model_name not in (
             "emailmessagewebhook",
             "emailmessage",
+            "emailmessageattachment",
             "orginvitation",
             "orguser",
             "org",
@@ -79,6 +80,7 @@ class BaseModel(models.Model):
                     f"Must use services to save {self._meta.model_name} models."
                 )
         else:
+            self._allow_save = False
             return super().save(*args, **kwargs)
 
 
@@ -130,7 +132,7 @@ class EmailMessage(BaseModel):
     def __str__(self):
         # This will return something like 'reset-password' since its the last part of the template prefix
         template_prefix = self.template_prefix.split("/")[-1]
-        return f"{template_prefix} - {self.to_email}"
+        return f"{template_prefix} ({self.uuid})"
 
 
 class EmailMessageAttachment(BaseModel):
