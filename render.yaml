@@ -21,13 +21,9 @@ envVarGroups:
         sync: false
       - key: EVENT_SECRET
         sync: false
-      # - key: BACKUP_AWS_S3_ACCESS_KEY_ID
+      # - key: AWS_S3_ACCESS_KEY_ID
       #   sync: false
-      # - key: BACKUP_AWS_S3_SECRET_ACCESS_KEY
-      #   sync: false
-      # - key: MEDIA_AWS_S3_ACCESS_KEY_ID
-      #   sync: false
-      # - key: MEDIA_AWS_S3_SECRET_ACCESS_KEY
+      # - key: AWS_S3_SECRET_ACCESS_KEY
       #   sync: false
 
 services:

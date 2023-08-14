@@ -22,14 +22,6 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 - Update `SITE_CONFIG`.
 - Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
 
-# Enable AWS for media storage if desired
-
-1. Uncomment django-storages section in production settings.
-1. Uncomment django-storages in requirements/common.txt.
-1. Uncomment boto3 in requirements/test.txt and requirements/production.txt
-1. Uncomment the `MEDIA_AWS_*` environment variables in render.yaml.
-1. Create the appropriate bucket and the appropriate keys.
-
 # Enable AWS for backups if desired
 
 1. Set up the GPG encryption:
@@ -37,14 +29,60 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
    1. For the name, put the name of the project. For the email, put `<project>@<domain>.`
    1. Make a note of the key's id.
    1. `gpg --output <project>.asc --armor --export <project>@<domain>`.
+   1. Commit the new `.asc` file to the repo.
    1. Uncomment gpg line in build.sh.
+1. Store the private key & passphrase safely offline. E.g., paper or 1Password.
+   1. `gpg --output <project>.secret.asc --armor --export-secret-keys <project>@<domain>`
+   1. Don't commit this file to the repo!
 1. Uncomment django-dbbackup section in common.py and production.py settings.
 1. In production.py settings, put the name of the backup bucket and the GPG key ID.
-1. Uncomment django-dbbackup and python-gnupg in requirements/common.txt.
+1. Uncomment django-dbbackup, django-storages and python-gnupg in requirements/common.txt.
+1. Uncomment boto3 in requirements/test.txt and requirements/production.txt
 1. Uncomment dbbackup in common.py INSTALLED_APPS.
-1. Uncomment the `BACKUP_AWS_*` environment variables in render.yaml.
+1. Uncomment the `AWS_*` environment variables in render.yaml.
 1. Point it at an appropriate backup bucket. Backups will be created in a subdirectory.
 1. Using celery beat or cron, call core.tasks.database_backup and core.tasks.media_backup as appropriate.
+
+# Enable AWS for media storage if desired
+
+1. Uncomment django-storages section in production settings.
+1. Uncomment django-storages in requirements/common.txt.
+1. Uncomment boto3 in requirements/test.txt and requirements/production.txt
+1. Uncomment the `AWS_*` environment variables in render.yaml.
+1. Create the appropriate bucket ideally named `<project>-production` and the appropriate keys.
+
+# Create the AWS IAM User to obtain the access keys
+
+If AWS access is needed, an IAM user will be needed with the following inline policy:
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::backup-outshoot-flatworm/<project>/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<project>-production/*"
+            ]
+        }
+    ]
+}
+```
+
+Then, generate the access key and secret key and hold onto it for the deploy to Render.
 
 # Deploy to Render
 

@@ -158,6 +158,7 @@ MEDIA_ROOT = BASE_DIR / ".media/"
 # django_dbbackup
 # DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
 # DBBACKUP_STORAGE_OPTIONS = {"location": BASE_DIR / ".backups/"}
+# DBBACKUP_GPG_RECIPIENT = "base-fedora@<domain>"
 
 # EMAIL
 # If there's a POSTMARK_API_KEY (for the Sandbox server), use the Postmark backend.
