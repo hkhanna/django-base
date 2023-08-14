@@ -29,7 +29,7 @@ def email_message_send(email_message_id):
     email_message_send(email_message=email_message)
 
 
-@app.task
+@app.task(time_limit=60 * 10)
 def database_backup():
     from core.services import event_emit
 
@@ -37,7 +37,7 @@ def database_backup():
     event_emit(type="database_backup_completed", data={})
 
 
-@app.task
+@app.task(time_limit=60 * 10)
 def media_backup():
     from core.services import event_emit
 
