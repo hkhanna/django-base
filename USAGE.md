@@ -29,6 +29,7 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
    1. `gpg --gen-key`
    1. For the name, put the name of the project. For the email, put `<project>@<domain>.`
    1. Make a note of the key's id.
+   1. Remove the expiration date with `gpg --edit-key <project>@<domain>` and then `expire` and then `save`. You may need to remove subkey expiration dates as well with `key 1` and then `expire` and then `save`. Check that expiration dates have been removed by running `gpg --list-keys`.
    1. `gpg --output <project>.asc --armor --export <project>@<domain>`.
    1. Commit the new `.asc` file to the repo.
 1. Store the private key & passphrase safely offline. E.g., paper or 1Password.
