@@ -176,7 +176,13 @@ def email_message_attach(
         raise RuntimeError(
             f"EmailMessage.id={email_message.id} email_message_attach called on an email that is not status=READY. Did you run email_message_prepare()?"
         )
-    # FIXME Ensure extension matches mimetype
+
+    # Filename's extension must match mimetype
+    expected = mimetypes.guess_type(filename)[0]
+    if mimetype != expected:
+        raise ApplicationError(
+            f"Filename {filename} does not match mimetype {mimetype}"
+        )
 
     ext = mimetypes.guess_extension(mimetype)  # For storage on S3
     uuid = uuid4()

@@ -1,6 +1,5 @@
 import tempfile
 from datetime import timedelta
-from unittest.mock import Mock
 
 import pytest
 from django.utils import timezone
@@ -9,6 +8,7 @@ from freezegun import freeze_time
 from .. import factories
 
 from ... import constants, services
+from ...exceptions import ApplicationError
 
 
 @pytest.fixture
@@ -167,6 +167,31 @@ def test_email_attachment(user, mailoutbox, fp):
     fp.seek(0)
     assert mailoutbox[0].attachments[0][1] == fp.read()
     assert mailoutbox[0].attachments[0][2] == "application/pdf"
+
+
+def test_email_attachment_matching_mime(user, fp):
+    """An EmailMessageAttachment's extension must match its mimetype"""
+    email_message = services.email_message_create(
+        created_by=user,
+        subject="A subject",
+        template_prefix="account/email/email_confirmation",
+        to_name=user.name,
+        to_email=user.email,
+        template_context={
+            "user_name": user.name,
+            "user_email": user.email,
+            "activate_url": "",
+        },
+    )
+    services.email_message_prepare(email_message=email_message)
+
+    with pytest.raises(ApplicationError, match="does not match mimetype"):
+        services.email_message_attach(
+            email_message=email_message,
+            fp=fp,
+            filename=factories.fake.file_name(extension="pdf"),
+            mimetype="application/json",
+        )
 
 
 def test_postmark_message_stream(user, mailoutbox):
