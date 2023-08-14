@@ -11,13 +11,6 @@ from ... import constants, services
 from ...exceptions import ApplicationError
 
 
-@pytest.fixture
-def fp():
-    fp = tempfile.TemporaryFile(mode="w+b")
-    fp.write(factories.fake.binary())
-    return fp
-
-
 def test_send_email(user, mailoutbox, settings):
     """Create and send an EmailMessage"""
     email_message = services.email_message_create(
@@ -129,8 +122,8 @@ def test_subject_limit(user, mailoutbox, settings):
     assert len(expected) == settings.MAX_SUBJECT_LENGTH
 
 
-def test_email_attachment(user, mailoutbox, fp):
-    """Emails can have attachments"""
+def test_email_attachment(user, mailoutbox):
+    """Emails can have attachments created from other files or byte content"""
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
@@ -145,31 +138,51 @@ def test_email_attachment(user, mailoutbox, fp):
     )
     services.email_message_prepare(email_message=email_message)
 
-    filename = factories.fake.file_name(extension="pdf")
-    email_message_attachment = services.email_message_attach(
+    # Attachment 1 - from file
+    filename_1 = factories.fake.file_name(extension="pdf")
+    file_1 = tempfile.TemporaryFile(mode="w+b")
+    file_1.write(factories.fake.binary())
+    email_message_attachment_1 = services.email_message_attach(
         email_message=email_message,
-        fp=fp,
-        filename=filename,
+        file=file_1,
+        filename=filename_1,
         mimetype="application/pdf",
+    )
+
+    # Attachment 2 - from content
+    filename_2 = factories.fake.file_name(extension="png")
+    content_2 = factories.fake.binary()
+    email_message_attachment_2 = services.email_message_attach(
+        email_message=email_message,
+        file=content_2,
+        filename=filename_2,
+        mimetype="image/png",
     )
 
     services.email_message_queue(email_message=email_message)
     email_message.refresh_from_db()
     assert email_message.status == constants.EmailMessage.Status.SENT
-    assert email_message.attachments.count() == 1
+    assert email_message.attachments.count() == 2
     assert len(mailoutbox) == 1
-    assert len(mailoutbox[0].attachments) == 1
+    assert len(mailoutbox[0].attachments) == 2
     assert (
-        email_message_attachment.file.name
-        == f"email_message_attachments/{email_message_attachment.uuid}.pdf"
+        email_message_attachment_1.file.name
+        == f"email_message_attachments/{email_message_attachment_1.uuid}.pdf"
     )
-    assert mailoutbox[0].attachments[0][0] == filename
-    fp.seek(0)
-    assert mailoutbox[0].attachments[0][1] == fp.read()
+    assert (
+        email_message_attachment_2.file.name
+        == f"email_message_attachments/{email_message_attachment_2.uuid}.png"
+    )
+    assert mailoutbox[0].attachments[0][0] == filename_1
+    file_1.seek(0)
+    assert mailoutbox[0].attachments[0][1] == file_1.read()
     assert mailoutbox[0].attachments[0][2] == "application/pdf"
+    assert mailoutbox[0].attachments[1][0] == filename_2
+    assert mailoutbox[0].attachments[1][1] == content_2
+    assert mailoutbox[0].attachments[1][2] == "image/png"
 
 
-def test_email_attachment_matching_mime(user, fp):
+def test_email_attachment_matching_mime(user):
     """An EmailMessageAttachment's extension must match its mimetype"""
     email_message = services.email_message_create(
         created_by=user,
@@ -188,7 +201,7 @@ def test_email_attachment_matching_mime(user, fp):
     with pytest.raises(ApplicationError, match="does not match mimetype"):
         services.email_message_attach(
             email_message=email_message,
-            fp=fp,
+            file=factories.fake.binary(),
             filename=factories.fake.file_name(extension="pdf"),
             mimetype="application/json",
         )

@@ -30,6 +30,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.core.mail.message import EmailMultiAlternatives, sanitize_address
 from django.core.files import File
+from django.core.files.base import ContentFile
 from django.db import models, transaction
 from django.db.models import Model, QuerySet
 from django.template import TemplateDoesNotExist
@@ -169,9 +170,16 @@ def email_message_prepare(*, email_message: EmailMessage) -> None:
 
 
 def email_message_attach(
-    *, email_message: EmailMessage, fp: IO[AnyStr], filename: str, mimetype: str
+    *,
+    email_message: EmailMessage,
+    file: IO[AnyStr] | AnyStr,
+    filename: str,
+    mimetype: str,
 ) -> EmailMessageAttachment:
-    """Attach a file to an EmailMessage via EmailMessageAttachment."""
+    """Attach a file to an EmailMessage via EmailMessageAttachment.
+    For convenience, file can be a python file object or string or bytes of content.
+    """
+
     if email_message.status != constants.EmailMessage.Status.READY:
         raise RuntimeError(
             f"EmailMessage.id={email_message.id} email_message_attach called on an email that is not status=READY. Did you run email_message_prepare()?"
@@ -186,13 +194,18 @@ def email_message_attach(
 
     ext = mimetypes.guess_extension(mimetype)  # For storage on S3
     uuid = uuid4()
-    file = File(fp, name=f"{uuid}{ext}")
+
+    if not isinstance(file, (str, bytes)):
+        django_file = File(file, name=f"{uuid}{ext}")
+    else:
+        django_file = ContentFile(file, name=f"{uuid}{ext}")
+
     attachment = email_message_attachment_create(
         uuid=uuid,
         email_message=email_message,
         filename=filename,
         mimetype=mimetype,
-        file=file,
+        file=django_file,
     )
     return attachment
 
@@ -341,7 +354,7 @@ def email_message_duplicate(*, original: EmailMessage) -> EmailMessage:
     for attachment in original.attachments.all():
         email_message_attach(
             email_message=duplicate,
-            fp=attachment.file,
+            file=attachment.file,
             filename=attachment.filename,
             mimetype=attachment.mimetype,
         )
