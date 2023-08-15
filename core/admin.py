@@ -23,11 +23,11 @@ class BaseModelAdmin(admin.ModelAdmin):
         instances = formset.save(commit=False)
         for instance in instances:
             func = self.get_save_func(instance, change)
-            func(instance=instance)
+            func(instance=instance, save=True)
 
     def save_model(self, request, obj, form, change):
         func = self.get_save_func(obj, change)
-        func(instance=obj)
+        func(instance=obj, save=True)
 
 
 class EmailMessageWebhookAdminInline(admin.TabularInline):
@@ -57,12 +57,6 @@ class EmailMessageAdmin(BaseModelAdmin):
     list_filter = ("status", "template_prefix")
     inlines = [EmailMessageAttachmentAdminInline, EmailMessageWebhookAdminInline]
     actions = ["resend"]
-
-    def save_model(self, request, obj, form, change):
-        if change:
-            services.email_message_update(instance=obj, **form.cleaned_data)
-        else:
-            services.email_message_create(**form.cleaned_data)
 
     @admin.action(description="Resend emails")
     def resend(self, request, queryset):

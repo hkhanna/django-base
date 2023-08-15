@@ -883,7 +883,4 @@ def model_duplicate(*, instance: BaseModelType) -> BaseModelType:
     duplicate.pk = None
     duplicate.uuid = uuid4()
     duplicate._state.adding = True
-    duplicate.full_clean()
-    duplicate._allow_save = True
-    duplicate.save()
-    return duplicate
+    return model_create(klass=duplicate.__class__, instance=duplicate)

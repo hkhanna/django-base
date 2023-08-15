@@ -90,7 +90,7 @@ class EmailMessage(BaseModel):
     reply_to_email = models.EmailField(blank=True)
     subject = models.CharField(max_length=254, blank=True)
     template_prefix = models.CharField(max_length=254)
-    template_context = models.JSONField(blank=True)
+    template_context = models.JSONField(default=dict, blank=True)
     message_id = models.CharField(
         max_length=254,
         unique=True,
@@ -157,6 +157,8 @@ class EmailMessageWebhook(BaseModel):
     def __str__(self):
         if self.type:
             return f"{self.type} ({self.id})"
+        else:
+            return f"unknown ({self.id})"
 
 
 class Event(BaseModel):
