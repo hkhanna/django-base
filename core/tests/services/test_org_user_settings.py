@@ -62,8 +62,10 @@ def test_ou_get_setting_defaults(ou, org_user_setting):
 
 def test_ou_get_setting(ou, org_user_setting):
     """org_user_get_setting() will prioritize a direct setting on the OrgUser"""
-    OrgUserSettingDefault.objects.create(org=ou.org, setting=org_user_setting, value=10)
-    OrgUserOrgUserSetting.objects.create(
+    services.org_user_setting_default_create(
+        org=ou.org, setting=org_user_setting, value=10
+    )
+    services.org_user_org_user_setting_create(
         org_user=ou, setting=org_user_setting, value=20
     )
 
@@ -84,8 +86,10 @@ def test_ou_owner(org, ou, org_user_setting):
     org.full_clean()
     org.save()
 
-    OrgUserSettingDefault.objects.create(org=ou.org, setting=org_user_setting, value=10)
-    OrgUserOrgUserSetting.objects.create(
+    services.org_user_setting_default_create(
+        org=ou.org, setting=org_user_setting, value=10
+    )
+    services.org_user_org_user_setting_create(
         org_user=ou, setting=org_user_setting, value=20
     )
 

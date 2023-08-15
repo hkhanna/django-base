@@ -64,9 +64,7 @@ class BaseModel(models.Model):
             "plan",
             "orgsetting",
             "planorgsetting",
-            "overriddenorgsetting",
             "orgusersetting",
-            "orguserorgusersetting",
             "orgusersettingdefault",
         ):
             if self._allow_save is True:

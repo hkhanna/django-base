@@ -59,8 +59,10 @@ def test_org_get_setting_plan(org, org_setting):
 
 def test_org_get_setting_override(org, org_setting):
     """org_get_setting() will prioritize any OverriddenOrgSettings"""
-    PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
-    OverriddenOrgSetting.objects.create(org=org, setting=org_setting, value=20)
+    services.plan_org_setting_create(
+        plan=org.primary_plan, setting=org_setting, value=10
+    )
+    services.overridden_org_setting_create(org=org, setting=org_setting, value=20)
 
     result = services.org_get_setting_value(org=org, slug="for-test")
     assert OrgSetting.objects.count() == 1
