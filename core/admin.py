@@ -7,20 +7,33 @@ from . import models, services, utils
 
 
 class BaseModelAdmin(admin.ModelAdmin):
-    def check(self, **kwargs):
-        assert hasattr(self, "create_fn")
-        assert hasattr(self, "update_fn")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        return super().check(**kwargs)
+        # Generate create_fn if not set
+        if not hasattr(self, "create_fn"):
+            self.create_fn = (
+                self.model._meta.app_label
+                + ".services."
+                + utils.get_snake_case(self.model)
+                + "_create"
+            )
+
+        # Generate update_fn if not set
+        if not hasattr(self, "update_fn"):
+            self.update_fn = (
+                self.model._meta.app_label
+                + ".services."
+                + utils.get_snake_case(self.model)
+                + "_update"
+            )
 
     def save_model(self, request, obj, form, change):
         if change:
-            update_fn_str = getattr(self, "update_fn")
-            update_fn = utils.get_function_from_path(update_fn_str)
+            update_fn = utils.get_function_from_path(self.update_fn)
             update_fn(instance=obj, **form.cleaned_data)
         else:
-            create_fn_str = getattr(self, "create_fn")
-            create_fn = utils.get_function_from_path(create_fn_str)
+            create_fn = utils.get_function_from_path(self.create_fn)
             create_fn(**form.cleaned_data)
 
 
@@ -74,9 +87,6 @@ class EmailMessageAdmin(admin.ModelAdmin):
 
 @admin.register(models.EmailMessageWebhook)
 class EmailMessageWebhookAdmin(BaseModelAdmin):
-    create_fn = "core.services.email_message_webhook_create"
-    update_fn = "core.services.email_message_webhook_update"
-
     readonly_fields = ("received_at",)
     list_display = ("__str__", "email_message", "received_at", "status")
     list_filter = ("email_message__template_prefix",)
@@ -182,9 +192,6 @@ class PlanAdmin(admin.ModelAdmin):
 
 @admin.register(models.GlobalSetting)
 class GlobalSettingAdmin(BaseModelAdmin):
-    create_fn = "core.services.global_setting_create"
-    update_fn = "core.services.global_setting_update"
-
     list_display = (
         "slug",
         "created_at",
@@ -196,9 +203,6 @@ class GlobalSettingAdmin(BaseModelAdmin):
 
 @admin.register(models.OrgSetting)
 class OrgSettingAdmin(BaseModelAdmin):
-    create_fn = "core.services.org_setting_create"
-    update_fn = "core.services.org_setting_update"
-
     list_display = (
         "slug",
         "created_at",
@@ -210,9 +214,6 @@ class OrgSettingAdmin(BaseModelAdmin):
 
 @admin.register(models.OrgUserSetting)
 class OrgUserSettingAdmin(BaseModelAdmin):
-    create_fn = "core.services.org_user_setting_create"
-    update_fn = "core.services.org_user_setting_update"
-
     list_display = (
         "slug",
         "created_at",
