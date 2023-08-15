@@ -1,15 +1,17 @@
 import logging
+
 import pytz
-from django import forms
-from django.contrib.auth import get_user_model
-from django.contrib import messages
-from django.utils import timezone
-from django.core.exceptions import ValidationError
 from allauth.account import forms as auth_forms
-from allauth.socialaccount import forms as socialauth_forms
-from . import models
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
+from allauth.socialaccount import forms as socialauth_forms
+from django import forms
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+
+from . import models
 
 logger = logging.getLogger(__name__)
 

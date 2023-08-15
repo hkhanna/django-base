@@ -1,11 +1,11 @@
 import logging
 import threading
 import uuid
-import pytz
 
-from django.urls import resolve
+import pytz
 from django.apps import apps
 from django.conf import settings
+from django.urls import resolve
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
 

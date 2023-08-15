@@ -1,10 +1,11 @@
 import django.views.defaults
-from django.http import HttpResponse
-from django.conf import settings
-from django.views.generic import TemplateView, RedirectView
-from django.urls import path, include
-from . import views
 from allauth.account import views as auth_views
+from django.conf import settings
+from django.http import HttpResponse
+from django.urls import include, path
+from django.views.generic import RedirectView, TemplateView
+
+from . import views
 
 page_not_found = lambda request: django.views.defaults.page_not_found(request, None)
 

@@ -585,7 +585,7 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
         # Auto-create a personal org if the user doesn't have any active orgs.
-        from core import services, selectors
+        from core import selectors, services
 
         if not self.orgs.filter(is_active=True).exists():
             try:

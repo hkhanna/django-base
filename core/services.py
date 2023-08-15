@@ -14,29 +14,26 @@ Interacts with the database, other resources & other parts of your system.
 Does business logic - from simple model creation to complex cross-cutting concerns, to calling external services & tasks.
 """
 
-from uuid import uuid4
-import mimetypes
 import logging
+import mimetypes
 import traceback
 from datetime import datetime, timedelta
 from importlib import import_module
-from typing import List, Optional, Union, Dict, Any, Type, IO, AnyStr
-
+from typing import IO, Any, AnyStr, Dict, List, Optional, Type, Union
+from uuid import uuid4
 
 from django.conf import settings
-from django.http import HttpRequest
-from django.apps import apps
-from django.template.loader import render_to_string
-from django.utils import timezone
-from django.core.mail.message import EmailMultiAlternatives, sanitize_address
 from django.core.files import File
 from django.core.files.base import ContentFile
+from django.core.mail.message import EmailMultiAlternatives, sanitize_address
 from django.db import models, transaction
 from django.db.models import Model, QuerySet
+from django.http import HttpRequest
 from django.template import TemplateDoesNotExist
+from django.template.loader import render_to_string
+from django.utils import timezone
 
-from . import selectors, tasks, utils, constants
-from .tasks import email_message_send as email_message_send_task
+from . import constants, selectors, utils
 from .exceptions import *
 from .models import (
     EmailMessage,
@@ -47,14 +44,15 @@ from .models import (
     Org,
     OrgInvitation,
     OrgSetting,
+    OrgUser,
+    OrgUserOrgUserSetting,
     OrgUserSetting,
     OrgUserSettingDefault,
-    OrgUserOrgUserSetting,
-    OrgUser,
+    OverriddenOrgSetting,
     Plan,
     PlanOrgSetting,
-    OverriddenOrgSetting,
 )
+from .tasks import email_message_send as email_message_send_task
 from .types import BaseModelType, UserType
 
 logger = logging.getLogger(__name__)

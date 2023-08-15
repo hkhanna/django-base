@@ -1,32 +1,29 @@
 import logging
-from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
-from django.db import transaction
-from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+
+from allauth.account import forms as auth_forms
+from allauth.account import models as auth_models
+from allauth.account import views as auth_views
+from allauth.account.adapter import get_adapter
 from django.conf import settings
-from django.http import Http404
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.views.generic import TemplateView, View, DetailView, CreateView, DeleteView
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.decorators.http import require_http_methods
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
+from django.http import Http404, JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from allauth.account import (
-    views as auth_views,
-    forms as auth_forms,
-    models as auth_models,
-)
-from allauth.account.adapter import get_adapter
+from django.views.decorators.http import require_http_methods
+from django.views.generic import CreateView, DeleteView, DetailView, TemplateView, View
 
-
-from . import forms, models, services, selectors, utils
-from .types import UserType
-from .tasks import email_message_webhook_process as email_message_webhook_process_task
-from .permissions import OrgUserSettingPermissionMixin
+from . import forms, models, selectors, services, utils
 from .exceptions import ApplicationError, ApplicationWarning
+from .permissions import OrgUserSettingPermissionMixin
+from .tasks import email_message_webhook_process as email_message_webhook_process_task
+from .types import UserType
 
 logger = logging.getLogger(__name__)
 
