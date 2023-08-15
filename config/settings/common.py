@@ -73,10 +73,10 @@ MIDDLEWARE = [
     "core.middleware.TimezoneMiddleware",
     "core.middleware.SetRemoteAddrFromForwardedFor",
     "core.middleware.BadRouteDetectMiddleware",
+    "core.middleware.HostUrlconfMiddleware",
     "core.middleware.OrgMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
@@ -192,6 +192,13 @@ SITE_CONFIG = {
     "company_city_state_zip": "Virginia Beach, VA 23462",
     "contact_email": "jane@example.com",
 }
+
+
+# Host-based alternate urlconfs.
+# If the host matches one of these, use the alternate urlconf. Otherwise, use the ROOT_URLCONF.
+# Every urlconf listed here must have a health_check endpoint for Render to deploy it.
+ROOT_URLCONF = "config.urls"
+HOST_URLCONFS: dict[str, str] = {}
 
 # django-allauth
 AUTHENTICATION_BACKENDS = [

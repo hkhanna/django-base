@@ -140,6 +140,23 @@ class BadRouteDetectMiddleware:
         return response
 
 
+class HostUrlconfMiddleware:
+    """ALT_URLCONF defines alternative urlconfs available based on an exact host match."""
+
+    # N.B. If wildcard / subdomain matching becomes necessary to add, it should not be difficult.
+    # I don't need it yet and can avoid a regex matching performance penalty on every request.
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        urlconf = settings.HOST_URLCONFS.get(request.get_host())
+        if urlconf:
+            request.urlconf = urlconf
+
+        response = self.get_response(request)
+        return response
+
+
 class OrgMiddleware:
     """If there's no org in the session, set the org to the user's personal org, or if none, the most recently updated org."""
 

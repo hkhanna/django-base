@@ -68,6 +68,21 @@ def test_route_flag(client, caplog):
     )
 
 
+@override_settings(
+    HOST_URLCONFS={"www.example.com": "core.urls"},
+    ALLOWED_HOSTS=["testserver", "www.example.com"],
+)
+def test_host_urlconf_middleware():
+    """A matching host should set alternative urlconfs"""
+    client = Client()
+    response = client.get(reverse("index"))
+    assert not hasattr(response.wsgi_request, "urlconf")  # No change (config.urls)
+
+    client = Client(SERVER_NAME="www.example.com")
+    response = client.get(reverse("index"))
+    assert response.wsgi_request.urlconf == "core.urls"  # Directly use core.urls
+
+
 def test_org_middleware_no_org_in_session(client, user, org):
     """If there's no org in the session, set the org to the most recently accessed, active org."""
     client.force_login(user)
