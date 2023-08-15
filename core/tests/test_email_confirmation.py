@@ -2,7 +2,7 @@ import pytest
 from django.urls import reverse
 from django.core.cache import cache
 
-from .. import models
+from .. import models, selectors
 
 
 @pytest.fixture(autouse=True)
@@ -33,7 +33,7 @@ def test_user_create_confirm_email(user, mailoutbox):
 def test_user_create_confirm_email_success(client, user):
     """Clicking the appropriate link in the confirmation email will confirm a user's email address"""
     assert user.emailaddress_set.first().verified is False
-    email_message = models.EmailMessage.objects.get(created_by=user)
+    email_message = selectors.email_message_list(created_by=user).get()
     activate_url = email_message.template_context["activate_url"]
     client.get(activate_url, follow=True)
     user.refresh_from_db()
@@ -43,7 +43,7 @@ def test_user_create_confirm_email_success(client, user):
 def test_user_create_confirm_email_twice(client, user):
     """A user email confirmation clicked twice should be idempotent."""
     assert user.emailaddress_set.first().verified is False
-    email_message = models.EmailMessage.objects.get(created_by=user)
+    email_message = selectors.email_message_list(created_by=user).get()
     activate_url = email_message.template_context["activate_url"]
     response = client.get(activate_url, follow=True)
 

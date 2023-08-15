@@ -176,9 +176,9 @@ def test_invite_permission_ui(client, user, org):
     assert "Cancel Invitation" in str(response.content)
     assert "Resend Invitation" in str(response.content)
 
-    ou = OrgUser.objects.get(user=user, org=org)
-    setting = OrgUserSetting.objects.get(slug="can_invite_members")
-    OrgUserOrgUserSetting.objects.create(
+    ou = selectors.org_user_list(user=user, org=org).get()
+    setting = selectors.org_user_setting_list(slug="can_invite_members").get()
+    services.org_user_org_user_setting_create(
         org_user=ou, setting=setting, value=0
     )  # Remove can_invite_members from this OrgUser
 

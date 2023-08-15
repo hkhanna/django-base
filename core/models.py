@@ -59,7 +59,6 @@ class BaseModel(models.Model):
         if self._meta.model_name not in (
             "emailmessage",
             "emailmessageattachment",
-            "orginvitation",
             "org",
             "user",
             "plan",

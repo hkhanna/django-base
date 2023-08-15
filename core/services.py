@@ -489,14 +489,11 @@ def org_invitation_validate_new(
     if selectors.org_user_list(org=org, user__email=org_invitation.email).exists():
         raise ApplicationError(f"{org_invitation.email} is already a member of {org}.")
 
-    org_invitation.org = org
-    org_invitation.created_by = created_by
-
     # This will blow up if there are problems because we don't catch ValidationError.
     # But that is fine as there should never be problems and if there are we want to know.
-    org_invitation.full_clean()
-    org_invitation.save()
-    return org_invitation
+    return org_invitation_update(
+        instance=org_invitation, org=org, created_by=created_by
+    )
 
 
 def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
@@ -532,7 +529,6 @@ def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
         },
     )
     email_message_queue(email_message=email_message)
-    org_invitation.save()
     org_invitation.email_messages.add(email_message)
 
 
