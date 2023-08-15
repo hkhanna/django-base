@@ -1,6 +1,8 @@
 import json
-from django.http import HttpRequest
+from importlib import import_module
+from typing import Callable
 from .exceptions import *
+from .types import ModelType
 
 
 # This is used to test formset submissions and to create synthetic formset data.
@@ -136,7 +138,7 @@ def validate_request_body_json(
     return body_json
 
 
-def trim_string(*, field: str) -> str:
+def trim_string(field: str) -> str:
     """Remove superfluous linebreaks and whitespace"""
     lines = field.splitlines()
     sanitized_lines = []
@@ -146,3 +148,17 @@ def trim_string(*, field: str) -> str:
             sanitized_lines.append(line.strip())
     sanitized = " ".join(sanitized_lines).strip()
     return sanitized
+
+
+def get_snake_case(model: ModelType) -> str:
+    verbose_name = model._meta.verbose_name
+    if not verbose_name:
+        raise ValueError(f"Model {model} has no verbose_name")
+    return verbose_name.replace(" ", "_").lower()
+
+
+def get_function_from_path(path: str) -> Callable:
+    """Get a function from a string path"""
+    module_name, function_name = path.rsplit(".", 1)
+    module = import_module(module_name)
+    return getattr(module, function_name)

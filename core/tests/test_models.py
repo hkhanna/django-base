@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 
 from . import factories
-from .. import services, selectors, models, constants
+from .. import services, selectors, models, constants, utils
 
 User = get_user_model()
 
@@ -19,7 +19,7 @@ def test_exists_model_create():
     for app in apps.get_app_configs():
         for model in app.get_models():
             if models.BaseModel in model.__mro__:
-                snake_name = model._meta.verbose_name.replace(" ", "_").lower()
+                snake_name = utils.get_snake_case(model)
                 assert hasattr(services, f"{snake_name}_create")
 
 
@@ -28,7 +28,7 @@ def test_exists_model_update():
     for app in apps.get_app_configs():
         for model in app.get_models():
             if models.BaseModel in model.__mro__:
-                snake_name = model._meta.verbose_name.replace(" ", "_").lower()
+                snake_name = utils.get_snake_case(model)
                 assert hasattr(services, f"{snake_name}_update")
 
 
@@ -37,7 +37,7 @@ def test_exists_model_list():
     for app in apps.get_app_configs():
         for model in app.get_models():
             if models.BaseModel in model.__mro__:
-                snake_name = model._meta.verbose_name.replace(" ", "_").lower()
+                snake_name = utils.get_snake_case(model)
                 assert hasattr(selectors, f"{snake_name}_list")
 
 

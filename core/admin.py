@@ -3,43 +3,25 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 
-from core import constants
-from . import models, services
+from . import models, services, utils
 
 
-@admin.register(models.User)
-class UserAdmin(DefaultUserAdmin):
-    fieldsets = (
-        (None, {"fields": ("id", "uuid", "email", "password")}),
-        ("Personal info", {"fields": ("first_name", "last_name", "email_history")}),
-        (
-            "Permissions",
-            {
-                "fields": (
-                    "is_active",
-                    "is_locked",
-                    "is_staff",
-                    "is_superuser",
-                    # "groups",
-                    "user_permissions",
-                )
-            },
-        ),
-        ("Important dates", {"fields": ("last_login", "date_joined")}),
-    )
-    add_fieldsets = (
-        (None, {"classes": ("wide",), "fields": ("email", "password1", "password2")}),
-    )
-    list_display = ("email", "first_name", "last_name", "is_staff")
-    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
-    search_fields = ("email", "first_name", "last_name", "email_history")
-    ordering = ("email",)
-    filter_horizontal = ("groups", "user_permissions")
-    readonly_fields = ("id", "uuid")
+class BaseModelAdmin(admin.ModelAdmin):
+    def check(self, **kwargs):
+        assert hasattr(self, "create_fn")
+        assert hasattr(self, "update_fn")
+
+        return super().check(**kwargs)
 
     def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        obj.sync_changed_email()
+        if change:
+            update_fn_str = getattr(self, "update_fn")
+            update_fn = utils.get_function_from_path(update_fn_str)
+            update_fn(instance=obj, **form.cleaned_data)
+        else:
+            create_fn_str = getattr(self, "create_fn")
+            create_fn = utils.get_function_from_path(create_fn_str)
+            create_fn(**form.cleaned_data)
 
 
 class EmailMessageWebhookAdminInline(admin.TabularInline):
@@ -91,7 +73,10 @@ class EmailMessageAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.EmailMessageWebhook)
-class EmailMessageWebhookAdmin(admin.ModelAdmin):
+class EmailMessageWebhookAdmin(BaseModelAdmin):
+    create_fn = "core.services.email_message_webhook_create"
+    update_fn = "core.services.email_message_webhook_update"
+
     readonly_fields = ("received_at",)
     list_display = ("__str__", "email_message", "received_at", "status")
     list_filter = ("email_message__template_prefix",)
@@ -158,12 +143,6 @@ class OrgAdmin(admin.ModelAdmin):
         OrgUserAdminInline,
     ]
 
-    def save_model(self, request, obj, form, change):
-        if change:
-            services.org_update(instance=obj, **form.cleaned_data)
-        else:
-            services.org_create(**form.cleaned_data)
-
 
 @admin.register(models.OrgUser)
 class OrgUserAdmin(admin.ModelAdmin):
@@ -202,7 +181,10 @@ class PlanAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.GlobalSetting)
-class GlobalSettingAdmin(admin.ModelAdmin):
+class GlobalSettingAdmin(BaseModelAdmin):
+    create_fn = "core.services.global_setting_create"
+    update_fn = "core.services.global_setting_update"
+
     list_display = (
         "slug",
         "created_at",
@@ -213,7 +195,10 @@ class GlobalSettingAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.OrgSetting)
-class OrgSettingAdmin(admin.ModelAdmin):
+class OrgSettingAdmin(BaseModelAdmin):
+    create_fn = "core.services.org_setting_create"
+    update_fn = "core.services.org_setting_update"
+
     list_display = (
         "slug",
         "created_at",
@@ -224,7 +209,10 @@ class OrgSettingAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.OrgUserSetting)
-class OrgUserSettingAdmin(admin.ModelAdmin):
+class OrgUserSettingAdmin(BaseModelAdmin):
+    create_fn = "core.services.org_user_setting_create"
+    update_fn = "core.services.org_user_setting_update"
+
     list_display = (
         "slug",
         "created_at",
@@ -232,6 +220,41 @@ class OrgUserSettingAdmin(admin.ModelAdmin):
         "default",
     )
     search_fields = ("slug",)
+
+
+@admin.register(models.User)
+class UserAdmin(DefaultUserAdmin):
+    fieldsets = (
+        (None, {"fields": ("id", "uuid", "email", "password")}),
+        ("Personal info", {"fields": ("first_name", "last_name", "email_history")}),
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "is_active",
+                    "is_locked",
+                    "is_staff",
+                    "is_superuser",
+                    # "groups",
+                    "user_permissions",
+                )
+            },
+        ),
+        ("Important dates", {"fields": ("last_login", "date_joined")}),
+    )
+    add_fieldsets = (
+        (None, {"classes": ("wide",), "fields": ("email", "password1", "password2")}),
+    )
+    list_display = ("email", "first_name", "last_name", "is_staff")
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+    search_fields = ("email", "first_name", "last_name", "email_history")
+    ordering = ("email",)
+    filter_horizontal = ("groups", "user_permissions")
+    readonly_fields = ("id", "uuid")
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        obj.sync_changed_email()
 
 
 admin.site.index_title = "Index"
