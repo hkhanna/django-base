@@ -415,16 +415,19 @@ def email_message_webhook_process(
             raise RuntimeError(
                 f"EmailMessageWebhook.id={webhook.id} process_email_message_webhook called on a webhook that is not status=NEW"
             )
-        webhook.status = constants.EmailMessageWebhook.Status.PENDING
-        webhook.save()
+        email_message_webhook_update(
+            instance=webhook, status=constants.EmailMessageWebhook.Status.PENDING
+        )
 
         # Store the type
         if "RecordType" in webhook.body:
-            webhook.type = webhook.body["RecordType"]
+            email_message_webhook_update(
+                instance=webhook, type=webhook.body["RecordType"]
+            )
 
         # Find the related EmailMessage and connect it
         if "MessageID" in webhook.body:
-            email_message = EmailMessage.objects.filter(
+            email_message = selectors.email_message_list(
                 message_id=webhook.body["MessageID"]
             ).first()
             if email_message:
@@ -432,7 +435,7 @@ def email_message_webhook_process(
                 if webhook.type in constants.WEBHOOK_TYPE_TO_EMAIL_STATUS:
                     # Make sure this is the most recent webhook, in case it arrived out of order.
                     all_ts = []
-                    for other_webhook in EmailMessageWebhook.objects.filter(
+                    for other_webhook in selectors.email_message_webhook_list(
                         email_message=email_message
                     ):
                         ts_key = constants.WEBHOOK_TYPE_TO_TIMESTAMP[other_webhook.type]
@@ -452,14 +455,17 @@ def email_message_webhook_process(
                         email_message.status = new_status
                         email_message.save()
 
-        webhook.status = constants.EmailMessageWebhook.Status.PROCESSED
+        email_message_webhook_update(
+            instance=webhook, status=constants.EmailMessageWebhook.Status.PROCESSED
+        )
+        logger.debug(f"EmailMessageWebhook.id={webhook.id} processed")
     except Exception as e:
         logger.exception(f"EmailMessageWebhook.id={webhook.id} in error state")
-        webhook.status = constants.EmailMessageWebhook.Status.ERROR
-        webhook.note = traceback.format_exc()
-    finally:
-        webhook.save()
-        logger.debug(f"Saved EmailMessageWebhook.id={webhook.id}")
+        email_message_webhook_update(
+            instance=webhook,
+            status=constants.EmailMessageWebhook.Status.ERROR,
+            note=traceback.format_exc(),
+        )
 
 
 def org_invitation_validate_new(

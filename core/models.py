@@ -57,7 +57,6 @@ class BaseModel(models.Model):
 
         # HACK: Incremental enforcement while we're transitioning
         if self._meta.model_name not in (
-            "emailmessagewebhook",
             "emailmessage",
             "emailmessageattachment",
             "orginvitation",
