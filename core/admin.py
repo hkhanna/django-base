@@ -7,6 +7,8 @@ from . import models, services, utils
 
 
 class BaseModelAdmin(admin.ModelAdmin):
+    """Enforce use of services to save and update models"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -58,7 +60,7 @@ class EmailMessageAttachmentAdminInline(admin.TabularInline):
 
 
 @admin.register(models.EmailMessage)
-class EmailMessageAdmin(admin.ModelAdmin):
+class EmailMessageAdmin(BaseModelAdmin):
     readonly_fields = ("created_at",)
     list_display = ("__str__", "to_email", "created_at", "status")
     list_filter = ("status", "template_prefix")
@@ -126,7 +128,7 @@ class OrgUserSettingDefaultAdminInline(admin.TabularInline):
 
 
 @admin.register(models.Org)
-class OrgAdmin(admin.ModelAdmin):
+class OrgAdmin(BaseModelAdmin):
     list_display = (
         "name",
         "slug",
@@ -155,7 +157,7 @@ class OrgAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.OrgUser)
-class OrgUserAdmin(admin.ModelAdmin):
+class OrgUserAdmin(BaseModelAdmin):
     list_display = (
         "id",
         "user",
@@ -170,7 +172,7 @@ class OrgUserAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Plan)
-class PlanAdmin(admin.ModelAdmin):
+class PlanAdmin(BaseModelAdmin):
     list_display = (
         "slug",
         "name",
@@ -182,12 +184,6 @@ class PlanAdmin(admin.ModelAdmin):
     readonly_fields = ("id", "slug", "created_at", "updated_at")
     search_fields = ("name",)
     inlines = [PlanOrgSettingAdminInline]
-
-    def save_model(self, request, obj, form, change):
-        if change:
-            services.plan_update(instance=obj, **form.cleaned_data)
-        else:
-            services.plan_create(**form.cleaned_data)
 
 
 @admin.register(models.GlobalSetting)
