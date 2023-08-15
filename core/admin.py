@@ -9,32 +9,24 @@ from . import models, services, utils
 class BaseModelAdmin(admin.ModelAdmin):
     """Enforce use of services to save and update models"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_save_func(self, obj, change):
+        """Get the create or update function for the object being saved."""
+        # Object can be either the instance or its children instances.
+        func_str = obj._meta.app_label + ".services." + utils.get_snake_case(obj)
+        if change:
+            func_str += "_update"
+        else:
+            func_str += "_create"
+        return utils.get_function_from_path(func_str)
 
-        # Generate create_fn if not set
-        if not hasattr(self, "create_fn"):
-            self.create_fn = (
-                self.model._meta.app_label
-                + ".services."
-                + utils.get_snake_case(self.model)
-                + "_create"
-            )
-
-        # Generate update_fn if not set
-        if not hasattr(self, "update_fn"):
-            self.update_fn = (
-                self.model._meta.app_label
-                + ".services."
-                + utils.get_snake_case(self.model)
-                + "_update"
-            )
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            func = self.get_save_func(instance, change)
+            func(instance=instance)
 
     def save_model(self, request, obj, form, change):
-        if change:
-            func = utils.get_function_from_path(self.update_fn)
-        else:
-            func = utils.get_function_from_path(self.create_fn)
+        func = self.get_save_func(obj, change)
         func(instance=obj)
 
 
