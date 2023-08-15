@@ -60,7 +60,6 @@ class BaseModel(models.Model):
             "emailmessage",
             "emailmessageattachment",
             "orginvitation",
-            "orguser",
             "org",
             "user",
             "plan",

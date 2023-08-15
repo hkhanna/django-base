@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.test import Client
 from . import factories
+from .. import services
 
 
 def test_request_id_middleware_user(client, caplog, user):
@@ -80,10 +81,7 @@ def test_org_middleware_no_org_in_session(client, user, org):
     assert response.wsgi_request.org == org
 
     # More recently access the personal org
-    personal_ou.last_accessed_at = timezone.now()
-    personal_ou.full_clean()
-    personal_ou.save()
-
+    services.org_user_update(instance=personal_ou, last_accessed_at=timezone.now())
     assert ou.last_accessed_at < personal_ou.last_accessed_at
 
     session = client.session
