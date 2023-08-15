@@ -591,13 +591,21 @@ def org_update(*, instance: Org, **kwargs) -> Org:
     return org
 
 
-def plan_create(**kwargs) -> Plan:
-    """Create a Plan and return the Plan."""
-    plan = Plan(**kwargs)
+def plan_create(*, instance: Optional[Plan] = None, **kwargs) -> Plan:
+    """Create a Plan and return the Plan, dealing with setting and unsetting of is_default."""
+
+    # If is_default is set on kwargs, is_default should be set to that.
+    is_default = False
+    try:
+        is_default = kwargs["is_default"]
+    except KeyError:
+        # If is_default is not set on kwargs, but instance is set and is_default is True, is_default should be set to True.
+        if instance and instance.is_default is True:
+            is_default = True
 
     with transaction.atomic():
         # If this plan is set to the default, unset default on all other plans.
-        if plan.is_default:
+        if is_default:
             count = model_bulk_update(
                 qs=selectors.plan_list(is_default=True), is_default=False
             )
@@ -605,17 +613,24 @@ def plan_create(**kwargs) -> Plan:
                 logger.warning(
                     f"Unset is_default on {count} Plans. This is okay if you meant to change the default Plan."
                 )
-        plan.full_clean()
-        plan._allow_save = True  # HACK
-        plan.save()
+        plan = model_create(klass=Plan, instance=instance, **kwargs)
     return plan
 
 
 def plan_update(*, instance: Plan, **kwargs) -> Plan:
     """Update a Plan and return the Plan."""
+    # If is_default is set on kwargs, is_default should be set to that.
+    is_default = False
+    try:
+        is_default = kwargs["is_default"]
+    except KeyError:
+        # If is_default is not set on kwargs, but instance is set and is_default is True, is_default should be set to True.
+        if instance and instance.is_default is True:
+            is_default = True
+
     with transaction.atomic():
         # If this plan is set to the default, unset default on all other plans.
-        if kwargs.get("is_default"):
+        if is_default:
             count = model_bulk_update(
                 qs=selectors.plan_list(is_default=True).exclude(pk=instance.pk),
                 is_default=False,

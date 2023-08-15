@@ -85,7 +85,11 @@ class EmailMessageWebhookAdmin(BaseModelAdmin):
     list_filter = ("email_message__template_prefix",)
 
 
-admin.site.register(models.Event)
+@admin.register(models.Event)
+class EventAdmin(BaseModelAdmin):
+    pass
+
+
 admin.site.unregister(Group)
 
 
