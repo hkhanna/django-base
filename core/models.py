@@ -56,11 +56,7 @@ class BaseModel(models.Model):
         """Enforce use of services to save models."""
 
         # HACK: Incremental enforcement while we're transitioning
-        if self._meta.model_name not in (
-            "emailmessage",
-            "user",
-            "plan",
-        ):
+        if self._meta.model_name not in ("emailmessage",):
             if self._allow_save is True:
                 self._allow_save = False
                 return super().save(*args, **kwargs)
@@ -592,13 +588,14 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
         # Auto-create a personal org if the user doesn't have any active orgs.
-        from core import services
+        from core import services, selectors
 
         if not self.orgs.filter(is_active=True).exists():
-            Plan = apps.get_model("core", "Plan")
-            default_plan, _ = Plan.objects.get_or_create(
-                is_default=True, defaults={"name": "Default"}
-            )
+            try:
+                default_plan = selectors.plan_list(is_default=True).get()
+            except Plan.DoesNotExist:
+                default_plan = services.plan_create(is_default=True, name="Default")
+
             services.org_create(
                 owner=self,
                 is_personal=True,
