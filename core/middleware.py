@@ -180,7 +180,7 @@ class OrgMiddleware:
             # Set the last accessed time
             ou = request.org.org_users.get(user=request.user)
             ou._allow_save = (
-                True  # We can't import core.services in the middleware file.
+                True  # HACK: We can't import core.services in the middleware file.
             )
             ou.last_accessed_at = timezone.now()
             ou.full_clean()

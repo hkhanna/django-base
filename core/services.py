@@ -606,7 +606,7 @@ def plan_create(**kwargs) -> Plan:
                     f"Unset is_default on {count} Plans. This is okay if you meant to change the default Plan."
                 )
         plan.full_clean()
-        plan._allow_save = True
+        plan._allow_save = True  # HACK
         plan.save()
     return plan
 
@@ -679,29 +679,12 @@ def org_user_setting_default_update(
 def model_update(
     *,
     instance: BaseModelType,
+    save=True,
     data: Dict[str, Any],
 ) -> BaseModelType:
-    """
-    Generic update service meant to be reused in local update services.
-
-    For example:
-
-    def user_update(*, user: User, data) -> User:
-        user, has_updated = model_update(instance=user, data=data)
-
-        // Do other actions with the user here
-
-        return user
-
-    Return value: Tuple with the following elements:
-        1. The instance we updated.
-        2. A boolean value representing whether we performed an update or not.
-
-    Some important notes:
-
-        - There's a strict assertion that all values in `fields` are actual fields in `instance`.
-        - `data` can support m2m fields, which are handled after the update on `instance`.
-    """
+    """Update a model instance with the provided data and return the instance. This does not
+    reset any fields on the instance, so if updates have already been made to the instance, they
+    will stick unless overriden by the data."""
     m2m_data = {}
 
     model_fields = {field.name: field for field in instance._meta.get_fields()}
@@ -721,9 +704,14 @@ def model_update(
 
         setattr(instance, field, data[field])
 
-    instance.full_clean()
-    instance._allow_save = True
-    instance.save()
+    if save:
+        instance.full_clean()
+        instance._allow_save = True
+        instance.save()
+    elif len(m2m_data) > 0:
+        raise RuntimeError(
+            "Cannot save m2m data without saving the instance. Set save=True."
+        )
 
     for field_name, value in m2m_data.items():
         related_manager = getattr(instance, field_name)
@@ -733,7 +721,7 @@ def model_update(
 
 
 def model_bulk_update(*, qs: QuerySet, **kwargs) -> int:
-    """Bulk update a set of Plans and return the number of Plans updated."""
+    """Bulk update a set of instances and return the number of instances updated."""
     return qs.update(**kwargs)
 
 
@@ -851,15 +839,25 @@ def org_user_org_user_setting_create(**kwargs) -> OrgUserOrgUserSetting:
 
 
 def model_create(
-    *, klass: Type[BaseModelType], save=True, **kwargs: Union[Model, str, bool]
+    *,
+    klass: Type[BaseModelType],
+    instance: Optional[BaseModelType] = None,
+    save=True,
+    **kwargs: Union[Model, str, bool],
 ):
-    """Create a model instance and return the model instance."""
-    instance = klass(**kwargs)
-    if save:
-        instance.full_clean()
-        instance._allow_save = True
-        instance.save()
-    return instance
+    """Create a model instance and return the model instance.
+    If an instance is passed, don't create a new instance, but ensure
+    that the passed instance does not yet exist in the database."""
+
+    if instance:
+        if not instance._state.adding:
+            raise RuntimeError(
+                f"{instance.__class__.__name__} instance is not new. Did you mean to call model_update()?"
+            )
+    else:
+        instance = klass(**kwargs)
+
+    return model_update(instance=instance, save=save, data=kwargs)
 
 
 def model_duplicate(*, instance: BaseModelType) -> BaseModelType:

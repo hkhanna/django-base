@@ -32,11 +32,10 @@ class BaseModelAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if change:
-            update_fn = utils.get_function_from_path(self.update_fn)
-            update_fn(instance=obj, **form.cleaned_data)
+            func = utils.get_function_from_path(self.update_fn)
         else:
-            create_fn = utils.get_function_from_path(self.create_fn)
-            create_fn(**form.cleaned_data)
+            func = utils.get_function_from_path(self.create_fn)
+        func(instance=obj)
 
 
 class EmailMessageWebhookAdminInline(admin.TabularInline):
