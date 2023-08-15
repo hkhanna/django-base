@@ -93,9 +93,7 @@ def test_org_middleware_no_org_in_session(client, user, org):
     assert response.wsgi_request.org == personal
 
     # Deactivate the personal Org
-    personal.is_active = False
-    personal.full_clean()
-    personal.save()
+    services.org_update(instance=personal, is_active=False)
 
     session = client.session
     session.clear()
