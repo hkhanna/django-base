@@ -12,7 +12,7 @@ from core import constants, services
 
 @pytest.fixture
 def org_setting():
-    return OrgSetting.objects.create(
+    return services.org_setting_create(
         slug="for-test", default=5, type=constants.SettingType.INT
     )
 

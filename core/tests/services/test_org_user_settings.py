@@ -10,7 +10,7 @@ from core import constants, services
 
 @pytest.fixture
 def org_user_setting():
-    return OrgUserSetting.objects.create(
+    return services.org_user_setting_create(
         slug="for-test", default=5, owner_value=100, type=constants.SettingType.INT
     )
 
@@ -48,7 +48,9 @@ def test_ou_get_setting_materialize_org_defaults(ou, org_user_setting):
 
 def test_ou_get_setting_defaults(ou, org_user_setting):
     """org_user_get_setting() in the normal case will retrieve the OrgSetting from the OuSettingDefaults (but not materialize the setting on OrgUser)"""
-    OrgUserSettingDefault.objects.create(org=ou.org, setting=org_user_setting, value=10)
+    services.org_user_setting_default_create(
+        org=ou.org, setting=org_user_setting, value=10
+    )
 
     result = services.org_user_get_setting_value(org_user=ou, slug="for-test")
     assert OrgUserSetting.objects.count() == 1
@@ -82,9 +84,7 @@ def test_ou_get_setting(ou, org_user_setting):
 
 def test_ou_owner(org, ou, org_user_setting):
     """org_user_get_setting() where the OrgUser is the owner always pulls from OrgUserSetting.owner_value."""
-    org.owner = ou.user
-    org.full_clean()
-    org.save()
+    services.org_update(instance=org, owner=ou.user)
 
     services.org_user_setting_default_create(
         org=ou.org, setting=org_user_setting, value=10

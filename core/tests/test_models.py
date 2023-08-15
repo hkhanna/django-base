@@ -91,12 +91,10 @@ def test_change_user_name_org_name(user):
 
 def test_org_setting_boolean(org):
     """OrgSettings of type bool may only have a value of 0 or 1."""
-    org_setting = models.OrgSetting.objects.create(
+    org_setting = services.org_setting_create(
         slug="for-test", type=constants.SettingType.BOOL, default=0
     )
-    org_setting.default = 1
-    org_setting.full_clean()
-    org_setting.save()  # OK
+    services.org_setting_update(instance=org_setting, default=1)  # OK
 
     with assertRaisesMessage(ValidationError, "0 or 1"):
         org_setting.default = 2
@@ -113,7 +111,7 @@ def test_org_setting_boolean(org):
 
 def test_org_user_setting_boolean(ou):
     """OrgUserSettings of type bool may only have a value of 0 or 1."""
-    org_user_setting = models.OrgUserSetting.objects.create(
+    org_user_setting = services.org_user_setting_create(
         slug="for-test", type=constants.SettingType.BOOL, default=0, owner_value=1
     )
     org_user_setting.default = 1

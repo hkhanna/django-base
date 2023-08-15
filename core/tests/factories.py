@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from faker import Faker
 from allauth.account import models as auth_models
-from ..models import EmailMessage, Org, Plan
+from ..models import EmailMessage
 from .. import services
 
 fake = Faker()
@@ -67,5 +67,5 @@ def org_create(**kwargs):
 
 
 def plan_create():
-    name = "Plan " + fake.word()
-    return Plan.objects.create(name=name)
+    name = f"Plan {fake.word()} {fake.word()}"
+    return services.plan_create(name=name)
