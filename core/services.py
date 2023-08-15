@@ -596,6 +596,7 @@ def plan_create(**kwargs) -> Plan:
                     f"Unset is_default on {count} Plans. This is okay if you meant to change the default Plan."
                 )
         plan.full_clean()
+        plan._allow_save = True
         plan.save()
     return plan
 

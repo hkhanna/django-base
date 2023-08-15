@@ -114,19 +114,16 @@ def test_org_user_setting_boolean(ou):
     org_user_setting = services.org_user_setting_create(
         slug="for-test", type=constants.SettingType.BOOL, default=0, owner_value=1
     )
-    org_user_setting.default = 1
-    org_user_setting.full_clean()
-    org_user_setting.save()  # OK
+
+    services.org_user_setting_update(instance=org_user_setting, default=1)  # OK
 
     with assertRaisesMessage(ValidationError, "0 or 1"):
-        org_user_setting.default = 2
-        org_user_setting.full_clean()
+        services.org_user_setting_update(instance=org_user_setting, default=2)
 
     org_user_setting.refresh_from_db()
 
     with assertRaisesMessage(ValidationError, "0 or 1"):
-        org_user_setting.owner_value = 2
-        org_user_setting.full_clean()
+        services.org_user_setting_update(instance=org_user_setting, owner_value=2)
 
     with assertRaisesMessage(ValidationError, "0 or 1"):
         models.OrgUserSettingDefault(

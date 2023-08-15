@@ -79,9 +79,7 @@ def test_org_switch(client, user, org):
 def test_org_switch_inactive(client, user, org):
     """A user may not switch to an inactive org"""
     personal = user.personal_org
-    personal.is_active = False
-    personal.full_clean()
-    personal.save()
+    services.org_update(instance=personal, is_active=False)
 
     client.force_login(user)
     response = client.get(reverse("index"))

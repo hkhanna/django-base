@@ -47,7 +47,9 @@ def test_org_get_setting_noplan(org, org_setting):
 
 def test_org_get_setting_plan(org, org_setting):
     """org_get_setting() in the normal case will retrieve the OrgSetting from the Plan"""
-    PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
+    services.plan_org_setting_create(
+        plan=org.primary_plan, setting=org_setting, value=10
+    )
 
     result = services.org_get_setting_value(org=org, slug="for-test")
     assert OrgSetting.objects.count() == 1
@@ -76,7 +78,9 @@ def test_org_get_setting_override(org, org_setting):
 
 def test_org_get_setting_plan_expired(org, org_setting):
     """If Org.current_period_end is expired, org_get_setting() should look to Org.default_plan"""
-    PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
+    services.plan_org_setting_create(
+        plan=org.primary_plan, setting=org_setting, value=10
+    )
     with freeze_time(org.current_period_end + timedelta(seconds=1)):
         result = services.org_get_setting_value(org=org, slug="for-test")
         assert OrgSetting.objects.count() == 1
@@ -87,9 +91,7 @@ def test_org_get_setting_plan_expired(org, org_setting):
         assert result == 5  # Uses the default
 
         default_setting = org.default_plan.plan_org_settings.first()
-        default_setting.value = 30
-        default_setting.full_clean()
-        default_setting.save()
+        services.plan_org_setting_update(instance=default_setting, value=30)
         result = services.org_get_setting_value(org=org, slug="for-test")
         assert result == 30  # Use the specified
 
@@ -99,9 +101,9 @@ def test_org_get_setting_plan_expired(org, org_setting):
 
 def test_org_get_setting_plan_never_expires(org, org_setting):
     """If Org.current_period_end is None, the plan never expires."""
-    PlanOrgSetting.objects.create(plan=org.primary_plan, setting=org_setting, value=10)
-    org.current_period_end = None
-    org.full_clean()
-    org.save()
+    services.plan_org_setting_create(
+        plan=org.primary_plan, setting=org_setting, value=10
+    )
+    services.org_update(instance=org, current_period_end=None)
     result = services.org_get_setting_value(org=org, slug="for-test")
     assert result == 10

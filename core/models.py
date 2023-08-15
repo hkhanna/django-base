@@ -62,8 +62,6 @@ class BaseModel(models.Model):
             "org",
             "user",
             "plan",
-            "planorgsetting",
-            "orgusersetting",
         ):
             if self._allow_save is True:
                 self._allow_save = False
