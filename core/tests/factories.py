@@ -30,10 +30,16 @@ def user_create(**kwargs):
 
 
 def email_message_create(**kwargs):
-    defaults = dict(created_by=user_create(), template_context=dict())
+    defaults = dict(
+        created_by=user_create(),
+        template_context=dict(),
+        template_prefix="core/email/base",
+        to_email=fake.email(),
+        sender_email=fake.email(),
+    )
     params = defaults | kwargs
 
-    return EmailMessage.objects.create(**params)
+    return services.email_message_create(save=True, **params)
 
 
 def email_message_webhook_create(**kwargs):

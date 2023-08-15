@@ -55,18 +55,13 @@ class BaseModel(models.Model):
     def save(self, *args, **kwargs):
         """Enforce use of services to save models."""
 
-        # HACK: Incremental enforcement while we're transitioning
-        if self._meta.model_name not in ("emailmessage",):
-            if self._allow_save is True:
-                self._allow_save = False
-                return super().save(*args, **kwargs)
-            else:
-                raise RuntimeError(
-                    f"Must use services to save {self._meta.model_name} models."
-                )
-        else:
+        if self._allow_save is True:
             self._allow_save = False
             return super().save(*args, **kwargs)
+        else:
+            raise RuntimeError(
+                f"Must use services to save {self._meta.model_name} models."
+            )
 
 
 class EmailMessage(BaseModel):

@@ -122,26 +122,31 @@ def email_message_prepare(*, email_message: EmailMessage) -> None:
         )
 
     assert settings.SITE_CONFIG["default_from_email"] is not None
-    e.sender_email = utils.trim_string(
-        field=e.sender_email or settings.SITE_CONFIG["default_from_email"]
+    email_message_update(
+        instance=e,
+        sender_email=utils.trim_string(
+            field=e.sender_email or settings.SITE_CONFIG["default_from_email"]
+        ),
+        sender_name=utils.trim_string(
+            field=e.sender_name or settings.SITE_CONFIG["default_from_name"] or ""
+        ),
+        reply_to_email=utils.trim_string(field=e.reply_to_email or ""),
+        reply_to_name=utils.trim_string(field=e.reply_to_name or ""),
+        to_name=utils.trim_string(field=e.to_name),
+        to_email=utils.trim_string(field=e.to_email),
     )
-    e.sender_name = utils.trim_string(
-        field=e.sender_name or settings.SITE_CONFIG["default_from_name"] or ""
-    )
-    e.reply_to_email = utils.trim_string(field=e.reply_to_email or "")
-    e.reply_to_name = utils.trim_string(field=e.reply_to_name or "")
-    e.to_name = utils.trim_string(field=e.to_name)
-    e.to_email = utils.trim_string(field=e.to_email)
 
     if e.reply_to_name and not e.reply_to_email:
-        e.status = EmailMessage.Status.ERROR
-        e.save()
+        email_message_update(instance=e, status=constants.EmailMessage.Status.ERROR)
         raise RuntimeError("Reply to has a name but does not have an email")
 
     if not e.postmark_message_stream:
-        e.postmark_message_stream = settings.POSTMARK_DEFAULT_STREAM_ID
+        email_message_update(
+            instance=e, postmark_message_stream=settings.POSTMARK_DEFAULT_STREAM_ID
+        )
 
-    default_context = {
+    # Set defaults for template context if not provided.
+    template_context = {
         "logo_url": settings.SITE_CONFIG["logo_url"],
         "logo_url_link": settings.SITE_CONFIG["logo_url_link"],
         "contact_email": settings.SITE_CONFIG["contact_email"],
@@ -149,24 +154,25 @@ def email_message_prepare(*, email_message: EmailMessage) -> None:
         "company": settings.SITE_CONFIG["company"],
         "company_address": settings.SITE_CONFIG["company_address"],
         "company_city_state_zip": settings.SITE_CONFIG["company_city_state_zip"],
-    }
-    for k, v in default_context.items():
-        if k not in e.template_context:
-            e.template_context[k] = v
+    } | e.template_context
 
     # Render subject from template if not already set
-    if not e.subject:
-        e.subject = render_to_string(
-            "{0}_subject.txt".format(e.template_prefix), e.template_context
+    subject = e.subject
+    if not subject:
+        subject = render_to_string(
+            "{0}_subject.txt".format(e.template_prefix), template_context
         )
-    e.subject = utils.trim_string(field=e.subject)
-    if len(e.subject) > settings.MAX_SUBJECT_LENGTH:
-        e.subject = e.subject[: settings.MAX_SUBJECT_LENGTH - 3] + "..."
-    e.template_context["subject"] = e.subject
+    subject = utils.trim_string(field=subject)
+    if len(subject) > settings.MAX_SUBJECT_LENGTH:
+        subject = subject[: settings.MAX_SUBJECT_LENGTH - 3] + "..."
+    template_context["subject"] = subject
 
-    e.status = constants.EmailMessage.Status.READY
-    e.full_clean()
-    e.save()
+    email_message_update(
+        instance=e,
+        template_context=template_context,
+        subject=subject,
+        status=constants.EmailMessage.Status.READY,
+    )
 
 
 def email_message_attach(
@@ -229,9 +235,11 @@ def email_message_queue(
         allowed=cooldown_allowed,
         scopes=scopes,
     ):
-        e.status = constants.EmailMessage.Status.CANCELED
-        e.error_message = "Cooling down"
-        e.save()
+        email_message_update(
+            instance=e,
+            status=constants.EmailMessage.Status.CANCELED,
+            error_message="Cooling down",
+        )
         return False
     else:
         email_message_send_task.delay(e.id)
@@ -314,17 +322,20 @@ def email_message_send(*, email_message: EmailMessage) -> None:
                     email_message.message_id = message_ids[0]
 
     except Exception as e:
-        email_message.status = constants.EmailMessage.Status.ERROR
-        email_message.error_message = repr(e)
-        email_message.save()
+        email_message_update(
+            instance=email_message,
+            status=constants.EmailMessage.Status.ERROR,
+            error_message=repr(e),
+        )
         logger.exception(
             f"EmailMessage.id={email_message.id} Exception caught in send_email_message"
         )
     else:
-        email_message.status = constants.EmailMessage.Status.SENT
-        email_message.sent_at = timezone.now()
-
-    email_message.save()
+        email_message_update(
+            instance=email_message,
+            status=constants.EmailMessage.Status.SENT,
+            sent_at=timezone.now(),
+        )
 
 
 def email_message_create(save=False, **kwargs) -> EmailMessage:
@@ -452,8 +463,7 @@ def email_message_webhook_process(
                         new_status = constants.WEBHOOK_TYPE_TO_EMAIL_STATUS[
                             webhook.type
                         ]
-                        email_message.status = new_status
-                        email_message.save()
+                        email_message_update(instance=email_message, status=new_status)
 
         email_message_webhook_update(
             instance=webhook, status=constants.EmailMessageWebhook.Status.PROCESSED
