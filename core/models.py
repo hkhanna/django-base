@@ -30,6 +30,14 @@ class UniqueConstraintNoValidation(models.UniqueConstraint):
         pass
 
 
+class BaseManager(models.Manager):
+    """Base manager for all models"""
+
+    def get_by_natural_key(self, uuid):
+        """For deserialization during django-admin loaddata."""
+        return self.get(uuid=uuid)
+
+
 class BaseModel(models.Model):
     """Base model for all models"""
 
@@ -43,6 +51,8 @@ class BaseModel(models.Model):
     created_at = models.DateTimeField(db_index=True, default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = BaseManager()
+
     class Meta:
         abstract = True
 
@@ -51,6 +61,10 @@ class BaseModel(models.Model):
         self._allow_save = False
 
         return super().__init__(*args, **kwargs)
+
+    def natural_key(self):
+        """For serialization when using django-admin dumpdata."""
+        return (self.uuid,)
 
     def save(self, *args, **kwargs):
         """Enforce use of services to save models."""
