@@ -40,12 +40,12 @@ clean:
 build:
 	@echo "Building python virtual environment"
 	python3.10 -m venv .venv
-	pip install --upgrade pip
+	source .venv/bin/activate && pip install --upgrade pip
 	source .venv/bin/activate && pip install -r requirements/local.txt
 	@echo "Installing vite node dependencies"
 	npm install --prefix frontend/
 	@echo "Installing playwright"
-	playwright install
+	source .venv/bin/activate && playwright install
 	
 db:
 	@echo "Destroying postgres docker container"

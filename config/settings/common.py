@@ -197,6 +197,7 @@ SITE_CONFIG = {
 # Host-based alternate urlconfs.
 # If the host matches one of these, use the alternate urlconf. Otherwise, use the ROOT_URLCONF.
 # Every urlconf listed here must have a health_check endpoint for Render to deploy it.
+# Every urlconf listed here must also have an "index" page to avoid infinite errors when rendering the 404 page.
 ROOT_URLCONF = "config.urls"
 HOST_URLCONFS: dict[str, str] = {}
 
