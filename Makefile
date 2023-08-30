@@ -27,6 +27,9 @@ playwright:
 fmt:
 	find -name *.html -not -path "*node_modules*" -a -not -path "*.git*" -a -not -path "*.venv*" | xargs djhtml -i -t 2
 
+dumpdata:
+	source .venv/bin/activate && python manage.py dumpdata --format=jsonl --natural-primary --natural-foreign -o dump.jsonl.gz
+
 # BUILD STEPS #
 all: clean build seed 
 
