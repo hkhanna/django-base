@@ -6,7 +6,7 @@ DB_NAME = $(shell basename $(CURDIR))-db
 
 # RUNNING AND TESTING #
 run: 
-	make -j2 vite app
+	(make vite & make app & wait)
 
 app:
 	@docker start ${DB_NAME}
