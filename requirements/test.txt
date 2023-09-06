@@ -4,11 +4,11 @@
 
 boto3==1.28.25
 django-check-html-middleware==2021.10.1
-django-stubs==4.2.3
+django-stubs==4.2.4
 freezegun==1.2.2
 gunicorn==21.2.0
 Faker==19.2.0
-mypy==1.4.1
+mypy==1.5.1
 psycopg[c]==3.1.10
 pytest==7.4.0
 pytest-django==4.5.2

@@ -92,7 +92,5 @@ def org_setting_list(**kwargs) -> QuerySet[OrgSetting]:
     return model_list(klass=OrgSetting, **kwargs)
 
 
-def model_list(
-    *, klass: Type[BaseModelType], **kwargs: Union[Model, str, bool]
-) -> QuerySet[BaseModelType]:
-    return klass.objects.filter(**kwargs)
+def model_list(*, klass: Type[BaseModelType], **kwargs) -> QuerySet:
+    return klass._default_manager.filter(**kwargs)

@@ -852,7 +852,7 @@ def model_create(
     instance: Optional[BaseModelType] = None,
     save=True,
     **kwargs,
-):
+) -> BaseModelType:
     """Create a model instance and return the model instance.
     If an instance is passed, don't create a new instance, but ensure
     that the passed instance does not yet exist in the database."""
