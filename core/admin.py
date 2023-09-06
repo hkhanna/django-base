@@ -27,7 +27,7 @@ class BaseModelAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         func = self.get_save_func(obj, change)
-        func(instance=obj, save=True)
+        func(instance=obj, save=True, **form.cleaned_data)
 
 
 class EmailMessageWebhookAdminInline(admin.TabularInline):

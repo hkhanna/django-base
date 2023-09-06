@@ -86,7 +86,7 @@ def event_create(**kwargs) -> Event:
 
 
 def event_update(instance: Event, **kwargs) -> Event:
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def email_message_check_cooling_down(
@@ -336,14 +336,14 @@ def email_message_send(*, email_message: EmailMessage) -> None:
         )
 
 
-def email_message_create(save=False, **kwargs) -> EmailMessage:
+def email_message_create(*, save=False, **kwargs) -> EmailMessage:
     # By default, we don't persist the email_message because often it is
     # not ready until email_message_prepare is called on it.
     return model_create(klass=EmailMessage, save=save, **kwargs)
 
 
 def email_message_update(*, instance: EmailMessage, **kwargs) -> EmailMessage:
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def email_message_duplicate(*, original: EmailMessage) -> EmailMessage:
@@ -378,7 +378,7 @@ def email_message_attachment_create(**kwargs) -> EmailMessageAttachment:
 def email_message_attachment_update(
     *, instance: EmailMessageAttachment, **kwargs
 ) -> EmailMessageAttachment:
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def email_message_webhook_create_from_request(
@@ -412,7 +412,7 @@ def email_message_webhook_create(**kwargs) -> EmailMessageWebhook:
 def email_message_webhook_update(
     *, instance: EmailMessageWebhook, **kwargs
 ) -> EmailMessageWebhook:
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def email_message_webhook_process(
@@ -577,7 +577,7 @@ def org_update(*, instance: Org, **kwargs) -> Org:
     if instance.is_personal:
         instance._meta.get_field("slug").overwrite = True
 
-    org = model_update(instance=instance, data=kwargs)
+    org = model_update(instance=instance, **kwargs)
 
     # Reset the slug overwrite flag to its default value.
     instance._meta.get_field("slug").overwrite = False
@@ -637,64 +637,59 @@ def plan_update(*, instance: Plan, **kwargs) -> Plan:
                 logger.warning(
                     f"Unset is_default on {count} Plans. This is okay if you meant to change the default Plan."
                 )
-        plan = model_update(instance=instance, data=kwargs)
+        plan = model_update(instance=instance, **kwargs)
     return plan
 
 
 def global_setting_update(*, instance: GlobalSetting, **kwargs) -> GlobalSetting:
     """Update a GlobalSetting and return the GlobalSetting."""
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def org_user_update(*, instance: OrgUser, **kwargs) -> OrgUser:
     """Update an OrgUser and return the OrgUser."""
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def org_invitation_update(*, instance: OrgInvitation, **kwargs) -> OrgInvitation:
     """Update an OrgInvitation and return the OrgInvitation."""
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def org_setting_update(*, instance: OrgSetting, **kwargs) -> OrgSetting:
     """Update an OrgSetting and return the OrgSetting."""
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def plan_org_setting_update(*, instance: PlanOrgSetting, **kwargs) -> PlanOrgSetting:
     """Update a PlanOrgSetting and return the PlanOrgSetting."""
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def overridden_org_setting_update(
     *, instance: OverriddenOrgSetting, **kwargs
 ) -> OverriddenOrgSetting:
     """Update an OverriddenOrgSetting and return the OverriddenOrgSetting."""
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def org_user_setting_update(*, instance: OrgUserSetting, **kwargs) -> OrgUserSetting:
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def org_user_org_user_setting_update(
     *, instance: OrgUserOrgUserSetting, **kwargs
 ) -> OrgUserOrgUserSetting:
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
 def org_user_setting_default_update(
     *, instance: OrgUserSettingDefault, **kwargs
 ) -> OrgUserSettingDefault:
-    return model_update(instance=instance, data=kwargs)
+    return model_update(instance=instance, **kwargs)
 
 
-def model_update(
-    *,
-    instance: BaseModelType,
-    save=True,
-    data: Dict[str, Any],
-) -> BaseModelType:
+def model_update(*, instance: BaseModelType, save=True, **kwargs) -> BaseModelType:
     """Update a model instance with the provided data and return the instance. This does not
     reset any fields on the instance, so if updates have already been made to the instance, they
     will stick unless overriden by the data."""
@@ -702,7 +697,7 @@ def model_update(
 
     model_fields = {field.name: field for field in instance._meta.get_fields()}
 
-    for field in data:
+    for field in kwargs:
         # If field is not an actual model field, raise an error
         model_field = model_fields.get(field)
 
@@ -712,10 +707,10 @@ def model_update(
 
         # If we have m2m field, handle differently
         if isinstance(model_field, models.ManyToManyField):
-            m2m_data[field] = data[field]
+            m2m_data[field] = kwargs[field]
             continue
 
-        setattr(instance, field, data[field])
+        setattr(instance, field, kwargs[field])
 
     if save:
         instance.full_clean()
@@ -856,7 +851,7 @@ def model_create(
     klass: Type[BaseModelType],
     instance: Optional[BaseModelType] = None,
     save=True,
-    **kwargs: Union[Model, str, bool],
+    **kwargs,
 ):
     """Create a model instance and return the model instance.
     If an instance is passed, don't create a new instance, but ensure
@@ -870,7 +865,7 @@ def model_create(
     else:
         instance = klass(**kwargs)
 
-    return model_update(instance=instance, save=save, data=kwargs)
+    return model_update(instance=instance, save=save, **kwargs)
 
 
 def model_duplicate(*, instance: BaseModelType) -> BaseModelType:
