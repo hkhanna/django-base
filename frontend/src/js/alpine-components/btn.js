@@ -1,5 +1,5 @@
 // Btn Usage
-// <button x-btn:<size>.<primary|secondary|white|danger>="{<iconLeft: icon name>, <iconRight: icon name>}">Button label</button>
+// <button x-btn:<size>.<primary|secondary|white|danger>="{<iconLeft: icon name>, <iconRight: icon name>, disabled: true|false}">Button label</button>
 
 /*
  * We do styling of the button via this Alpine directive.
@@ -12,46 +12,64 @@
 export default function (Alpine) {
   Alpine.directive(
     "btn",
-    (el, { value, modifiers, expression }, { cleanup, evaluate }) => {
-      const data = expression ? evaluate(expression) : {};
-
-      let classes = [
-        "inline-flex",
-        "relative",
-        "items-center",
-        "font-medium",
-        "focus:outline-none",
-      ];
-
+    (el, { value, modifiers, expression }, { effect, evaluateLater }) => {
+      const evaluate = evaluateLater(expression || "{}");
       const variant = getVariant(modifiers);
-      classes = classes.concat(VARIANTS[variant].common);
 
-      if (el.disabled) {
-        classes = classes.concat(VARIANTS[variant].disabled);
-      } else {
-        classes = classes.concat(VARIANTS[variant].enabled);
-      }
+      evaluate((data) => {
+        let classes = [
+          "inline-flex",
+          "relative",
+          "items-center",
+          "font-medium",
+          "focus:outline-none",
+        ];
 
-      const size = value || "md";
-      classes = classes.concat(SIZES[size]);
+        const variant = getVariant(modifiers);
+        classes = classes.concat(VARIANTS[variant].common);
 
-      el.classList.add(...classes);
+        if (data.disabled) {
+          classes = classes.concat(VARIANTS[variant].disabled);
+        } else {
+          classes = classes.concat(VARIANTS[variant].enabled);
+        }
 
-      // Add any icons to the left or right.
-      if (data.iconLeft) {
-        const iconLeft = document.createElement("div");
-        iconLeft.classList.add(...ICON_SIZES[size]);
-        iconLeft.classList.add(...ICON_SPACING_LEFT[size]);
-        iconLeft.setAttribute("x-heroicon:solid.20", data.iconLeft);
-        el.prepend(iconLeft);
-      }
-      if (data.iconRight) {
-        const iconRight = document.createElement("div");
-        iconRight.classList.add(...ICON_SIZES[size]);
-        iconRight.classList.add(...ICON_SPACING_RIGHT[size]);
-        iconRight.setAttribute("x-heroicon:solid.20", data.iconRight);
-        el.append(iconRight);
-      }
+        const size = value || "md";
+        classes = classes.concat(SIZES[size]);
+
+        el.classList.add(...classes);
+
+        // Add any icons to the left or right.
+        if (data.iconLeft) {
+          const iconLeft = document.createElement("div");
+          iconLeft.classList.add(...ICON_SIZES[size]);
+          iconLeft.classList.add(...ICON_SPACING_LEFT[size]);
+          iconLeft.setAttribute("x-heroicon:solid.20", data.iconLeft);
+          el.prepend(iconLeft);
+        }
+        if (data.iconRight) {
+          const iconRight = document.createElement("div");
+          iconRight.classList.add(...ICON_SIZES[size]);
+          iconRight.classList.add(...ICON_SPACING_RIGHT[size]);
+          iconRight.setAttribute("x-heroicon:solid.20", data.iconRight);
+          el.append(iconRight);
+        }
+      });
+
+      // Anything that could be dynamic should go in here.
+      effect(() => {
+        evaluate((data) => {
+          if (data.disabled) {
+            el.classList.add(...VARIANTS[variant].disabled);
+            el.classList.remove(...VARIANTS[variant].enabled);
+            el.disabled = true;
+          } else {
+            el.classList.add(...VARIANTS[variant].enabled);
+            el.classList.remove(...VARIANTS[variant].disabled);
+            el.disabled = false;
+          }
+        });
+      });
     }
   );
 }
