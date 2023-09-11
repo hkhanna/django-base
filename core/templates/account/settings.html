@@ -59,7 +59,7 @@
                   {% component "input_field" field=pi_form.oldpassword input_class="w-full sm:w-auto" %}
                 </div>
                 {% endif %}
-                <button x-data x-btn.primary type="submit" name="form_name" value="pi">Save Changes</button>
+                <button class="btn" type="submit" name="form_name" value="pi">Save Changes</button>
               </div>
             </div>
           </form>
@@ -102,9 +102,9 @@
                 <div>
                   {% component "input_field" field=password_form.oldpassword input_class="w-full sm:w-auto" %}
                 </div>
-                <button x-data x-btn.primary type="submit" name="form_name" value="password">Change Password</button>
+                <button type="submit" name="form_name" value="password" class="btn">Change Password</button>
                 {% else %}
-                <button x-data x-btn.primary type="submit" name="form_name" value="password">Set Password</button>
+                <button type="submit" name="form_name" value="password" class="btn">Set Password</button>
                 {% endif %}
               </div>
             </div>
@@ -194,7 +194,7 @@
             </div>
           </div>
           <div class="mt-4 md:mt-2 md:col-span-2 px-4 sm:px-0" x-data="{ modal: false }">
-            <button x-btn.white type="button" x-on:click="modal = true">Delete Account</button>
+            <button class="btn btn-white btn-md" type="button" x-on:click="modal = true">Delete Account</button>
             <form action="{% url 'account_delete' %}" method="POST">
               {% csrf_token %}
               <div x-modal:modal.submit.danger="{title: 'Delete Your Account', submitLabel: 'Confirm Delete'}">

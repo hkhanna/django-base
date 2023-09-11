@@ -125,9 +125,8 @@ function renderSubmitModal({
 </div>
   <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
     <button 
-      x-btn:lg.${variant}
       type="submit" 
-      class="w-full justify-center sm:col-start-2"
+      class="w-full btn btn-lg btn-${variant} justify-center sm:col-start-2"
       ${submitName ? `name="${submitName}"` : ""}
       ${submitValue ? `value="${submitValue}"` : ""}
       ${formnovalidate ? "formnovalidate" : ""}
@@ -135,7 +134,7 @@ function renderSubmitModal({
     >
       ${submitLabel || "Submit"}
     </button>
-    <button x-btn:lg.white type="button" x-on:click="${show} = false" class="mt-3 w-full justify-center sm:mt-0 sm:col-start-1">Cancel</button>
+    <button type="button" x-on:click="${show} = false" class="btn btn-lg btn-white mt-3 w-full justify-center sm:mt-0 sm:col-start-1">Cancel</button>
   </div>
   `;
 }

@@ -57,7 +57,7 @@
               <div class="px-4 py-5 bg-white sm:p-6 space-y-6">
                 <div class="flow-root">
                   <ul role="list" class="divide-y divide-gray-200">
-                    <li class="pb-4" x-data="{modal: false}"><button x-btn.white="{iconLeft: 'plus'}" x-on:click="modal = true">Invite a Member</button>
+                    <li class="pb-4" x-data="{modal: false}"><button x-btn-icon.left="plus" class="btn btn-white" x-on:click="modal = true">Invite a Member</button>
                     <form action="{% url 'org_invite' %}" method="POST">
                     {% csrf_token %}
                     <div x-modal:modal.submit.primary="{title: 'Invite a Member', submitLabel: 'Invite', icon: 'user-plus'}">
