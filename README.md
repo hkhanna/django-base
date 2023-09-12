@@ -6,7 +6,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 ### Prerequisites
 
-- Docker (for postgres).
+- PostgreSQL 14 (or Docker)
 - Python 3.10
 - `libtidy-dev` (e.g., `apt install libtidy-dev` or `brew install tidy-html5`)
 
@@ -14,7 +14,8 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 - Clone the repo: `git clone git@github.com:hkhanna/fedora.git`
 - Copy `.env.example` to `.env` and make any appropriate changes.
-- From within the repo directory, run `make all`
+- If you have a database running, from within the repo directory, run `make all`.
+- If you do not have a local database running but you do have Docker running, run `make all-docker`.
 
 ### Running Locally
 

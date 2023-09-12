@@ -21,10 +21,6 @@ class Command(BaseCommand):
         # Create just one user for now that is a superuser
         email = input("Superuser email address: ")
         password = getpass.getpass()
-        confirm_password = getpass.getpass("Confirm password: ")
-        if password != confirm_password:
-            self.stderr.write("Passwords don't match.")
-            exit(1)
         user = User.objects.create_superuser(email, password)
 
         # -- Orgs -- #
