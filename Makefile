@@ -60,7 +60,7 @@ clear-db:
 	@read -p "Proceed to destroy database? (y/N): " -n 1 -r; \
 	echo; \
 	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		echo "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" | python manage.py dbshell; \
+		source .venv/bin/activate && echo "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" | python manage.py dbshell; \
 	else \
 		echo "Operation cancelled."; \
 		exit 1; \

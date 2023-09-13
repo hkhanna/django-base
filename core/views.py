@@ -265,6 +265,7 @@ def email_message_webhook_view(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def event_emit_view(request):
+    """Emit an Event via webhook."""
     try:
         payload = utils.validate_request_body_json(
             body=request.body, required_keys=["type"]

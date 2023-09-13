@@ -12,14 +12,17 @@ export default function (Alpine) {
 
       const icon = document.createElement("div");
       icon.classList.add(...ICON_SIZES[sizeClass]);
-      icon.setAttribute("x-heroicon:solid.20", expression);
+      if (modifiers.includes("outline")) {
+        icon.setAttribute("x-heroicon:outline.24", expression);
+      } else {
+        icon.setAttribute("x-heroicon:solid.24", expression);
+      }
 
       if (value === "right") {
         icon.classList.add(...ICON_SPACING_RIGHT[sizeClass]);
         el.append(icon);
       } else {
         icon.classList.add(...ICON_SPACING_LEFT[sizeClass]);
-        icon.setAttribute("x-heroicon:solid.20", expression);
         el.prepend(icon);
       }
     }
