@@ -186,7 +186,7 @@ class Event(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.type} ({self.occurred_at})"
+        return f"{self.type} - {self.uuid}"
 
 
 class GlobalSetting(BaseModel):
