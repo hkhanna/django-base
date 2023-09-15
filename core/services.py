@@ -67,7 +67,9 @@ def event_emit(
 
     logger.info(f"Event.uuid={event.uuid} Event.type={event.type} emitted.")
 
-    handler_str = settings.EVENT_HANDLERS.get(type, settings.EVENT_HANDLERS["default"])
+    handler_str = utils.get_value_from_subtyped_keys(settings.EVENT_HANDLERS, type)
+    if not handler_str:
+        handler_str = settings.EVENT_HANDLERS["default"]
     path_parts = handler_str.split(".")
     module_path = ".".join(path_parts[:-1])
     module = import_module(module_path)

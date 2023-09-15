@@ -1,6 +1,6 @@
 import json
 from importlib import import_module
-from typing import Callable
+from typing import Callable, Optional
 
 from .exceptions import *
 from .types import ModelType
@@ -163,3 +163,30 @@ def get_function_from_path(path: str) -> Callable:
     module_name, function_name = path.rsplit(".", 1)
     module = import_module(module_name)
     return getattr(module, function_name)
+
+
+def get_value_from_subtyped_keys(d: dict, key: str) -> Optional[str]:
+    """Given a dict, return the value of the first key
+    that matches the subtype or its ancestors."""
+    # Used primarily for event handlers.
+    while key:
+        if key in d:
+            return d[key]
+        elif "." in key:
+            key = ".".join(key.split(".")[:-1])
+        else:
+            break
+    return None
+
+
+def issubtype(subtype: str, type: str, inclusive=True) -> bool:
+    """Return whether a key is a subtype of another key."""
+
+    # Inclusive allows for an exact match
+    if subtype == type:
+        if inclusive:
+            return True
+        else:
+            return False
+
+    return subtype.startswith(type + ".")
