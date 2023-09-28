@@ -10,7 +10,9 @@ class MarkdownNode(template.Node):
 
     def render(self, context):
         output = self.nodelist.render(context)
-        output = markdown.markdown(output)
+        output = markdown.markdown(
+            output, extensions=["toc"], extension_configs={"toc": {"anchorlink": True}}
+        )
         return output
 
 
