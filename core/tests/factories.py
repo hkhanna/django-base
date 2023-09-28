@@ -12,6 +12,8 @@ User = get_user_model()
 
 
 def user_create(**kwargs):
+    org = kwargs.pop("org", None)
+
     first_name = fake.first_name()
     last_name = fake.last_name()
 
@@ -26,6 +28,11 @@ def user_create(**kwargs):
     auth_models.EmailAddress.objects.get_or_create(
         user=user, email=user.email, primary=True
     )
+
+    # If an org was passed, add the user to it.
+    if org:
+        org.users.add(user)
+
     return user
 
 
