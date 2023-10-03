@@ -69,6 +69,17 @@
     </div>
 
 </div>
+
+<div x-data class="m-8 space-y-4">
+        <h2 class="text-xl text-center font-semibold text-gray-700">Datepicker</h2>
+        <div class="flex gap-x-4">
+            <div x-datepicker.fixed></div>
+            <form>
+                <div x-datepicker:input-name.submit></div>
+            </form>
+        </div>
+</div>
+
 <div x-data class="m-8 space-y-4">
     <h2 class="text-xl text-center font-semibold text-gray-700">Modal</h2>
 
@@ -92,11 +103,6 @@
         <div x-modal:open.submit="{title: 'Title'}">
             This is text in a submit modal.
         </div>
-    </div>
-
-    <div x-data class="m-8 space-y-4">
-        <h2 class="text-xl text-center font-semibold text-gray-700">Datepicker</h2>
-        <div x-datepicker>Hello</div>
     </div>
 
     <div x-data="{ open: false }">
