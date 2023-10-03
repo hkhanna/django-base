@@ -74,8 +74,17 @@
         <h2 class="text-xl text-center font-semibold text-gray-700">Datepicker</h2>
         <div class="flex gap-x-4">
             <div x-datepicker.fixed></div>
+            <div 
+                x-datepicker.fixed="{
+                    inputName: 'hide_until',
+                    initial: '{{ticket.hide_until|default:""}}',
+                    min: '{% now "Y-m-d" %}',
+                    datePickerOpenClass: 'p-2'
+                }"
+            >
+            </div>
             <form>
-                <div x-datepicker:input-name.submit></div>
+                <div x-datepicker.submit="{inputName: 'input-name', datePickerOpenClass: 'p-4 bg-white border rounded-lg shadow border-neutral-200/70'}"></div>
             </form>
         </div>
 </div>

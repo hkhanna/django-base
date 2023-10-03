@@ -5,25 +5,30 @@ export default function (Alpine) {
       const evaluate = evaluateLater(expression || "{}");
       const fixed = modifiers.includes("fixed"); // Forces it open unconditionally
       const submit = modifiers.includes("submit"); // Submit on selection
-      const inputName = value;
 
       effect(() => {
         evaluate((expression) => {
+          const inputName = expression.inputName || "";
+          const initial = expression.initial || "";
+          const min = expression.min || "";
+          const max = expression.max || "";
+
           el.innerHTML = `
-<div x-data="datepicker(${fixed}, ${submit})">
-  <div class="w-full mb-5">
+<div x-data="datepicker({fixed: ${fixed}, submit: ${submit}, initial: '${initial}', min: '${min}', max: '${max}'})" x-on:click.outside="datePickerOpen = false">
+  <div class="w-full">
     <div class="relative w-[17rem]">
       <input
         x-ref="datePickerInput"
         type="text"
         ${inputName ? `name="${inputName}"` : ""}
         @click="datePickerOpen=!datePickerOpen"
+        x-on:input="datePickerOpen=true"
         x-model="datePickerValue"
         x-on:keydown.escape="datePickerOpen=false"
         class="flex w-full h-10 px-3 py-2 text-sm bg-white border rounded-md text-neutral-600 border-neutral-300 ring-offset-background placeholder:text-neutral-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50"
         placeholder="Select date"
       />
-      <div x-show="${!fixed}" @click="datePickerOpen=!datePickerOpen; if(datePickerOpen){ $refs.datePickerInput.focus() }" class="absolute top-0 right-0 px-3 py-2 cursor-pointer text-neutral-400 hover:text-neutral-500">
+      <div @click="datePickerOpen=!datePickerOpen; if(datePickerOpen){ $refs.datePickerInput.focus() }" class="absolute top-0 right-0 px-3 py-2 cursor-pointer text-neutral-400 hover:text-neutral-500">
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
@@ -32,13 +37,13 @@ export default function (Alpine) {
       <div
         x-show="datePickerOpen"
         x-transition
-        @click.away="datePickerOpen = false"
         x-bind:class="{
           'absolute top-0 left-0 mt-12': ${!fixed} && !datePickerError,
           'absolute top-0 left-0 mt-16': ${!fixed} && datePickerError,
-          'mt-2': ${fixed}
+          'mt-2': ${fixed},
+          '${expression.datePickerOpenClass}': true
         }"
-        class="max-w-lg p-4 antialiased bg-white border rounded-lg shadow w-[17rem] border-neutral-200/70"
+        class="max-w-lg w-[17rem] antialiased"
       >
         <div class="flex items-center justify-between mb-2">
           <div>
@@ -67,7 +72,8 @@ export default function (Alpine) {
           </template>
           <template x-for="(day, dayIndex) in datePickerDaysInMonth" :key="dayIndex">
             <div class="px-0.5 mb-1 aspect-square">
-              <div
+              <button
+                type=${submit ? "submit" : "button"}
                 x-text="day"
                 @click="datePickerDayClicked(day)"
                 :class="{
@@ -75,8 +81,8 @@ export default function (Alpine) {
                                         'text-gray-600 hover:bg-neutral-200': datePickerIsToday(day) == false && datePickerIsSelectedDate(day) == false,
                                         'bg-neutral-800 text-white hover:bg-opacity-75': datePickerIsSelectedDate(day) == true
                                     }"
-                class="flex items-center justify-center text-sm leading-none text-center rounded-full cursor-pointer h-7 w-7"
-              ></div>
+                class="flex items-center justify-center text-sm leading-none text-center rounded-full h-7 w-7"
+              ></button>
             </div>
           </template>
         </div>
@@ -93,7 +99,7 @@ export default function (Alpine) {
     }
   );
 
-  Alpine.data("datepicker", (fixed, submit) => {
+  Alpine.data("datepicker", ({ fixed, submit, initial, min, max }) => {
     return {
       _datePickerOpen: fixed || false,
       get datePickerOpen() {
@@ -131,11 +137,19 @@ export default function (Alpine) {
       datePickerDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
       datePickerValueMin: "2023-01-01",
       get datePickerMin() {
-        return new Date(Date.parse(this.datePickerValueMin));
+        // Ensure the datestring is in the local timezone
+        const [year, month, day] = this.datePickerValueMin
+          .split("-")
+          .map(Number);
+        return new Date(year, month - 1, day);
       },
       datePickerValueMax: "2099-12-31",
       get datePickerMax() {
-        return new Date(Date.parse(this.datePickerValueMax));
+        // Ensure the datestring is in the local timezone
+        const [year, month, day] = this.datePickerValueMax
+          .split("-")
+          .map(Number);
+        return new Date(year, month - 1, day);
       },
       datePickerDayClicked(day) {
         let selectedDate = new Date(
@@ -145,22 +159,18 @@ export default function (Alpine) {
         );
 
         if (selectedDate < this.datePickerMin) {
-          this.datePickerError = `Please pick a date after ${this.datePickerFormatDate(
+          this.datePickerError = `Please pick a date on or after ${this.datePickerFormatDate(
             this.datePickerMin
           )}.`;
           return;
         } else if (selectedDate > this.datePickerMax) {
-          this.datePickerError = `Please pick a date before ${this.datePickerFormatDate(
+          this.datePickerError = `Please pick a date on or before ${this.datePickerFormatDate(
             this.datePickerMax
           )}.`;
           return;
         }
         this.datePickerDay = day;
         this.datePickerValue = this.datePickerFormatDate(selectedDate);
-        if (submit) {
-          console.log("wat");
-          this.$refs.datePickerInput.closest("form").submit();
-        }
         this.datePickerOpen = false;
       },
       datePickerPreviousMonth() {
@@ -252,7 +262,12 @@ export default function (Alpine) {
         this.datePickerCalculateDays();
       },
       datePickerSelectToday() {
-        this.datePickerValue = this.datePickerFormatDate(new Date());
+        const today = new Date();
+        if (this.datePickerValue === this.datePickerFormatDate(today)) {
+          this.datePickerConformSelectionToValue(today);
+        } else {
+          this.datePickerValue = this.datePickerFormatDate(today);
+        }
       },
       isValidDate(value) {
         const d = new Date(value);
@@ -269,6 +284,16 @@ export default function (Alpine) {
         if (this.datePickerValue) {
           value = new Date(Date.parse(this.datePickerValue));
         }
+        if (initial) {
+          value = new Date(Date.parse(initial));
+        }
+        if (min) {
+          this.datePickerValueMin = min;
+        }
+        if (max) {
+          this.datePickerValueMax = max;
+        }
+
         this.datePickerConformSelectionToValue(value);
 
         this.$watch("datePickerValue", (value) => {
