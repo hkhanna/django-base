@@ -1,11 +1,11 @@
 databases:
-  - name: base-fedora-db
+  - name: django-base-db
     region: ohio
     plan: free
     postgresMajorVersion: 14
 
 envVarGroups:
-  - name: base-fedora-env
+  - name: django-base-env
     envVars:
       - key: PYTHON_VERSION
         value: "3.10.8"
@@ -30,48 +30,48 @@ envVarGroups:
 
 services:
   - type: web
-    name: base-fedora-web
+    name: django-base-web
     env: python
     region: ohio
-    plan: free # base-fedora -- set to starter
+    plan: free # django-base -- set to starter
     buildCommand: "./build-web.sh"
     startCommand: "gunicorn config.wsgi:application --access-logfile None"
     healthCheckPath: /health_check/
     envVars:
-      - fromGroup: base-fedora-env
+      - fromGroup: django-base-env
       - key: DATABASE_URL
         fromDatabase:
-          name: base-fedora-db
+          name: django-base-db
           property: connectionString
       - key: WEB_CONCURRENCY
         value: 4
       # - key: REDIS_URL
       #   fromService:
-      #     name: base-fedora-redis
+      #     name: django-base-redis
       #     type: redis
       #     property: connectionString
 
   # - type: worker
-  #   name: base-fedora-celery
-  #   plan: free  # base-fedora -- set to starter
+  #   name: django-base-celery
+  #   plan: free  # django-base -- set to starter
   #   region: ohio
   #   env: python
   #   buildCommand: "./build-worker.sh"
   #   startCommand: "celery --app=config.celery worker --loglevel=INFO --concurrency 4"
   #   envVars:
-  #     - fromGroup: base-fedora-env
+  #     - fromGroup: django-base-env
   #     - key: DATABASE_URL
   #       fromDatabase:
-  #         name: base-fedora-db
+  #         name: django-base-db
   #         property: connectionString
   #     - key: REDIS_URL
   #       fromService:
-  #         name: base-fedora-redis
+  #         name: django-base-redis
   #         type: redis
   #         property: connectionString
 
   # - type: redis
-  #   name: base-fedora-redis
+  #   name: django-base-redis
   #   region: ohio
   #   ipAllowList: [] # internal connections only
   #   plan: free # optional (defaults to starter)

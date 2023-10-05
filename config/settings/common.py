@@ -158,7 +158,7 @@ MEDIA_ROOT = BASE_DIR / ".media/"
 # django_dbbackup
 # DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
 # DBBACKUP_STORAGE_OPTIONS = {"location": BASE_DIR / ".backups/"}
-# DBBACKUP_GPG_RECIPIENT = "base-fedora@<domain>"
+# DBBACKUP_GPG_RECIPIENT = "django-base@<domain>"
 
 # EMAIL
 # If there's a POSTMARK_API_KEY (for the Sandbox server), use the Postmark backend.
@@ -178,7 +178,7 @@ EMAIL_MESSAGE_WEBHOOK_PATH = env(
 # Site Configuration - Refactor this if >1 Site is hosted from this codebase.
 SITE_ID = 1
 SITE_CONFIG = {
-    "name": "Fedora Base",
+    "name": "Django Base",
     "logo_url_link": "",
     "logo_url": "",
     "default_from_name": "Jane Example",

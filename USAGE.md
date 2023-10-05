@@ -4,19 +4,19 @@ This repository is used as a template repository that I can clone for any new Dj
 
 Generally, you'll want to avoid making too many changes to the `core` app to avoid merge conflicts when you merge in updates to this base repo. In other words, put as much as you can into different apps, although some changes to the `core` app may be unavoidable.
 
-# Creating a new Django project from `fedora/base`
+# Creating a new Django project from `django-base`
 
 - Pick a suitable project name.
-- Clone the repo into the new project name directory. E.g., `git clone git@github.com:hkhanna/fedora.git <project_name>`
+- Clone the repo into the new project name directory. E.g., `git clone git@github.com:hkhanna/django-base.git <project_name>`
 - Rename the `origin` remote to `base`: `git remote rename origin base`
-- In the project directory: `git checkout base/base && git checkout -b base && git branch -D main && git branch -M main`.
+- In the project directory, create a branch where you can keep a copy of `django-base`: `git branch base`.
 - Create a fresh Github repo for the project.
 - Point the `origin` remote to a fresh Github repo.
-- In the `fedora` repo, add the new application as it's own remote so you can cherry-pick commits if necessary.
+- In the `django-base` repo, add the new application as it's own remote so you can cherry-pick commits if necessary.
 - Remove or replace the LICENSE file.
 - Update `.env.example` to the desired defaults for the new project.
 - Create an AWS bucket for media ideally named `<project>-production` and the appropriate keys. This will hold things like attachments to EmailMessages.
-- Grep for the string `base-fedora` and either replace that string with the project name or take the other described action.
+- Grep for the string `django-base` (excluding this file) and either replace that string with the project name or take the other described action.
 - Either disable social auth by removing it from the installed apps or obtain the relevant secrets and add them to local `.env`.
 - Do the "Local Installation" in the README.
 - Add to `ALLOWED_HOSTS` in production settings whatever the domain is going to be.
