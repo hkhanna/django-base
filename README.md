@@ -36,7 +36,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 - Ensure that there is a `base` remote pointing at the base repo on Github.
 - `git fetch base`
-- `git merge base/origin`.
+- `git merge base/main`.
 
 # Deployment
 
