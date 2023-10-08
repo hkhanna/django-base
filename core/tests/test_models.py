@@ -101,17 +101,17 @@ def test_org_setting_boolean(org):
     services.org_setting_update(instance=org_setting, default="true")  # OK
 
     with assertRaisesMessage(ValidationError, "true or false"):
-        org_setting.default = "2"
+        org_setting.default = "1"
         org_setting.full_clean()
 
     with assertRaisesMessage(ValidationError, "true or false"):
         models.PlanOrgSetting(
-            plan=org.primary_plan, setting=org_setting, value="2"
+            plan=org.primary_plan, setting=org_setting, value="1"
         ).full_clean()
 
     with assertRaisesMessage(ValidationError, "true or false"):
         models.OverriddenOrgSetting(
-            org=org, setting=org_setting, value="2"
+            org=org, setting=org_setting, value="1"
         ).full_clean()
 
 
@@ -127,21 +127,21 @@ def test_org_user_setting_boolean(ou):
     services.org_user_setting_update(instance=org_user_setting, default="true")  # OK
 
     with assertRaisesMessage(ValidationError, "true or false"):
-        services.org_user_setting_update(instance=org_user_setting, default="2")
+        services.org_user_setting_update(instance=org_user_setting, default="1")
 
     org_user_setting.refresh_from_db()
 
     with assertRaisesMessage(ValidationError, "true or false"):
-        services.org_user_setting_update(instance=org_user_setting, owner_value="2")
+        services.org_user_setting_update(instance=org_user_setting, owner_value="1")
 
     with assertRaisesMessage(ValidationError, "true or false"):
         models.OrgUserSettingDefault(
-            org=ou.org, setting=org_user_setting, value="2"
+            org=ou.org, setting=org_user_setting, value="1"
         ).full_clean()
 
     with assertRaisesMessage(ValidationError, "true or false"):
         models.OrgUserOrgUserSetting(
-            org_user=ou, setting=org_user_setting, value="2"
+            org_user=ou, setting=org_user_setting, value="1"
         ).full_clean()
 
 

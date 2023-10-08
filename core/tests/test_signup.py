@@ -86,7 +86,7 @@ def test_user_locked(client, user):
 def test_disable_user_creation(client):
     """Prevent user signups when disable_signup GlobalSetting is True"""
     services.global_setting_create(
-        slug="disable_signup", type=constants.SettingType.BOOL, value=1
+        slug="disable_signup", type=constants.SettingType.BOOL, value="true"
     )
     payload = {
         "first_name": "Harry",

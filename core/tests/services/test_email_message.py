@@ -343,7 +343,7 @@ def test_cooldown_scopes(user, mailoutbox):
 def test_disable_outbound_email_global_setting(user, mailoutbox):
     """disable_outbound_email GlobalSetting should disable all outbound emails."""
     services.global_setting_create(
-        slug="disable_outbound_email", type=constants.SettingType.BOOL, value=1
+        slug="disable_outbound_email", type=constants.SettingType.BOOL, value="true"
     )
     email_message = services.email_message_create(
         created_by=user,

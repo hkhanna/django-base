@@ -198,9 +198,9 @@ def issubtype(subtype: str, type: str, inclusive=True) -> bool:
 def cast_setting(value: str, type: str) -> bool | int | str:
     """Cast a setting's value to its type"""
     if type == constants.SettingType.BOOL:
-        if value.lower() in ("true", "1"):
+        if value.lower() == "true":
             return True
-        elif value.lower() in ("false", "0"):
+        elif value.lower() == "false":
             return False
         else:
             raise ValueError(f"Invalid boolean value: {value}")
