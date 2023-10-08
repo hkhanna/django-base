@@ -12,29 +12,6 @@ import uuid
 
 
 class Migration(migrations.Migration):
-    replaces = [
-        ("core", "0001_squashed_20230708"),
-        ("core", "20230709_remove_orguser_joined_at_emailmessage_updated_at_and_more"),
-        ("core", "20230710_auto_20230726_2101"),
-        ("core", "20230711_auto_20230726_2101"),
-        ("core", "20230712_delete_event_delete_orginvitation"),
-        ("core", "20230713_event_orginvitation"),
-        (
-            "core",
-            "20230714_alter_emailmessage_created_by_alter_emailmessage_org_and_more",
-        ),
-        ("core", "20230715_rename_ousetting_orgusersetting_and_more"),
-        ("core", "20230716_orguserorgusersetting_delete_orguserousetting_and_more"),
-        ("core", "20230717_orgusersettingdefault_delete_ousettingdefault_and_more"),
-        ("core", "20230718_globalsetting"),
-        ("core", "20230719_emailmessageattachment"),
-        ("core", "20230720_alter_emailmessage_template_context"),
-        (
-            "core",
-            "20230721_alter_globalsetting_type_alter_globalsetting_value_and_more",
-        ),
-    ]
-
     initial = True
 
     dependencies = [
