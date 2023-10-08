@@ -189,24 +189,6 @@ class Event(BaseModel):
         return f"{self.type} - {self.uuid}"
 
 
-class GlobalSetting(BaseModel):
-    """A setting that applies to the entire system."""
-
-    slug = models.SlugField(max_length=254, unique=True)
-    type = models.CharField(
-        max_length=127,
-        choices=constants.SettingType.choices,
-    )
-    value = models.IntegerField()
-
-    def __str__(self):
-        return f"GlobalSetting: {self.slug} ({self.pk})"
-
-    def clean(self):
-        if self.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError("Boolean GlobalSetting must have a value of 0 or 1.")
-
-
 class Org(BaseModel):
     """Organizations users can belong to. They must belong to at least one."""
 
@@ -340,171 +322,6 @@ class Plan(BaseModel):
 
     def __str__(self):
         return self.slug
-
-
-class OrgSetting(BaseModel):
-    """An Org-wide setting"""
-
-    slug = models.SlugField(max_length=254, unique=True)
-    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
-    default = models.IntegerField()
-
-    def __str__(self):
-        return f"OrgSetting: {self.slug} ({self.pk})"
-
-    def clean(self):
-        if self.type == constants.SettingType.BOOL and self.default not in (0, 1):
-            raise ValidationError("Boolean OrgSetting must have a default of 0 or 1.")
-
-
-class PlanOrgSetting(BaseModel):
-    """The Org-wide settings for a particular Plan. Billing-related limitations go here."""
-
-    plan = models.ForeignKey(
-        "core.Plan", on_delete=models.CASCADE, related_name="plan_org_settings"
-    )
-    setting = models.ForeignKey(
-        "core.OrgSetting", on_delete=models.CASCADE, related_name="plan_org_settings"
-    )
-    value = models.IntegerField()
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["plan", "setting"], name="unique_plan_setting"
-            )
-        ]
-
-    def __str__(self):
-        return f"PlanOrgSetting: {self.plan.slug} / {self.setting.slug} ({self.pk})"
-
-    def clean(self):
-        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError(
-                "Boolean PlanOrgSetting must have a default of 0 or 1."
-            )
-
-
-class OverriddenOrgSetting(BaseModel):
-    """Used if a particular Org should override the Plan Org-wide settings."""
-
-    # Useful if there's a custom plan for a customer or if there's only one Plan but customers
-    # can make one-time purchases potentially unlocking certain settings.
-    org = models.ForeignKey(
-        "core.Org", on_delete=models.CASCADE, related_name="overridden_org_settings"
-    )
-    setting = models.ForeignKey(
-        "core.OrgSetting",
-        on_delete=models.CASCADE,
-        related_name="overridden_org_settings",
-    )
-    value = models.IntegerField()
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["org", "setting"], name="unique_overridden_org_setting"
-            )
-        ]
-
-    def __str__(self):
-        return (
-            f"OverriddenOrgSetting: {self.org.slug} / {self.setting.slug} ({self.pk})"
-        )
-
-    def clean(self):
-        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError(
-                "Boolean OverriddenOrgSetting must have a default of 0 or 1."
-            )
-
-
-class OrgUserSetting(BaseModel):
-    """Settings for members of an Org, i.e., OrgUsers"""
-
-    slug = models.SlugField(max_length=254, unique=True)
-    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
-    default = models.IntegerField()
-    owner_value = models.IntegerField(
-        help_text="The value that will be enforced for the org owner over all other defaults and values."
-    )
-
-    def clean(self):
-        if self.type == constants.SettingType.BOOL and (
-            self.default not in (0, 1) or self.owner_value not in (0, 1)
-        ):
-            raise ValidationError(
-                "Boolean OrgUserSetting must have a default and owner_value of 0 or 1."
-            )
-
-    def __str__(self):
-        return f"OrgUserSetting: {self.slug} ({self.pk})"
-
-
-class OrgUserOrgUserSetting(BaseModel):
-    """The specific mapping of an OrgUser to an OrgUserSetting."""
-
-    org_user = models.ForeignKey(
-        "core.OrgUser",
-        on_delete=models.CASCADE,
-        related_name="org_user_org_user_settings",
-    )
-    setting = models.ForeignKey(
-        "core.OrgUserSetting",
-        on_delete=models.CASCADE,
-        related_name="org_user_org_user_settings",
-    )
-    value = models.IntegerField()
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["org_user", "setting"], name="unique_org_user_org_user_setting"
-            )
-        ]
-
-    def __str__(self):
-        return (
-            f"OrgUserOrgUserSetting: {self.org_user} / {self.setting.slug} ({self.pk})"
-        )
-
-    def clean(self):
-        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError(
-                "Boolean OrgUserOrgUserSetting must have a default of 0 or 1."
-            )
-
-
-class OrgUserSettingDefault(BaseModel):
-    """An Org can set defaults for its OrgUsers that have not specifically set certain settings."""
-
-    org = models.ForeignKey(
-        "core.Org", on_delete=models.CASCADE, related_name="org_user_setting_defaults"
-    )
-    setting = models.ForeignKey(
-        "core.OrgUserSetting",
-        on_delete=models.CASCADE,
-        related_name="org_user_setting_defaults",
-    )
-    value = models.IntegerField()
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["org", "setting"], name="unique_org_user_setting_defaults"
-            )
-        ]
-
-    def __str__(self):
-        return (
-            f"OrgUserSettingDefault: {self.org.slug} / {self.setting.slug} ({self.pk})"
-        )
-
-    def clean(self):
-        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError(
-                "Boolean OrgUserSettingDefault must have a default of 0 or 1."
-            )
 
 
 class UserManager(BaseUserManager):
@@ -694,3 +511,189 @@ class User(AbstractUser):
 
         assert ou is not None, "User does not have any Orgs"
         return ou.org
+
+
+# -- SETTINGS: GLOBAL, ORG, ORGUSERS -- #
+
+
+class GlobalSetting(BaseModel):
+    """A setting that applies to the entire system."""
+
+    slug = models.SlugField(max_length=254, unique=True)
+    type = models.CharField(
+        max_length=127,
+        choices=constants.SettingType.choices,
+    )
+    value = models.IntegerField()
+
+    def __str__(self):
+        return f"GlobalSetting: {self.slug} ({self.pk})"
+
+    def clean(self):
+        if self.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError("Boolean GlobalSetting must have a value of 0 or 1.")
+
+
+class OrgSetting(BaseModel):
+    """An Org-wide setting"""
+
+    slug = models.SlugField(max_length=254, unique=True)
+    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
+    default = models.IntegerField()
+
+    def __str__(self):
+        return f"OrgSetting: {self.slug} ({self.pk})"
+
+    def clean(self):
+        if self.type == constants.SettingType.BOOL and self.default not in (0, 1):
+            raise ValidationError("Boolean OrgSetting must have a default of 0 or 1.")
+
+
+class OrgUserSetting(BaseModel):
+    """Settings for members of an Org, i.e., OrgUsers"""
+
+    slug = models.SlugField(max_length=254, unique=True)
+    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
+    default = models.IntegerField()
+    owner_value = models.IntegerField(
+        help_text="The value that will be enforced for the org owner over all other defaults and values."
+    )
+
+    def clean(self):
+        if self.type == constants.SettingType.BOOL and (
+            self.default not in (0, 1) or self.owner_value not in (0, 1)
+        ):
+            raise ValidationError(
+                "Boolean OrgUserSetting must have a default and owner_value of 0 or 1."
+            )
+
+    def __str__(self):
+        return f"OrgUserSetting: {self.slug} ({self.pk})"
+
+
+class PlanOrgSetting(BaseModel):
+    """The Org-wide settings for a particular Plan. Billing-related limitations go here."""
+
+    plan = models.ForeignKey(
+        "core.Plan", on_delete=models.CASCADE, related_name="plan_org_settings"
+    )
+    setting = models.ForeignKey(
+        "core.OrgSetting", on_delete=models.CASCADE, related_name="plan_org_settings"
+    )
+    value = models.IntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["plan", "setting"], name="unique_plan_setting"
+            )
+        ]
+
+    def __str__(self):
+        return f"PlanOrgSetting: {self.plan.slug} / {self.setting.slug} ({self.pk})"
+
+    def clean(self):
+        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError(
+                "Boolean PlanOrgSetting must have a default of 0 or 1."
+            )
+
+
+class OverriddenOrgSetting(BaseModel):
+    """Used if a particular Org should override the Plan Org-wide settings."""
+
+    # Useful if there's a custom plan for a customer or if there's only one Plan but customers
+    # can make one-time purchases potentially unlocking certain settings.
+    org = models.ForeignKey(
+        "core.Org", on_delete=models.CASCADE, related_name="overridden_org_settings"
+    )
+    setting = models.ForeignKey(
+        "core.OrgSetting",
+        on_delete=models.CASCADE,
+        related_name="overridden_org_settings",
+    )
+    value = models.IntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["org", "setting"], name="unique_overridden_org_setting"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"OverriddenOrgSetting: {self.org.slug} / {self.setting.slug} ({self.pk})"
+        )
+
+    def clean(self):
+        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError(
+                "Boolean OverriddenOrgSetting must have a default of 0 or 1."
+            )
+
+
+class OrgUserOrgUserSetting(BaseModel):
+    """The specific mapping of an OrgUser to an OrgUserSetting."""
+
+    org_user = models.ForeignKey(
+        "core.OrgUser",
+        on_delete=models.CASCADE,
+        related_name="org_user_org_user_settings",
+    )
+    setting = models.ForeignKey(
+        "core.OrgUserSetting",
+        on_delete=models.CASCADE,
+        related_name="org_user_org_user_settings",
+    )
+    value = models.IntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["org_user", "setting"], name="unique_org_user_org_user_setting"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"OrgUserOrgUserSetting: {self.org_user} / {self.setting.slug} ({self.pk})"
+        )
+
+    def clean(self):
+        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError(
+                "Boolean OrgUserOrgUserSetting must have a default of 0 or 1."
+            )
+
+
+class OrgUserSettingDefault(BaseModel):
+    """An Org can set defaults for its OrgUsers that have not specifically set certain settings."""
+
+    org = models.ForeignKey(
+        "core.Org", on_delete=models.CASCADE, related_name="org_user_setting_defaults"
+    )
+    setting = models.ForeignKey(
+        "core.OrgUserSetting",
+        on_delete=models.CASCADE,
+        related_name="org_user_setting_defaults",
+    )
+    value = models.IntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["org", "setting"], name="unique_org_user_setting_defaults"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"OrgUserSettingDefault: {self.org.slug} / {self.setting.slug} ({self.pk})"
+        )
+
+    def clean(self):
+        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
+            raise ValidationError(
+                "Boolean OrgUserSettingDefault must have a default of 0 or 1."
+            )
