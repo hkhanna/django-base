@@ -94,47 +94,104 @@ def test_change_user_name_org_name(user):
 
 
 def test_org_setting_boolean(org):
-    """OrgSettings of type bool may only have a value of 0 or 1."""
+    """OrgSettings of type bool may only have a value of true or false."""
     org_setting = services.org_setting_create(
-        slug="for-test", type=constants.SettingType.BOOL, default=0
+        slug="for-test", type=constants.SettingType.BOOL, default="false"
     )
-    services.org_setting_update(instance=org_setting, default=1)  # OK
+    services.org_setting_update(instance=org_setting, default="true")  # OK
 
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        org_setting.default = 2
+    with assertRaisesMessage(ValidationError, "true or false"):
+        org_setting.default = "2"
         org_setting.full_clean()
 
-    with assertRaisesMessage(ValidationError, "0 or 1"):
+    with assertRaisesMessage(ValidationError, "true or false"):
         models.PlanOrgSetting(
-            plan=org.primary_plan, setting=org_setting, value=2
+            plan=org.primary_plan, setting=org_setting, value="2"
         ).full_clean()
 
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        models.OverriddenOrgSetting(org=org, setting=org_setting, value=2).full_clean()
+    with assertRaisesMessage(ValidationError, "true or false"):
+        models.OverriddenOrgSetting(
+            org=org, setting=org_setting, value="2"
+        ).full_clean()
 
 
 def test_org_user_setting_boolean(ou):
-    """OrgUserSettings of type bool may only have a value of 0 or 1."""
+    """OrgUserSettings of type bool may only have a value of true or false."""
     org_user_setting = services.org_user_setting_create(
-        slug="for-test", type=constants.SettingType.BOOL, default=0, owner_value=1
+        slug="for-test",
+        type=constants.SettingType.BOOL,
+        default="false",
+        owner_value="true",
     )
 
-    services.org_user_setting_update(instance=org_user_setting, default=1)  # OK
+    services.org_user_setting_update(instance=org_user_setting, default="true")  # OK
 
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        services.org_user_setting_update(instance=org_user_setting, default=2)
+    with assertRaisesMessage(ValidationError, "true or false"):
+        services.org_user_setting_update(instance=org_user_setting, default="2")
 
     org_user_setting.refresh_from_db()
 
-    with assertRaisesMessage(ValidationError, "0 or 1"):
-        services.org_user_setting_update(instance=org_user_setting, owner_value=2)
+    with assertRaisesMessage(ValidationError, "true or false"):
+        services.org_user_setting_update(instance=org_user_setting, owner_value="2")
 
-    with assertRaisesMessage(ValidationError, "0 or 1"):
+    with assertRaisesMessage(ValidationError, "true or false"):
         models.OrgUserSettingDefault(
-            org=ou.org, setting=org_user_setting, value=2
+            org=ou.org, setting=org_user_setting, value="2"
         ).full_clean()
 
-    with assertRaisesMessage(ValidationError, "0 or 1"):
+    with assertRaisesMessage(ValidationError, "true or false"):
         models.OrgUserOrgUserSetting(
-            org_user=ou, setting=org_user_setting, value=2
+            org_user=ou, setting=org_user_setting, value="2"
+        ).full_clean()
+
+
+def test_org_setting_int(org):
+    """OrgSettings of type int may only have an integer-castable value."""
+    org_setting = services.org_setting_create(
+        slug="for-test", type=constants.SettingType.INT, default="5"
+    )
+    services.org_setting_update(instance=org_setting, default="0")  # OK
+
+    with assertRaisesMessage(ValidationError, "that is an integer"):
+        org_setting.default = "kipp"
+        org_setting.full_clean()
+
+    with assertRaisesMessage(ValidationError, "that is an integer"):
+        models.PlanOrgSetting(
+            plan=org.primary_plan, setting=org_setting, value="kipp"
+        ).full_clean()
+
+    with assertRaisesMessage(ValidationError, "that is an integer"):
+        models.OverriddenOrgSetting(
+            org=org, setting=org_setting, value="kipp"
+        ).full_clean()
+
+
+def test_org_user_setting_int(ou):
+    """OrgUserSettings of type int may only have an integer-castable value."""
+    org_user_setting = services.org_user_setting_create(
+        slug="for-test",
+        type=constants.SettingType.INT,
+        default="5",
+        owner_value="10",
+    )
+
+    services.org_user_setting_update(instance=org_user_setting, default="5")  # OK
+
+    with assertRaisesMessage(ValidationError, "that is an integer"):
+        services.org_user_setting_update(instance=org_user_setting, default="kipp")
+
+    org_user_setting.refresh_from_db()
+
+    with assertRaisesMessage(ValidationError, "that is an integer"):
+        services.org_user_setting_update(instance=org_user_setting, owner_value="kipp")
+
+    with assertRaisesMessage(ValidationError, "that is an integer"):
+        models.OrgUserSettingDefault(
+            org=ou.org, setting=org_user_setting, value="kipp"
+        ).full_clean()
+
+    with assertRaisesMessage(ValidationError, "that is an integer"):
+        models.OrgUserOrgUserSetting(
+            org_user=ou, setting=org_user_setting, value="kipp"
         ).full_clean()

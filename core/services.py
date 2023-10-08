@@ -735,25 +735,24 @@ def model_bulk_update(*, qs: QuerySet, **kwargs) -> int:
     return qs.update(**kwargs)
 
 
-def global_setting_get_value(slug: str) -> bool | int:
+def global_setting_get_value(slug: str) -> bool | int | str:
     """Get a GlobalSetting, creating it as False if it does not exist."""
     try:
         setting = selectors.global_setting_list(slug=slug).get()
     except GlobalSetting.DoesNotExist:
         setting = global_setting_create(
-            slug=slug, type=constants.SettingType.BOOL, value=0
+            slug=slug, type=constants.SettingType.BOOL, value="false"
         )
 
-    return setting.value
+    return utils.cast_setting(setting.value, setting.type)
 
 
-def org_get_setting_value(*, org: Org, slug: str) -> bool | int:
-    # See test_org_settings.py for an explanation of how this works.
+def org_get_setting_value(*, org: Org, slug: str) -> bool | int | str:
     try:
         setting = selectors.org_setting_list(slug=slug).get()
     except OrgSetting.DoesNotExist:
         setting = org_setting_create(
-            slug=slug, type=constants.SettingType.BOOL, default=0
+            slug=slug, type=constants.SettingType.BOOL, default="false"
         )
 
     try:
@@ -773,26 +772,23 @@ def org_get_setting_value(*, org: Org, slug: str) -> bool | int:
             )
         best = plan_org_setting.value
 
-    if setting.type == constants.SettingType.BOOL:
-        return bool(best)
-
-    return best
+    return utils.cast_setting(best, setting.type)
 
 
-def org_user_get_setting_value(*, org_user: OrgUser, slug: str) -> bool | int:
+def org_user_get_setting_value(*, org_user: OrgUser, slug: str) -> bool | int | str:
     try:
         setting = selectors.org_user_setting_list(slug=slug).get()
     except OrgUserSetting.DoesNotExist:
         setting = org_user_setting_create(
-            slug=slug, type=constants.SettingType.BOOL, default=0, owner_value=1
+            slug=slug,
+            type=constants.SettingType.BOOL,
+            default="false",
+            owner_value="true",
         )
 
     # Short-circuit if the OrgUser is the Org owner.
     if org_user.org.owner == org_user.user:
-        if setting.type == constants.SettingType.BOOL:
-            return bool(setting.owner_value)
-        else:
-            return setting.owner_value
+        return utils.cast_setting(setting.owner_value, setting.type)
 
     try:
         org_user_org_user_setting = selectors.org_user_org_user_setting_list(
@@ -810,10 +806,7 @@ def org_user_get_setting_value(*, org_user: OrgUser, slug: str) -> bool | int:
             )
         best = org_user_setting_default.value
 
-    if setting.type == constants.SettingType.BOOL:
-        return bool(best)
-
-    return best
+    return utils.cast_setting(best, setting.type)
 
 
 def global_setting_create(**kwargs) -> GlobalSetting:

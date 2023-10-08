@@ -4,6 +4,7 @@ from django.db import models
 class SettingType(models.TextChoices):
     BOOL = "bool", "Boolean"
     INT = "int", "Integer"
+    STR = "str", "String"
 
 
 class EmailMessage:

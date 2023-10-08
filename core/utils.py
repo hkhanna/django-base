@@ -1,9 +1,12 @@
 import json
 from importlib import import_module
-from typing import Callable, Optional
+from typing import Callable, Optional, TYPE_CHECKING
 
+from . import constants
 from .exceptions import *
-from .types import ModelType
+
+if TYPE_CHECKING:
+    from .types import ModelType
 
 
 # This is used to test formset submissions and to create synthetic formset data.
@@ -151,7 +154,7 @@ def trim_string(field: str) -> str:
     return sanitized
 
 
-def get_snake_case(model: ModelType) -> str:
+def get_snake_case(model: "ModelType") -> str:
     verbose_name = model._meta.verbose_name
     if not verbose_name:
         raise ValueError(f"Model {model} has no verbose_name")
@@ -190,3 +193,20 @@ def issubtype(subtype: str, type: str, inclusive=True) -> bool:
             return False
 
     return subtype.startswith(type + ".")
+
+
+def cast_setting(value: str, type: str) -> bool | int | str:
+    """Cast a setting's value to its type"""
+    if type == constants.SettingType.BOOL:
+        if value.lower() in ("true", "1"):
+            return True
+        elif value.lower() in ("false", "0"):
+            return False
+        else:
+            raise ValueError(f"Invalid boolean value: {value}")
+    elif type == constants.SettingType.INT:
+        return int(value)
+    elif type == "str":
+        return value
+    else:
+        raise ValueError(f"Invalid type: {type}")

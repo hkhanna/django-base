@@ -12,7 +12,7 @@ from django.db import models
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
 
-from core import constants
+from core import constants, utils
 
 logger = logging.getLogger(__name__)
 
@@ -516,6 +516,57 @@ class User(AbstractUser):
 # -- SETTINGS: GLOBAL, ORG, ORGUSERS -- #
 
 
+def check_setting_type(
+    value: str, value_name: str, setting_type: constants.SettingType
+) -> None:
+    try:
+        utils.cast_setting(value, setting_type)
+    except ValueError:
+        if setting_type == constants.SettingType.BOOL:
+            raise ValidationError(
+                f"Boolean setting must have a {value_name} of true or false."
+            )
+        elif setting_type == constants.SettingType.INT:
+            raise ValidationError(
+                f"Integer setting must have a {value_name} that is an integer."
+            )
+        else:
+            raise
+
+
+class OrgSetting(BaseModel):
+    """An Org-wide setting definition"""
+
+    slug = models.SlugField(max_length=254, unique=True)
+    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
+    default = models.CharField(max_length=254)
+
+    def __str__(self):
+        return f"OrgSetting: {self.slug} ({self.pk})"
+
+    def clean(self):
+        check_setting_type(self.default, "default", self.type)
+
+
+class OrgUserSetting(BaseModel):
+    """Definitions for settings for members of an Org, i.e., OrgUsers"""
+
+    slug = models.SlugField(max_length=254, unique=True)
+    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
+    default = models.CharField(max_length=254)
+    owner_value = models.CharField(
+        max_length=254,
+        help_text="The value that will be enforced for the org owner over all other defaults and values.",
+    )
+
+    def clean(self):
+        check_setting_type(self.default, "default", self.type)
+        check_setting_type(self.owner_value, "owner_value", self.type)
+
+    def __str__(self):
+        return f"OrgUserSetting: {self.slug} ({self.pk})"
+
+
 class GlobalSetting(BaseModel):
     """A setting that applies to the entire system."""
 
@@ -524,51 +575,13 @@ class GlobalSetting(BaseModel):
         max_length=127,
         choices=constants.SettingType.choices,
     )
-    value = models.IntegerField()
+    value = models.CharField(max_length=254)
 
     def __str__(self):
         return f"GlobalSetting: {self.slug} ({self.pk})"
 
     def clean(self):
-        if self.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError("Boolean GlobalSetting must have a value of 0 or 1.")
-
-
-class OrgSetting(BaseModel):
-    """An Org-wide setting"""
-
-    slug = models.SlugField(max_length=254, unique=True)
-    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
-    default = models.IntegerField()
-
-    def __str__(self):
-        return f"OrgSetting: {self.slug} ({self.pk})"
-
-    def clean(self):
-        if self.type == constants.SettingType.BOOL and self.default not in (0, 1):
-            raise ValidationError("Boolean OrgSetting must have a default of 0 or 1.")
-
-
-class OrgUserSetting(BaseModel):
-    """Settings for members of an Org, i.e., OrgUsers"""
-
-    slug = models.SlugField(max_length=254, unique=True)
-    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
-    default = models.IntegerField()
-    owner_value = models.IntegerField(
-        help_text="The value that will be enforced for the org owner over all other defaults and values."
-    )
-
-    def clean(self):
-        if self.type == constants.SettingType.BOOL and (
-            self.default not in (0, 1) or self.owner_value not in (0, 1)
-        ):
-            raise ValidationError(
-                "Boolean OrgUserSetting must have a default and owner_value of 0 or 1."
-            )
-
-    def __str__(self):
-        return f"OrgUserSetting: {self.slug} ({self.pk})"
+        check_setting_type(self.value, "value", self.type)
 
 
 class PlanOrgSetting(BaseModel):
@@ -580,7 +593,7 @@ class PlanOrgSetting(BaseModel):
     setting = models.ForeignKey(
         "core.OrgSetting", on_delete=models.CASCADE, related_name="plan_org_settings"
     )
-    value = models.IntegerField()
+    value = models.CharField(max_length=254)
 
     class Meta:
         constraints = [
@@ -593,10 +606,7 @@ class PlanOrgSetting(BaseModel):
         return f"PlanOrgSetting: {self.plan.slug} / {self.setting.slug} ({self.pk})"
 
     def clean(self):
-        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError(
-                "Boolean PlanOrgSetting must have a default of 0 or 1."
-            )
+        check_setting_type(self.value, "value", self.setting.type)
 
 
 class OverriddenOrgSetting(BaseModel):
@@ -612,7 +622,7 @@ class OverriddenOrgSetting(BaseModel):
         on_delete=models.CASCADE,
         related_name="overridden_org_settings",
     )
-    value = models.IntegerField()
+    value = models.CharField(max_length=254)
 
     class Meta:
         constraints = [
@@ -627,10 +637,7 @@ class OverriddenOrgSetting(BaseModel):
         )
 
     def clean(self):
-        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError(
-                "Boolean OverriddenOrgSetting must have a default of 0 or 1."
-            )
+        check_setting_type(self.value, "value", self.setting.type)
 
 
 class OrgUserOrgUserSetting(BaseModel):
@@ -646,7 +653,7 @@ class OrgUserOrgUserSetting(BaseModel):
         on_delete=models.CASCADE,
         related_name="org_user_org_user_settings",
     )
-    value = models.IntegerField()
+    value = models.CharField(max_length=254)
 
     class Meta:
         constraints = [
@@ -661,10 +668,7 @@ class OrgUserOrgUserSetting(BaseModel):
         )
 
     def clean(self):
-        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError(
-                "Boolean OrgUserOrgUserSetting must have a default of 0 or 1."
-            )
+        check_setting_type(self.value, "value", self.setting.type)
 
 
 class OrgUserSettingDefault(BaseModel):
@@ -678,7 +682,7 @@ class OrgUserSettingDefault(BaseModel):
         on_delete=models.CASCADE,
         related_name="org_user_setting_defaults",
     )
-    value = models.IntegerField()
+    value = models.CharField(max_length=254)
 
     class Meta:
         constraints = [
@@ -693,7 +697,4 @@ class OrgUserSettingDefault(BaseModel):
         )
 
     def clean(self):
-        if self.setting.type == constants.SettingType.BOOL and self.value not in (0, 1):
-            raise ValidationError(
-                "Boolean OrgUserSettingDefault must have a default of 0 or 1."
-            )
+        check_setting_type(self.value, "value", self.setting.type)
