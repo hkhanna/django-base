@@ -556,8 +556,8 @@ def org_switch(*, request: HttpRequest, slug: str) -> None:
     request.org = org
 
 
-def org_user_create(*, org: Org, user: UserType) -> OrgUser:
-    return model_create(klass=OrgUser, org=org, user=user)
+def org_user_create(*, org: Org, user: UserType, **kwargs) -> OrgUser:
+    return model_create(klass=OrgUser, org=org, user=user, **kwargs)
 
 
 def org_create(**kwargs) -> Org:

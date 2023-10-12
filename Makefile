@@ -9,7 +9,7 @@ run:
 	(make vite & make app & wait)
 
 app:
-	source .venv/bin/activate && python manage.py runserver ${WEB_PORT}
+	source .venv/bin/activate && python manage.py runserver_plus ${WEB_PORT}
 
 vite:
 	npm run dev --prefix frontend/
@@ -28,6 +28,9 @@ fmt:
 
 dumpdata:
 	source .venv/bin/activate && python manage.py dumpdata --format=jsonl --natural-primary --natural-foreign -o dump.jsonl.gz
+
+shell:
+	source .venv/bin/activate && python manage.py shell_plus
 
 # BUILD STEPS #
 all: clean build db
