@@ -19,8 +19,9 @@ from .. import views, permissions, services, selectors, constants
 # to test it here.
 
 
-def test_event_emit_view(client):
+def test_event_emit_view(client, settings):
     """POST hook to emit event with good secret"""
+    settings.EVENT_HANDLERS["default"] = "core.services.event_noop"
     response = client.post(
         reverse("event_emit"),
         data={"type": "example_evt", "hello": "world"},
