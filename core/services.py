@@ -707,8 +707,16 @@ def model_update(*, instance: BaseModelType, save=True, **kwargs) -> BaseModelTy
             model_field is not None
         ), f"{field} is not part of {instance.__class__.__name__} fields."
 
+        # We disallow updating a m2o field this way because, somewhat obviously,
+        # it will as a side-effect reassign the fk relationship.
+        # If there's ever a use case for doing that, remove this check.
+        if isinstance(model_field, models.ManyToOneRel):
+            raise ApplicationError(
+                "Cannot update a ManyToOneRel field via model_update."
+            )
+
         # If we have m2m field, handle differently
-        if isinstance(model_field, models.ManyToManyField):
+        if isinstance(model_field, (models.ManyToManyField, models.ManyToOneRel)):
             m2m_data[field] = kwargs[field]
             continue
 
@@ -858,7 +866,7 @@ def model_create(
                 f"{instance.__class__.__name__} instance is not new. Did you mean to call model_update()?"
             )
     else:
-        instance = klass(**kwargs)
+        instance = klass()
 
     return model_update(instance=instance, save=save, **kwargs)
 
