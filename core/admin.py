@@ -1,3 +1,4 @@
+import inspect
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
@@ -22,8 +23,30 @@ class BaseModelAdmin(admin.ModelAdmin):
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
         for instance in instances:
-            func = self.get_save_func(instance, change)
-            func(instance=instance, save=True)
+            func = self.get_save_func(instance, not instance._state.adding)
+            sig = inspect.signature(func)
+            required_kwargs = {}
+            # Sometimes the <model>_create or <model>_update method requires
+            # a keyword argument. If it does, pull it from the instance, if possible.
+            for param in sig.parameters.values():
+                # Skip optional params
+                if param.default != inspect.Parameter.empty:
+                    continue
+
+                # Skip **kwargs, obviously.
+                if param.kind == inspect.Parameter.VAR_KEYWORD:
+                    continue
+
+                # Skip instance and save because we always provide those here.
+                if param.name in ("instance", "save"):
+                    continue
+
+                required_kwargs[param.name] = getattr(instance, param.name)
+
+            func(instance=instance, save=True, **required_kwargs)
+
+        for obj in formset.deleted_objects:
+            obj.delete()
 
     def save_model(self, request, obj, form, change):
         func = self.get_save_func(obj, change)
