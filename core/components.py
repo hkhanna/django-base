@@ -1,9 +1,10 @@
 from django.core.exceptions import ImproperlyConfigured
-from django_components import component
+from django_components import component as component_deprecated
+from django_web_components import component
 
 
-@component.register("input_field")
-class InputField(component.Component):
+@component_deprecated.register("input_field")
+class InputField(component_deprecated.Component):
     def get_template_name(self, context={}):
         style = context.get("style", "normal")
         if style == "normal":
