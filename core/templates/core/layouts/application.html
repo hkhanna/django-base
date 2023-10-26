@@ -53,7 +53,7 @@
   {% block messages %}
     <section class="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 my-4 space-y-4">
       {% for message in messages %}
-        <div x-data x-alert:{{message.level_tag}}.dismissable="{{message}}" class="sm:w-full"></div>
+        {% #alert variant=message.level_tag dismissable=True class="sm:w-full" headline=message %}
       {% endfor %}
     </section>
   {% endblock messages %}

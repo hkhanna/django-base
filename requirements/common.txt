@@ -3,12 +3,12 @@
 celery==5.3.1
 Django==4.2.3
 django-allauth==0.51.0
-django-components==0.28.1
 # django-dbbackup==4.0.2
 django-environ==0.10.0
 django-extensions==3.2.3
 django-storages==1.13.2
 django-vite==2.1.3
+django-web-components==0.2.0
 heroicons==2.4.0
 markdown==3.4.4
 # python-gnupg==0.5.1

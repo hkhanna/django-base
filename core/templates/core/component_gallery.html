@@ -43,31 +43,29 @@
     </div>
 
 </div>
+
 <div x-data class="space-y-4 m-8">
     <h2 class="text-xl text-center font-semibold text-gray-700">Alerts</h2>
 
-    <div x-alert="No modifiers, no body.">
-    </div>
+    {% #alert headline="No modifiers, no body." %}
 
-    <div x-alert.dismissable="Dismissable, no body">
-    </div>
+    {% #alert dismissable=True headline="Dismissable, no body." %}
 
-    <div x-alert:info.dismissable="Info">
+    {% alert variant="info" dismissable=True headline="Dismissable, no body." %}
         <p>Hello, world!</p>
-    </div>
+    {% endalert %}
 
-    <div x-alert:success.dismissable="Success">
+    {% alert variant="warning" dismissable=True headline="Warning" %}
         <p>Hello, world!</p>
-    </div>
+    {% endalert %}
 
-    <div x-alert:warning.dismissable="Warning">
+    {% alert variant="error" dismissable=True headline="Error" %}
         <p>Hello, world!</p>
-    </div>
+    {% endalert %}
 
-    <div x-alert:error.dismissable="Error">
+    {% alert variant="success" dismissable=True headline="Success" %}
         <p>Hello, world!</p>
-    </div>
-
+    {% endalert %}
 </div>
 
 <div x-data class="m-8 space-y-4">

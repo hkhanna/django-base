@@ -1,0 +1,29 @@
+<div class="{{attributes.class}}">
+  <div class="rounded-md {{colors.bg}} p-4" x-data="{ open: true }" x-show="open">
+    <div class="flex items-start">
+      <div class="flex-shrink-0">
+        <div x-heroicon:solid="{{icon}}" class="h-5 w-5 {{colors.icon}}" aria-hidden="true"></div>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium {{colors.headline}}">
+          {{attributes.headline}}
+        </h3>
+      </div>
+    {% if attributes.dismissable %}
+      <div class="ml-auto pl-3">
+        <div class="-mx-1.5 -my-1.5">
+          <button type="button" class="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 {{colors.button}}" x-on:click="open = !open">
+            <span class="sr-only">Dismiss</span>
+            <span x-heroicon:solid.20="x-mark" class="h-5 w-5" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    {% endif %}
+    </div>
+    {% if slots.inner_block %}
+      <div class="ml-8 mt-2 text-sm {{colors.body}}">
+        {% render_slot slots.inner_block %}
+      </div>
+    {% endif %}
+  </div>
+</div>
