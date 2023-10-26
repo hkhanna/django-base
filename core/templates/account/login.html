@@ -57,9 +57,8 @@
           {% endif %}
           <input type="hidden" name="detected_tz" x-data="{detected_tz: Intl.DateTimeFormat().resolvedOptions().timeZone}" x-bind:value="detected_tz" />
           <div class="space-y-4">
-            {% component "input_field" field=form.login input_class="block w-full px-3 py-2 placeholder-gray-400" %}
-            {% component "input_field" field=form.password input_class="block w-full px-3 py-2 placeholder-gray-400" %}
-
+            {% #input field=form.login class="w-full px-3 py-2 placeholder-gray-400" %}
+            {% #input field=form.password class="w-full px-3 py-2 placeholder-gray-400" %}
             <div class="mt-2 text-sm text-red-600">
               {{form.non_field_errors}}
             </div>

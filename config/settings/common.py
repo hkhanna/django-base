@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "heroicons",
     # "dbbackup",
     "django_extensions",
+    "django_web_components",
     "django_components",
     "django_vite",
     # Non-core apps should come before core so layouts can be overriden.
@@ -90,7 +91,10 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "builtins": ["django_components.templatetags.component_tags"],
+            "builtins": [
+                "django_web_components.templatetags.components",
+                "django_components.templatetags.component_tags",
+            ],
         },
     },
 ]

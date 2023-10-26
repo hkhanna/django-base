@@ -43,20 +43,20 @@
               <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
                 <div class="grid grid-cols-6 gap-6">
                   <div class="col-span-6 sm:col-span-3">
-                    {% component "input_field" field=pi_form.first_name input_class="w-full" %}
+                    {% #input field=pi_form.first_name class="w-full" %}
                   </div>
                   <div class="col-span-6 sm:col-span-3">
-                    {% component "input_field" field=pi_form.last_name input_class="w-full" %}
+                    {% #input field=pi_form.last_name class="w-full" %}
                   </div>
                   <div class="col-span-6 sm:col-span-4">
-                    {% component "input_field" field=pi_form.email input_class="w-full" %}
+                    {% #input field=pi_form.email class="w-full" %}
                   </div>
                 </div>
               </div>
               <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
                 {% if user.has_usable_password %}
                 <div>
-                  {% component "input_field" field=pi_form.oldpassword input_class="w-full sm:w-auto" %}
+                  {% #input field=pi_form.oldpassword class="w-full sm:w-auto" %}
                 </div>
                 {% endif %}
                 <button class="btn" type="submit" name="form_name" value="pi">Save Changes</button>
@@ -90,17 +90,17 @@
               <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
                 <div class="grid grid-cols-6 gap-6">
                   <div class="col-span-6 sm:col-span-3">
-                    {% component "input_field" field=password_form.password1 input_class="w-full" %}
+                    {% #input field=password_form.password1 class="w-full" %}
                   </div>
                   <div class="col-span-6 sm:col-span-3">
-                    {% component "input_field" field=password_form.password2 input_class="w-full" %}
+                    {% #input field=password_form.password2 class="w-full" %}
                   </div>
                 </div>
               </div>
               <div class="px-4 py-3 bg-gray-50 sm:px-6 space-y-3 sm:flex sm:justify-between sm:items-end">
                 {% if user.has_usable_password %}
                 <div>
-                  {% component "input_field" field=password_form.oldpassword input_class="w-full sm:w-auto" %}
+                  {% #input field=password_form.oldpassword class="w-full sm:w-auto" %}
                 </div>
                 <button type="submit" name="form_name" value="password" class="btn">Change Password</button>
                 {% else %}

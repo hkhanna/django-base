@@ -52,24 +52,24 @@
         {% csrf_token %}
         <div class="grid grid-cols-6 gap-6">
           <div class="col-span-6 sm:col-span-3">
-            {% component "input_field" field=form.first_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% #input field=form.first_name class="w-full px-3 py-2 placeholder-gray-400" %}
           </div>
 
           <div class="noteworthy">
             <span class="sr-only">This middle initial field should not be completed by humans.</span>
-            {% component "input_field" field=form.middle_initial input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% #input field=form.middle_initial class="w-full px-3 py-2 placeholder-gray-400" %}
           </div>
 
           <div class="col-span-6 sm:col-span-3">
-            {% component "input_field" field=form.last_name input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% #input field=form.last_name class="w-full px-3 py-2 placeholder-gray-400" %}
           </div>
 
           <div class="col-span-6 sm:col-span-4">
-            {% component "input_field" field=form.email input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% #input field=form.email class="w-full px-3 py-2 placeholder-gray-400" %}
           </div>
 
           <div class="col-span-6 sm:col-span-4">
-            {% component "input_field" field=form.password1 input_class="block w-full px-3 py-2 placeholder-gray-400" %}
+            {% #input field=form.password1 class="w-full px-3 py-2 placeholder-gray-400" %}
           </div>
           {% if form.non_field_errors %}
             <div class="col-span-6 text-sm text-red-600">
