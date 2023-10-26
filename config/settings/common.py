@@ -189,7 +189,7 @@ SITE_CONFIG = {
     "account_from_email": "accounts@example.com",
     "account_reply_to_name": None,
     "account_reply_to_email": None,  # Set to None to not have any reply-to in account-related emails
-    "company": "Khanna LLC",
+    "company": "Khanna PLLC",
     "company_address": "4445 Corporation Ln., Ste 264",  # Set to None to skip having an address.
     "company_city_state_zip": "Virginia Beach, VA 23462",
     "contact_email": "jane@example.com",
