@@ -11,6 +11,10 @@
     @apply ring-2 ring-red-300;
   }
 
+  .link {
+    @apply text-indigo-600 hover:text-indigo-500 underline underline-offset-2 decoration-gray-500 focus:outline-none;
+  }
+
   /** BUTTONS **/
   .btn {
     @apply inline-flex relative items-center font-medium focus:outline-none border shadow-sm rounded-md;
@@ -74,9 +78,6 @@
   .btn:not(.btn-primary):not(.btn-secondary):not(.btn-white):not(.btn-danger)[disabled] {
     @apply cursor-default bg-indigo-300
   }
-
-
-
 
   .btn-xs {
     @apply px-2.5 py-1.5 text-xs leading-4;

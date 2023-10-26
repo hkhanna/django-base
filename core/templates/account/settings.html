@@ -22,7 +22,7 @@
         <form action="{% url 'account_resend_confirmation_email' %}" method="POST">
           {% csrf_token %}
           If you did not receive a confirmation email, you may
-          <button type="submit" class="text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium focus:outline-none">click here to request another one.</button>
+          <button type="submit" class="link">click here to request another one.</button>
         </form>
       {% endalert %}
     {% endif %}
