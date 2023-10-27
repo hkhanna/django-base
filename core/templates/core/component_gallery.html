@@ -94,9 +94,9 @@
                 Open submit modal with no modifiers
             </button>
         </span>
-        <div x-modal:open.submit="{title: 'Title'}">
+        {% modal-submit show="open" %}
             This is text in a submit modal.
-        </div>
+        {% endmodal-submit %}
     </div>
 
     <div x-data="{ open: false }">
@@ -105,9 +105,10 @@
                 Open submit modal with all modifiers
             </button>
         </span>
-        <div x-modal:open.submit.danger.formnovalidate="{ icon: 'academic-cap', submitName: 'test_name', submitValue: 'test_value', title: 'Title', submitLabel: 'Confirm', formAction: '' }">
+        {% modal-submit show="open" title="Title" icon="academic-cap" name="test_name" value="test_value" label="Confirm" formaction="" formnovalidate=False %}
             This is text in a submit modal.
-        </div>
+        {% endmodal-submit %}
+
     </div>
 
 </div>

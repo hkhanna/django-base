@@ -197,9 +197,9 @@
             <button class="btn btn-white btn-md" type="button" x-on:click="modal = true">Delete Account</button>
             <form action="{% url 'account_delete' %}" method="POST">
               {% csrf_token %}
-              <div x-modal:modal.submit.danger="{title: 'Delete Your Account', submitLabel: 'Confirm Delete'}">
+              {% modal-submit show="modal" variant="danger" title="Delete Your Account" label="Confirm Delete" %}
                 Do you really want to delete your account? This action is permanent.
-              </div>
+              {% endmodal-submit %}
             </form>
           </div>
         </div>

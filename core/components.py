@@ -31,7 +31,64 @@ def input(context):
 
 @component.register("modal")
 class Modal(component.Component):
+    """Usage: {% modal show=<show> %}This is the modal body.{% endmodal %}"""
+
     template_name = "core/components/modal.html"
+
+
+@component.register("modal-submit")
+class ModalSubmit(component.Component):
+    """Usage:
+    {% modal-submit ...kwargs %}This is the body of the submit modal.{% endmodal-submit %}
+
+    kwargs:
+        show: The name of the variable that controls whether the modal is shown.
+        title: The title of the modal.
+        variant?: One of "primary", "secondary", "danger". Defaults to "primary"
+        formnovalidate?: True or False. Defaults to False.
+        icon?: The name of a heroicon. Default depends on the variant.
+        label?: The label of the submit button.
+        name?: The name of the submit button.
+        value?: The value of the submit button.
+        <attr>?: Any attribute that can be on a button of type=submit, such as formnovalidate or a non-ancestor form.
+    """
+
+    template_name = "core/components/modal_submit.html"
+
+    def get_context_data(self, **kwargs) -> dict:
+        variant = self.attributes.pop("variant", "primary")
+        title = self.attributes.pop("title", "Untitled")
+        label = self.attributes.pop("label", "Submit")
+        variants = {
+            "primary": {
+                "default_icon": "check-circle",
+                "icon_bg_color": "bg-indigo-100",
+                "icon_color": "text-indigo-700",
+            },
+            "secondary": {
+                "default_icon": "information",
+                "icon_bg_color": "bg-blue-100",
+                "icon_color": "text-blue-500",
+            },
+            "danger": {
+                "default_icon": "exclamation-circle",
+                "icon_bg_color": "bg-red-100",
+                "icon_color": "text-red-600",
+            },
+        }
+        icon = self.attributes.pop("icon", variants[variant]["default_icon"])
+        icon_color = variants[variant]["icon_color"]
+        icon_bg_color = variants[variant]["icon_bg_color"]
+
+        return {
+            "show": self.attributes.pop("show"),
+            "variant": variant,
+            "title": title,
+            "label": label,
+            "icon": icon,
+            "icon_color": icon_color,
+            "icon_bg_color": icon_bg_color,
+        }
 
 
 @component.register("alert")
