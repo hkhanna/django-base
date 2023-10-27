@@ -29,6 +29,11 @@ def input(context):
     ).render(context)
 
 
+@component.register("modal")
+class Modal(component.Component):
+    template_name = "core/components/modal.html"
+
+
 @component.register("alert")
 class Alert(component.Component):
     """Usage:

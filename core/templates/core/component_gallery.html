@@ -83,9 +83,9 @@
                 Open modal
             </button>
         </span>
-        <div x-modal:open>
-        This is a bare modal.
-        </div>
+        {% modal show="open" %}
+            This is a bare modal.
+        {% endmodal %}
     </div>
 
     <div x-data="{ open: false }">
