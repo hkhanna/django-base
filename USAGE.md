@@ -25,29 +25,18 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 
 # Enable AWS for backups if desired
 
-1. Set up the GPG encryption:
-   1. `gpg --gen-key`
-   1. For the name, put the name of the project. For the email, put `<project>@<domain>.`
-   1. Make a note of the key's id.
-   1. Remove the expiration date with `gpg --edit-key <project>@<domain>` and then `expire` and then `save`. You may need to remove subkey expiration dates as well with `key 1` and then `expire` and then `save`. Check that expiration dates have been removed by running `gpg --list-keys`.
-   1. `gpg --output <project>.asc --armor --export <project>@<domain>`.
-   1. Commit the new `.asc` file to the repo.
-1. Store the private key & passphrase safely offline. E.g., paper or 1Password.
-   1. `gpg --output <project>.secret.asc --armor --export-secret-keys <project>@<domain>`
-   1. Don't commit this file to the repo!
-1. Uncomment django-dbbackup section in common.py and production.py settings.
-1. Uncomment django-dbbackup and python-gnupg in requirements/common.txt.
-1. Uncomment dbbackup in common.py INSTALLED_APPS.
-1. Uncomment the gpg line in build-web.sh and build-worker.sh.
-1. Uncomment the GNUPGHOME environment variable in render.yaml.
-   - This is needed because Render's build and runtime containers are different and only things in `/opt/render/project` make are taken from build to runtime.
-1. Using celery beat or cron, call core.tasks.database_backup and core.tasks.media_backup as appropriate.
+1. Generate a passphrase and store it safely in 1Password.
+1. Uncomment common.py and production.py STORAGES["backup"]
+1. Uncomment python-gnupg in requirements/common.txt
+1. Set ENABLE_DATABASE_BACKUPS to True in common.py
+1. This will automatically enable the celery job contained in core.tasks.
+1. Uncomment the BACKUP_ENCRYPTION_PASSPHRASE environment variable in render.yaml.
 
 Note that an AWS lifecycle rule ("Prune Backups") will expire backups after approximately six months and permanently delete them approximately six months later.
 
-# Create the AWS IAM User to obtain the access keys
+## Create the AWS IAM User to obtain the access keys
 
-Because django-storages is required, an IAM user will be needed with the following inline policy. If you're not using the automated backups, you can remove the first statement, but it doesn't hurt to keep it there in case you enable dbbackups someday.
+Because django-storages is required, an IAM user will be needed with the following inline policy. If you're not using the automated backups, you can remove the first statement, but it doesn't hurt to keep it there in case you enable backups someday.
 
 ```
 {

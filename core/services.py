@@ -14,6 +14,7 @@ Interacts with the database, other resources & other parts of your system.
 Does business logic - from simple model creation to complex cross-cutting concerns, to calling external services & tasks.
 """
 
+import os
 import logging
 import mimetypes
 import traceback
@@ -25,7 +26,9 @@ from uuid import uuid4
 from django.conf import settings
 from django.core.files import File
 from django.core.files.base import ContentFile
+from django.core.files.storage import storages
 from django.core.mail.message import EmailMultiAlternatives, sanitize_address
+from django.core.management import call_command
 from django.db import models, transaction
 from django.db.models import Model, QuerySet
 from django.http import HttpRequest
@@ -56,6 +59,46 @@ from .tasks import email_message_send as email_message_send_task
 from .types import BaseModelType, UserType
 
 logger = logging.getLogger(__name__)
+
+
+def database_backup():
+    import gnupg
+
+    now = timezone.now().strftime("%Y-%m-%dT%H:%M:%S")
+    filename = f"data-django-base-{now}.jsonl.gz"
+
+    # Dump
+    call_command(
+        "dumpdata",
+        format="jsonl",
+        natural_primary=True,
+        natural_foreign=True,
+        output=filename,
+    )
+    logger.info("Dumped database")
+
+    # Encrypt
+    passphrase = settings.BACKUP_ENCRYPTION_PASSPHRASE
+    gpg = gnupg.GPG()
+    with open(filename, "rb") as f:
+        crypt = gpg.encrypt_file(
+            f,
+            symmetric="AES256",
+            recipients=None,
+            passphrase=passphrase,
+        )
+        logger.info("Encrypted dump")
+
+    # Delete dump
+    os.remove(filename)
+    logger.info("Deleted unencrypted dump")
+
+    # Upload to S3
+    backup_storage = storages["backups"]
+    backup_storage.save(name=filename + ".gpg", content=ContentFile(crypt.data))
+    logger.info("Uploaded encrypted dump")
+
+    event_emit(type="database.backup", data={})
 
 
 def event_emit(

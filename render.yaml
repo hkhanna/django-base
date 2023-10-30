@@ -25,8 +25,8 @@ envVarGroups:
         sync: false
       - key: AWS_S3_SECRET_ACCESS_KEY
         sync: false
-    # - key: GNUPGHOME
-    #   value: /opt/render/project/gnupg
+    # - key: BACKUP_ENCRYPTION_PASSPHRASE
+    #   sync: false
 
 services:
   - type: web

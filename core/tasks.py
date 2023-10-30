@@ -1,4 +1,4 @@
-from django.core.management import call_command
+from django.conf import settings
 from celery.utils.log import get_task_logger
 from config.celery import app
 
@@ -29,17 +29,23 @@ def email_message_send(email_message_id):
     email_message_send(email_message=email_message)
 
 
-@app.task(time_limit=60 * 30)
+@app.task
 def database_backup():
-    from core.services import event_emit
+    from core.services import database_backup
 
-    call_command("dbbackup", "--noinput", "--encrypt")
-    event_emit(type="database_backup_completed", data={})
+    database_backup()
 
 
-@app.task(time_limit=60 * 30)
-def media_backup():
-    from core.services import event_emit
-
-    call_command("mediabackup", "--noinput", "--compress", "--encrypt")
-    event_emit(type="media_backup_completed", data={})
+periodic = [
+    # Backup database once per week Sunday morning at 3:16am.
+    {
+        "task": database_backup,
+        "name": database_backup.name,
+        "cron": {
+            "minute": "16",
+            "hour": "3",
+            "day_of_week": "0",
+        },
+        "enabled": settings.ENABLE_DATABASE_BACKUPS,
+    }
+]

@@ -39,34 +39,36 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = "DENY"
 
-# django-storages
-STORAGES["default"]["BACKEND"] = "storages.backends.s3boto3.S3Boto3Storage"
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "bucket_name": "django-base-production",
+            "location": "media/",
+            "default_acl": "private",
+        },
+    },
+    # "backups": {
+    #     "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    #     "OPTIONS": {
+    #         "bucket_name": BACKUP BUCKET NAME,
+    #         "location": "django-base/",
+    #         "default_acl": "private",
+    #     },
+    # },
+    "staticfiles": {
+        # Allows WhiteNoise to compress and cache the static files
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# boto3 / django-storages
 AWS_S3_ACCESS_KEY_ID = env("AWS_S3_ACCESS_KEY_ID")
 AWS_S3_SECRET_ACCESS_KEY = env("AWS_S3_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = "django-base-production"
-AWS_LOCATION = "media/"
-# Reset MEDIA_ROOT to blank when using S3
-MEDIA_ROOT = ""  # type: ignore
-
-
-# django_dbbackup
-# DBBACKUP_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-# DBBACKUP_STORAGE_OPTIONS = {
-#     "access_key": env("AWS_S3_ACCESS_KEY_ID"),
-#     "secret_key": env("AWS_S3_SECRET_ACCESS_KEY"),
-#     "bucket_name": BACKUP BUCKET NAME,  # type: ignore
-#     "default_acl": "private",  # type: ignore
-#     "location": "django-base/",  # type: ignore
-# }
-
 
 # STATIC FILES - WHITENOISE
 # The WhiteNoise middleware should go above everything else except the security middleware.
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
-# Allows WhiteNoise to compress and cache the static files
-STORAGES["staticfiles"][
-    "BACKEND"
-] = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # STATIC_ROOT is where collectstatic dumps all the static files
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "frontend/dist"]
