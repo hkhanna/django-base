@@ -12,7 +12,7 @@
   }
 
   .link {
-    @apply text-indigo-600 hover:text-indigo-500 underline underline-offset-2 decoration-gray-500 focus:outline-none;
+    @apply cursor-pointer text-indigo-600 hover:text-indigo-500 underline underline-offset-2 decoration-gray-500 focus:outline-none;
   }
 
   /** BUTTONS **/
