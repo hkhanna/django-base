@@ -3,6 +3,7 @@ import re
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 
 DEBUG = env("DJANGO_DEBUG", default=False)
@@ -91,7 +92,11 @@ SENTRY_DSN = None  # Off by default
 if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
-        integrations=[DjangoIntegration(), CeleryIntegration()],
+        integrations=[
+            LoggingIntegration(level=logging.INFO, event_level=logging.WARNING),
+            DjangoIntegration(),
+            CeleryIntegration(),
+        ],
         environment="production",
         traces_sample_rate=1.0,
         send_default_pii=True,
