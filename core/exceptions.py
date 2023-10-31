@@ -1,3 +1,6 @@
+from django.core.exceptions import *
+
+
 class ApplicationException(Exception):
     def __init__(self, message: str, **kwargs: object) -> None:
         self.__dict__.update(kwargs)
