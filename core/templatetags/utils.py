@@ -1,5 +1,4 @@
 from django import template
-from django.conf import settings
 
 register = template.Library()
 
@@ -8,3 +7,9 @@ register = template.Library()
 def keyvalue(dict, key):
     """Usage: {{dictionary|keyvalue:key_variable}}"""
     return dict[key]
+
+
+@register.filter
+def split(value, arg):
+    """Usage: {{value|split:","}}"""
+    return value.split(arg)
