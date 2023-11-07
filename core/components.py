@@ -25,7 +25,8 @@ def input(context):
             <p class="mt-2 text-sm text-red-600">{{field.errors|join:" "}}</p>
         {% endif %}
         </div>
-        """
+        """,
+        name="input",
     ).render(context)
 
 
