@@ -3,16 +3,9 @@ from django import template
 register = template.Library()
 
 
-@register.filter
-def widget_class(value, classes=""):
-    # Conditional error classes would need to be done in the template.
-    widget = value.field.widget
-    widget.attrs["class"] = classes.strip()
-
-
+# HACK: Remove this and refactor into a component.
 @register.filter
 def checkbox_class(value, extra_classes=""):
-    # May eventually refactor this into a component if it becomes necessary.
     widget = value.field.widget
     if value.errors:
         widget.attrs["class"] = (
