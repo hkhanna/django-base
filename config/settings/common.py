@@ -91,6 +91,7 @@ TEMPLATES = [
             ],
             "builtins": [
                 "django_web_components.templatetags.components",
+                "core.templatetags.core",
             ],
         },
     },
