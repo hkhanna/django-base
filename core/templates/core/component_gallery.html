@@ -3,13 +3,11 @@
 <div x-data class="space-y-4 m-8">
     <h2 class="text-xl text-center font-semibold text-gray-700">Heroicons</h2>
     <div class="flex space-x-2">
-    <span x-heroicon="check-circle" class="w-6 h-6 text-green-500"></span>
-    <span x-heroicon:solid="check-circle" class="w-6 h-6 text-green-500"></span>
-    <span x-heroicon:solid.20="check-circle" class="w-6 h-6 text-green-500"></span>
-    <span x-heroicon:solid.24="check-circle" class="w-6 h-6 text-green-500"></span>
-    <span x-heroicon:outline="check-circle" class="w-6 h-6 text-green-500"></span>
-    <span x-heroicon:outline.20="check-circle" class="w-6 h-6 text-green-500"></span>
-    <span x-heroicon:outline.24="check-circle" class="w-6 h-6 text-green-500"></span>
+    {% heroicon "check-circle" %}
+    {% heroicon "check-circle" "solid" %}
+    {% heroicon "check-circle" "mini" %}
+    {% heroicon "check-circle" "outline" class="w-8 h-8 text-green-500" %}
+    {% heroicon "check-circle" "mini" class="w-8 h-8 text-green-500" %}
     </div>
 </div>
 <div x-data class="space-y-4 m-8">

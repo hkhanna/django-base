@@ -45,7 +45,7 @@
       <div class="p-8">
         <div>
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full {{icon_bg_color}}">
-            <div x-heroicon:outline="{{icon}}" class="h-6 w-6 {{icon_color}}" aria-hidden="true"></div>
+            {% heroicon icon "outline" class="h-6 w-6 "|add:icon_color aria_hidden="true" %}
           </div>
           <div class="mt-3 text-center sm:mt-5">
             <h3 class="text-lg leading-6 font-medium text-gray-900">
