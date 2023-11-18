@@ -133,7 +133,7 @@ If you're using Heroku, at a minimum, these are the environment variables that m
 1. In Heroku, provision the redis add-on in the Heroku web interface which will automatically set the `REDIS_URL` environment variable.
 1. In production settings, uncomment the `CELERY_BROKER_URL` setting.
 1. In production settings, add `CELERY_TASK_ALWAYS_EAGER = False`.
-1. Uncomment the `main_worker` entry in the `Procfile`.
+1. In the `Procfile`, replace the uncommented `release` entry with the commented one and uncomment the `main_worker` entry.
 1. Do a deploy.
 1. Give the celery worker one dyno: `heroku ps:scale main_worker=1 --app <app_name>`
 
