@@ -140,6 +140,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # My Additions
 # ---------------------
 ENVIRONMENT = env.str("DJANGO_SETTINGS_MODULE").split(".")[-1]
+RENDER = False
+HEROKU = False
 
 # This is a good article for how to build custom users with the email as username
 # inheriting from AbstractUser rather than AbstractUserBase:

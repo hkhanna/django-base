@@ -4,7 +4,7 @@ This repository is used as a template repository that I can clone for any new Dj
 
 Generally, you'll want to avoid making too many changes to the `core` app to avoid merge conflicts when you merge in updates to this base repo. In other words, put as much as you can into different apps, although some changes to the `core` app may be unavoidable.
 
-# Creating a new Django project from `django-base`
+## Creating a new Django project from `django-base`
 
 - Pick a suitable project name.
 - Clone the repo into the new project name directory. E.g., `git clone git@github.com:hkhanna/django-base.git <project_name>`
@@ -23,18 +23,19 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 - Update `SITE_CONFIG`.
 - Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
 
-# Enable AWS for backups if desired
+## Enable AWS for backups if desired
 
 1. Generate a passphrase and store it safely in 1Password.
 1. Uncomment common.py and production.py STORAGES["backup"]
 1. Uncomment python-gnupg in requirements/common.txt
 1. Set ENABLE_DATABASE_BACKUPS to True in common.py
 1. This will automatically enable the celery job contained in core.tasks.
-1. Uncomment the BACKUP_ENCRYPTION_PASSPHRASE environment variable in render.yaml.
+1. If using Render: uncomment the BACKUP_ENCRYPTION_PASSPHRASE environment variable in render.yaml.
+1. If using Heroku: add the BACKUP_ENCRYPTION_PASSPHRASE environment variable to the Heroku dashboard.
 
 Note that an AWS lifecycle rule ("Prune Backups") will expire backups after approximately six months and permanently delete them approximately six months later.
 
-## Create the AWS IAM User to obtain the access keys
+### Create the AWS IAM User to obtain the access keys
 
 Because django-storages is required, an IAM user will be needed with the following inline policy. If you're not using the automated backups, you can remove the first statement, but it doesn't hurt to keep it there in case you enable backups someday.
 
@@ -67,7 +68,7 @@ Because django-storages is required, an IAM user will be needed with the followi
 
 Then, generate the access key and secret key and hold onto it for the deploy to Render.
 
-# Deploy to Render
+## Deploy to Render
 
 1. Make any changes to `render.yaml`. Look at the comments in the file.
 1. Make sure the "Log Stream" is setup in your Render account settings. Right now, all services have to share 1 log stream, which is not ideal. It seems like that will change eventually and we will be able to have 1 Log Stream per service or service group.
@@ -79,12 +80,48 @@ Then, generate the access key and secret key and hold onto it for the deploy to 
 1. Update the Site name and domain in the Django admin.
 1. If you're using social auth, add the appropriate `Social Applications`.
 
-## Render - Enable Celery if desired.
+### Render - Enable Celery if desired.
 
 1. Uncomment the redis and celery worker sections of `render.yaml` including the redis env var setting.
 1. In production settings, uncomment the `CELERY_BROKER_URL` setting.
 1. In production settings, add `CELERY_TASK_ALWAYS_EAGER = False`.
 1. Do a deploy.
+
+### Render - Remove Heroku if desired.
+
+1. Delete requirements.txt, runtime.txt, Procfile, and package.json.
+
+## Deploy to Heroku
+
+1. Create the application in the Heroku web interface.
+1. Provision the postgresql add-on in the Heroku web interface
+   - Note: if you didn't do this, a Heroku postgres database would be automatically provisioned and added to the `DATABASE_URL` environment variable if your app were successfully deployed. However, because deployment requires that variable to be set, a deployment will fail unless the database is provisioned first.
+1. Set environment variables in production though the dashboard.
+1. `heroku login` to log into Heroku account if you are not already logged in (check with `heroku auth:whoami`).
+1. The nodejs buildpack was added to support Vite / Tailwind CSS with `heroku buildpacks:add heroku/nodejs --app <app_name>`.
+1. Because we are manually specifying the buildpack, we also need to specify python: `heroku buildpacks:add heroku/python --app <app_name>`.
+1. Note that the order that you specify the buildpacks is (probably) important, so do them in that order (first node, then python).
+1. Connect Heroku to Github. Enable Automatic Deploys from `main` once CI has passed. You can push directly to `main` or do a PR into `main` and it will deploy once CI passes.
+1. Set up postgres backups: `heroku pg:backups schedule --at '02:00 America/New_York' DATABASE_URL --app <app_name>`
+1. Make sure there aren't any obvious issues in production: `heroku run python manage.py check --deploy --app <app_name>`
+1. If the web worker doesn't seem to be running, give it one dyno: `heroku ps:scale web=1 --app <app_name>`
+1. Add papertrail via the Heroku interface.
+1. Create a Postmark server if using email.
+1. Create the first superuser on production: `heroku run python manage.py createsuperuser --app <app_name>`
+1. If you're using social auth, add the appropriate `Social Applications`.
+
+### Heroku - Enable Celery if desired.
+
+1. In Heroku, provision the redis add-on in the Heroku web interface which will automatically set the `REDIS_URL` environment variable.
+1. In production settings, uncomment the `CELERY_BROKER_URL` setting.
+1. In production settings, add `CELERY_TASK_ALWAYS_EAGER = False`.
+1. Uncomment the `main_worker` entry in the `Procfile`.
+1. Do a deploy.
+1. Give the celery worker one dyno: `heroku ps:scale main_worker=1 --app <app_name>`
+
+### Heroku - Remove Render if desired.
+
+1. Delete render.yaml.
 
 ## Override templates if desired
 
@@ -96,6 +133,23 @@ Avoid making changes directly to the `core` directory to avoid merge conflicts w
 
 - Update the README as appropriate.
 - Delete this file.
+
+## Production Environment Variables
+
+If you're using Heroku, at a minimum, these are the environment variables that must be set in production:
+
+- `DJANGO_SETTINGS_MODULE=config.settings.production`
+- `DJANGO_SECRET_KEY=<random key>`
+  - You can generate this random key with something like `openssl rand -base64 64`.
+- `LOGLEVEL=INFO`
+  - Without this, it will use the default of `DEBUG`.
+- `POSTMARK_API_KEY=<postmark key>`
+- `ADMIN_URL_PATH`
+- `EVENT_SECRET`
+- `AWS_S3_ACCESS_KEY_ID`
+- `AWS_S3_SECRET_ACCESS_KEY`
+- `BACKUP_ENCRYPTION_PASSPHRASE`
+  - Optional if you're using the automated backups.
 
 ## Orgs, Plans & Settings
 
