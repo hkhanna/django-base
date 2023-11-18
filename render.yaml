@@ -8,7 +8,7 @@ envVarGroups:
   - name: django-base-env
     envVars:
       - key: PYTHON_VERSION
-        value: "3.10.8"
+        value: "3.11.6"
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings.production
       - key: DJANGO_SECRET_KEY
