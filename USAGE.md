@@ -96,7 +96,7 @@ Then, generate the access key and secret key and hold onto it for the deploy to 
 1. Create the application in the Heroku web interface.
 1. Provision the postgresql add-on in the Heroku web interface
    - Note: if you didn't do this, a Heroku postgres database would be automatically provisioned and added to the `DATABASE_URL` environment variable if your app were successfully deployed. However, because deployment requires that variable to be set, a deployment will fail unless the database is provisioned first.
-1. Set environment variables in production though the dashboard.
+1. Set environment variables in production though the dashboard. See "Heroku - Production Environment Variables" below for an initial list.
 1. `heroku login` to log into Heroku account if you are not already logged in (check with `heroku auth:whoami`).
 1. The nodejs buildpack was added to support Vite / Tailwind CSS with `heroku buildpacks:add heroku/nodejs --app <app_name>`.
 1. Because we are manually specifying the buildpack, we also need to specify python: `heroku buildpacks:add heroku/python --app <app_name>`.
@@ -110,6 +110,24 @@ Then, generate the access key and secret key and hold onto it for the deploy to 
 1. Create the first superuser on production: `heroku run python manage.py createsuperuser --app <app_name>`
 1. If you're using social auth, add the appropriate `Social Applications`.
 
+### Heroku - Production Environment Variables
+
+If you're using Heroku, at a minimum, these are the environment variables that must be set in production:
+
+- `DJANGO_SETTINGS_MODULE=config.settings.production`
+- `DJANGO_SECRET_KEY=<random key>`
+  - You can generate this random key with something like `openssl rand -base64 64`.
+- `LOGLEVEL=INFO`
+  - Without this, it will use the default of `DEBUG`.
+- `POSTMARK_API_KEY=<postmark key>`
+- `EVENT_SECRET`
+- `AWS_S3_ACCESS_KEY_ID`
+- `AWS_S3_SECRET_ACCESS_KEY`
+- `ADMIN_URL_PATH`
+  - Optional. Defaults to `admin/`.
+- `BACKUP_ENCRYPTION_PASSPHRASE`
+  - Optional if you're using the automated backups.
+
 ### Heroku - Enable Celery if desired.
 
 1. In Heroku, provision the redis add-on in the Heroku web interface which will automatically set the `REDIS_URL` environment variable.
@@ -121,7 +139,7 @@ Then, generate the access key and secret key and hold onto it for the deploy to 
 
 ### Heroku - Remove Render if desired.
 
-1. Delete render.yaml.
+1. Delete render.yaml, build-web.sh, and build-worker.sh.
 
 ## Override templates if desired
 
@@ -133,23 +151,6 @@ Avoid making changes directly to the `core` directory to avoid merge conflicts w
 
 - Update the README as appropriate.
 - Delete this file.
-
-## Production Environment Variables
-
-If you're using Heroku, at a minimum, these are the environment variables that must be set in production:
-
-- `DJANGO_SETTINGS_MODULE=config.settings.production`
-- `DJANGO_SECRET_KEY=<random key>`
-  - You can generate this random key with something like `openssl rand -base64 64`.
-- `LOGLEVEL=INFO`
-  - Without this, it will use the default of `DEBUG`.
-- `POSTMARK_API_KEY=<postmark key>`
-- `ADMIN_URL_PATH`
-- `EVENT_SECRET`
-- `AWS_S3_ACCESS_KEY_ID`
-- `AWS_S3_SECRET_ACCESS_KEY`
-- `BACKUP_ENCRYPTION_PASSPHRASE`
-  - Optional if you're using the automated backups.
 
 ## Orgs, Plans & Settings
 
