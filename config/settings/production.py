@@ -1,4 +1,3 @@
-from typing import Optional
 from django.core.exceptions import ImproperlyConfigured
 
 from .common import *
@@ -17,7 +16,7 @@ HEROKU = not RENDER
 
 if HEROKU:
     # See https://devcenter.heroku.com/articles/http-request-id
-    REQUEST_ID_HEADER: Optional[str] = "X-Request-Id"
+    REQUEST_ID_HEADER = "X-Request-Id"  # type: ignore
     ALLOWED_HOSTS = ["*"]
 elif RENDER:
     REQUEST_ID_HEADER = None
