@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.sites",
-    "django.contrib.staticfiles",
     "heroicons",
     "django_extensions",
     "django_web_components",
@@ -51,6 +50,8 @@ INSTALLED_APPS = [
     # core must come before admin because it overrides an admin template
     # core must come before allauth so that core templates take precedence
     "core.apps.CoreConfig",
+    # core should come before staticfiles because we override collectstatic
+    "django.contrib.staticfiles",
     "django.contrib.admin",
     "allauth",
     "allauth.account",
@@ -140,6 +141,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # My Additions
 # ---------------------
 ENVIRONMENT = env.str("DJANGO_SETTINGS_MODULE").split(".")[-1]
+RENDER = False
+HEROKU = False
 
 # This is a good article for how to build custom users with the email as username
 # inheriting from AbstractUser rather than AbstractUserBase:

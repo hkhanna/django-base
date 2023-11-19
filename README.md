@@ -38,11 +38,6 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 - `git fetch base`
 - `git merge base/main`.
 
-# Deployment
+# How to Deploy
 
-- Hosted on Render.
-- Backend logging to Papertrail.
-
-## How to Deploy
-
-- Push to `origin/main` and it will automatically trigger a deploy to Render.
+- Push to `origin/main` and it will automatically trigger a deploy.
