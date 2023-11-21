@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     "core.apps.CoreConfig",
     # core should come before staticfiles because we override collectstatic
     "django.contrib.staticfiles",
-    "django_react_templatetags",
     "django.contrib.admin",
     "allauth",
     "allauth.account",
@@ -90,7 +89,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django_react_templatetags.context_processors.react_context_processor",
             ],
             "builtins": [
                 "django_web_components.templatetags.components",
