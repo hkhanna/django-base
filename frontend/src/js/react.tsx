@@ -1,18 +1,16 @@
 import React from "react";
 import ReactDOMClient from "react-dom/client";
 
-export const Example = ({ prop1 }) => (
-  <div className="text-gray-700 text-sm">
-    This is a React component. Prop: {prop1}
-  </div>
-);
+// -- Import and add components -- //
+import { Example } from "./components/Example.tsx";
 
-const Components = {
+export const Components = {
   Example,
 };
+// -- End of components -- // 
 
 const component_json = JSON.parse(
-  document.getElementById("django_react_templatetags_components").textContent
+  document.getElementById("django_react_templatetags_components")?.textContent || "{}"
 );
 component_json.forEach((component) => {
   const container = document.getElementById(component.identifier);
