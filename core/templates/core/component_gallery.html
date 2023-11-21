@@ -1,5 +1,10 @@
 {% extends "core/layouts/base.html" %}
+{% load react %}
 {% block content %}
+
+<div>
+    {% react_render component="Test" prop_hi="bye" %}
+</div>
 <div x-data class="space-y-4 m-8">
     <h2 class="text-xl text-center font-semibold text-gray-700">Heroicons</h2>
     <div class="flex space-x-2">
@@ -110,4 +115,5 @@
     </div>
 
 </div>
+{% react_print %}
 {% endblock %}
