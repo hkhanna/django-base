@@ -20,7 +20,7 @@ module.exports = {
     },
   },
   resolve: {
-    extensions: [".js", ".json", ".ts"],
+    extensions: [".js", ".json", ".ts", ".jsx", ".tsx"],
   },
   build: {
     outDir: resolve("./dist/"),
