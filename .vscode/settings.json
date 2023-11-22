@@ -6,6 +6,7 @@
   "editor.formatOnSave": true,
   "editor.tabSize": 4,
   "editor.insertSpaces": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[django-html]": {
     "editor.formatOnSave": false,
     "editor.quickSuggestions": {
