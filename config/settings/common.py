@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.sites",
+    "inertia",
     "heroicons",
     "django_extensions",
     "django_web_components",
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "inertia.middleware.InertiaMiddleware",
     "core.middleware.DisableClientCacheMiddleware",
     "core.middleware.TimezoneMiddleware",
     "core.middleware.SetRemoteAddrFromForwardedFor",
@@ -262,6 +264,9 @@ CELERY_TASK_SERIALIZER = "json"
 # django-vite
 DJANGO_VITE_ASSETS_PATH = BASE_DIR / "frontend/dist"
 DJANGO_VITE_DEV_MODE = False
+
+# django-inertia
+INERTIA_LAYOUT = "core/layouts/base.html"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

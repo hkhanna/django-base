@@ -4,6 +4,7 @@ from allauth.account import forms as auth_forms
 from allauth.account import models as auth_models
 from allauth.account import views as auth_views
 from allauth.account.adapter import get_adapter
+from inertia import render as intertia_render
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -26,6 +27,8 @@ from .tasks import email_message_webhook_process as email_message_webhook_proces
 from .types import UserType
 
 logger = logging.getLogger(__name__)
+
+# FIXME: Vite react plugin
 
 
 @staff_member_required
@@ -55,6 +58,11 @@ def permission_denied(request, exception):
         url = settings.PERMISSION_DENIED_REDIRECT
 
     return redirect(url)
+
+
+def inertia_test(request):
+    """A view to test Inertia.js."""
+    return intertia_render(request, "TestPage", {"name": "World"})
 
 
 class OrgSwitchView(LoginRequiredMixin, View):
