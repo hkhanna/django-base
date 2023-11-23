@@ -13,7 +13,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import Http404, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render as django_render
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -38,7 +38,7 @@ def render_template_with_params(request, template):
     for param in request.GET:
         context[param] = request.GET.get(param)
 
-    return render(request, template, context)
+    return django_render(request, template, context)
 
 
 def permission_denied(request, exception):
@@ -157,7 +157,7 @@ class UserSettingsView(LoginRequiredMixin, View):
                 "disable_account_deletion"
             ),
         }
-        return render(request, self.template_name, context)
+        return django_render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         if request.POST.get("form_name") == "pi":
@@ -212,7 +212,7 @@ class UserSettingsView(LoginRequiredMixin, View):
             messages.info(request, "The social account has been disconnected.")
             return redirect("account_settings")
 
-        return render(request, self.template_name, context)
+        return django_render(request, self.template_name, context)
 
 
 class ResendConfirmationEmailView(LoginRequiredMixin, View):

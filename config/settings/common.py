@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.sites",
+    "inertia",
     "heroicons",
     "django_extensions",
     "django_web_components",
@@ -52,7 +53,6 @@ INSTALLED_APPS = [
     "core.apps.CoreConfig",
     # core should come before staticfiles because we override collectstatic
     "django.contrib.staticfiles",
-    "django_react_templatetags",
     "django.contrib.admin",
     "allauth",
     "allauth.account",
@@ -70,6 +70,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "inertia.middleware.InertiaMiddleware",
     "core.middleware.DisableClientCacheMiddleware",
     "core.middleware.TimezoneMiddleware",
     "core.middleware.SetRemoteAddrFromForwardedFor",
@@ -90,7 +91,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django_react_templatetags.context_processors.react_context_processor",
             ],
             "builtins": [
                 "django_web_components.templatetags.components",
@@ -264,6 +264,9 @@ CELERY_TASK_SERIALIZER = "json"
 # django-vite
 DJANGO_VITE_ASSETS_PATH = BASE_DIR / "frontend/dist"
 DJANGO_VITE_DEV_MODE = False
+
+# django-inertia
+INERTIA_LAYOUT = "core/layouts/base.html"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

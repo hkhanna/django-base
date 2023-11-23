@@ -1,11 +1,16 @@
+import "vite/modulepreload-polyfill";
 const { resolve } = require("path");
 const { loadEnv } = require("vite");
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 const svgLoader = require("vite-svg-loader");
 
 process.env = { ...process.env, ...loadEnv(null, process.cwd() + "/../") };
 
-module.exports = {
-  plugins: [svgLoader({ defaultImport: "raw" })],
+// HACK: Remove svgloader once Heroicons aren't loaded via Alpine in any projects that use this.
+
+export default defineConfig({
+  plugins: [react(), svgLoader({ defaultImport: "raw" })],
   root: resolve("./src/"),
   base: "/static/",
   server: {
@@ -37,4 +42,4 @@ module.exports = {
       },
     },
   },
-};
+});

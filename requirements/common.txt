@@ -6,10 +6,10 @@ django-allauth==0.51.0
 django-environ==0.10.0
 django-extensions==3.2.3
 django-storages==1.13.2
-django_react_templatetags==7.0.1
 django-vite==2.1.3
 django-web-components==0.2.0
 heroicons==2.4.0
+inertia-django==0.5.3
 markdown==3.4.4
 # python-gnupg==0.5.1
 python-postmark==0.6.0
