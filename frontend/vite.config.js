@@ -1,4 +1,3 @@
-import "vite/modulepreload-polyfill";
 const { resolve } = require("path");
 const { loadEnv } = require("vite");
 import { defineConfig } from "vite";
