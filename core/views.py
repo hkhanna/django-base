@@ -4,7 +4,6 @@ from allauth.account import forms as auth_forms
 from allauth.account import models as auth_models
 from allauth.account import views as auth_views
 from allauth.account.adapter import get_adapter
-from inertia import render as intertia_render
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -14,7 +13,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import Http404, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render as django_render
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -28,8 +27,6 @@ from .types import UserType
 
 logger = logging.getLogger(__name__)
 
-# FIXME: Vite react plugin
-
 
 @staff_member_required
 def render_template_with_params(request, template):
@@ -41,7 +38,7 @@ def render_template_with_params(request, template):
     for param in request.GET:
         context[param] = request.GET.get(param)
 
-    return render(request, template, context)
+    return django_render(request, template, context)
 
 
 def permission_denied(request, exception):
@@ -58,11 +55,6 @@ def permission_denied(request, exception):
         url = settings.PERMISSION_DENIED_REDIRECT
 
     return redirect(url)
-
-
-def inertia_test(request):
-    """A view to test Inertia.js."""
-    return intertia_render(request, "TestPage", {"name": "World"})
 
 
 class OrgSwitchView(LoginRequiredMixin, View):
@@ -165,7 +157,7 @@ class UserSettingsView(LoginRequiredMixin, View):
                 "disable_account_deletion"
             ),
         }
-        return render(request, self.template_name, context)
+        return django_render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         if request.POST.get("form_name") == "pi":
@@ -220,7 +212,7 @@ class UserSettingsView(LoginRequiredMixin, View):
             messages.info(request, "The social account has been disconnected.")
             return redirect("account_settings")
 
-        return render(request, self.template_name, context)
+        return django_render(request, self.template_name, context)
 
 
 class ResendConfirmationEmailView(LoginRequiredMixin, View):
