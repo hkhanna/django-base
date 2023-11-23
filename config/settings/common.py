@@ -266,7 +266,7 @@ DJANGO_VITE_ASSETS_PATH = BASE_DIR / "frontend/dist"
 DJANGO_VITE_DEV_MODE = False
 
 # django-inertia
-INERTIA_LAYOUT = "core/layouts/base.html"
+INERTIA_LAYOUT = "core/layouts/inertia.html"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
