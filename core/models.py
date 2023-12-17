@@ -216,7 +216,7 @@ class Org(BaseModel):
         help_text="Default plan if the primary plan expires.",
     )
     current_period_end = models.DateTimeField(null=True, blank=True)
-    users = models.ManyToManyField(
+    users = models.ManyToManyField(  # type: ignore
         settings.AUTH_USER_MODEL,
         related_name="orgs",
         related_query_name="orgs",
@@ -388,7 +388,7 @@ class User(AbstractUser):
     objects = UserManager()  # type: ignore
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS: list = []
+    REQUIRED_FIELDS: list = []  # type: ignore
 
     def __str__(self):
         return self.name

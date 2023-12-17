@@ -18,7 +18,7 @@ check:
 	source .venv/bin/activate && py.test -n auto
 
 mypy:
-	-mypy .
+	-source .venv/bin/activate && mypy .
 
 playwright:
 	source .venv/bin/activate && py.test --headed --slowmo 250 */tests/test_playwright.py
