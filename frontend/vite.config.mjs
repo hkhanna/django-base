@@ -29,7 +29,7 @@ export default defineConfig({
   build: {
     outDir: resolve("./dist/"),
     assetsDir: "",
-    manifest: true,
+    manifest: "manifest.json",
     emptyOutDir: true,
     target: "es2017",
     rollupOptions: {

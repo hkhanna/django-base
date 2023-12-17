@@ -262,8 +262,12 @@ CELERY_ACCEPT_CONTENT = ["json", "pickle"]
 CELERY_TASK_SERIALIZER = "json"
 
 # django-vite
-DJANGO_VITE = {"default": {"dev_mode": False}}
-
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": False,
+        "manifest_path": BASE_DIR / "frontend/dist/manifest.json",
+    }
+}
 
 # django-inertia
 INERTIA_LAYOUT = "core/layouts/inertia.html"
@@ -272,10 +276,6 @@ INERTIA_LAYOUT = "core/layouts/inertia.html"
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"
-# STATIC_ROOT is where collectstatic dumps all the static files
-# Normally, we'd put it in just the production.py, but for some reason
-# django-vite needs it set to work properly.
-STATIC_ROOT = BASE_DIR / "staticfiles"
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",

@@ -86,6 +86,8 @@ AWS_S3_SECRET_ACCESS_KEY = env("AWS_S3_SECRET_ACCESS_KEY")
 # The WhiteNoise middleware should go above everything else except the security middleware.
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 STATICFILES_DIRS = [BASE_DIR / "frontend/dist"]
+# STATIC_ROOT is where collectstatic dumps all the static files
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 # Vite generates files with 8 hash digits
