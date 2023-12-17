@@ -2,7 +2,7 @@ databases:
   - name: django-base-db
     region: ohio
     plan: free
-    postgresMajorVersion: 14
+    postgresMajorVersion: 15
 
 envVarGroups:
   - name: django-base-env

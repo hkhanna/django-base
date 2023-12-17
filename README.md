@@ -6,8 +6,8 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 ### Prerequisites
 
-- PostgreSQL 14 (or Docker)
-- Python 3.10
+- PostgreSQL 15 (or Docker)
+- Python 3.11
 - `libtidy-dev` (e.g., `apt install libtidy-dev` or `brew install tidy-html5`)
 
 ### Local Installation
@@ -30,7 +30,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 ### Updating Packages
 
-- Python: `pip-outdated requirements/common.txt` and `pip-oudated requirements/local.txt`.
+- `pip list --outdated` but you need to basically install every environment first because you can't point that command at specific requirements files.
 
 ## Merging upstream "base" changes
 

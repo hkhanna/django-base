@@ -1,20 +1,20 @@
 # -- Begin base requirements -- #
 
-celery==5.3.1
-Django==4.2.3
+celery==5.3.6
+Django==4.2.8
 django-allauth==0.51.0
-django-environ==0.10.0
+django-environ==0.11.2
 django-extensions==3.2.3
-django-storages==1.13.2
-django-vite==2.1.3
+django-storages==1.14.2
+django-vite==3.0.1
 django-web-components==0.2.0
-heroicons==2.4.0
+heroicons==2.5.0
 inertia-django==0.5.3
-markdown==3.4.4
+markdown==3.5.1
 # python-gnupg==0.5.1
 python-postmark==0.6.0
-pytz==2023.3
-redis==4.6.0
-whitenoise==6.5.0
+pytz==2023.3.post1
+redis==5.0.1
+whitenoise==6.6.0
 
 # -- End base requirements -- #
