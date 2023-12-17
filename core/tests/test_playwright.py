@@ -17,7 +17,9 @@ def vite_not_running():
     # Really only needed for playwright tests.
     try:
         request.urlopen(
-            "http://localhost:" + str(settings.DJANGO_VITE_DEV_SERVER_PORT), timeout=1
+            "http://localhost:"
+            + str(settings.DJANGO_VITE["default"].get("dev_server_port")),
+            timeout=1,
         )
     except request.URLError as e:
         if not isinstance(e, request.HTTPError):
@@ -28,7 +30,7 @@ def vite_not_running():
 pytestmark = pytest.mark.skipif(
     vite_not_running(),
     reason="Vite server must be running on "
-    + str(settings.DJANGO_VITE_DEV_SERVER_PORT),
+    + str(settings.DJANGO_VITE["default"].get("dev_server_port")),
 )
 
 

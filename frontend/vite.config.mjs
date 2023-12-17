@@ -1,8 +1,8 @@
-const { resolve } = require("path");
-const { loadEnv } = require("vite");
+import { resolve } from "path";
+import { loadEnv } from "vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-const svgLoader = require("vite-svg-loader");
+import svgLoader from "vite-svg-loader";
 
 process.env = { ...process.env, ...loadEnv(null, process.cwd() + "/../") };
 
