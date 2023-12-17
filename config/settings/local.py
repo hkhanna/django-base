@@ -24,12 +24,8 @@ INTERNAL_IPS = ["127.0.0.1"]
 CELERY_WORKER_REDIRECT_STDOUTS_LEVEL = "INFO"
 
 # django_vite
-DJANGO_VITE = {
-    "default": {
-        "dev_mode": True,
-        "dev_server_port": env("VITE_PORT", default=3000),
-    }
-}
+DJANGO_VITE["default"]["dev_mode"] = True
+DJANGO_VITE["default"]["dev_server_port"] = env("VITE_PORT", default=3000)
 
 # HTML validation middleware
 # There's a longer default list, which we'll keep for testing.

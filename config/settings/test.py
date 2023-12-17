@@ -30,6 +30,5 @@ CHECK_HTML_IGNORE_MESSAGES = list(CheckHTMLMiddleware.ignore_messages_default) +
 MIDDLEWARE.insert(1, "check_html.CheckHTMLMiddleware")
 
 # django_vite
-DJANGO_VITE = {
-    "default": {"dev_mode": True, "dev_server_port": env("VITE_PORT", default=3000)}
-}
+DJANGO_VITE["default"]["dev_mode"] = True
+DJANGO_VITE["default"]["dev_server_port"] = env("VITE_PORT", default=3000)
