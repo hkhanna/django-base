@@ -25,6 +25,9 @@ export default defineConfig({
   },
   resolve: {
     extensions: [".js", ".json", ".ts", ".jsx", ".tsx"],
+    alias: {
+      "@": resolve("./src/js/"),
+    },
   },
   build: {
     outDir: resolve("./dist/"),

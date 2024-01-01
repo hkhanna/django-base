@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
   createInertiaApp({
     resolve: (name) => {
       // `name` will be the path of the component defined in
-      const pages = import.meta.glob("./pages/**/*.jsx", { eager: true });
-      return pages[`./pages/${name}.jsx`];
+      const pages = import.meta.glob("./pages/**/*.{jsx,tsx}", { eager: true });
+      return pages[`./pages/${name}.tsx`] || pages[`./pages/${name}.jsx`];
     },
     setup({ el, App, props }) {
       createRoot(el).render(<App {...props} />);

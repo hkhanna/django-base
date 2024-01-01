@@ -14,11 +14,14 @@ app:
 vite:
 	npm run dev --prefix frontend/
 
-check:
+check: mypy tsc
 	source .venv/bin/activate && py.test -n auto
 
 mypy:
 	-source .venv/bin/activate && mypy .
+
+tsc:
+	-npm run tsc --prefix frontend/
 
 playwright:
 	source .venv/bin/activate && py.test --headed --slowmo 250 */tests/test_playwright.py

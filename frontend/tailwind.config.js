@@ -34,6 +34,10 @@ module.exports = {
     "!../**/node_modules",
     /* JS 2: Process all JavaScript files in the project. */
     "../**/*.js",
+    "../**/*.jsx",
+    /* TS: Process all TypeScript files in the project. */
+    "../**/*.ts",
+    "../**/*.tsx",
 
     /**
      * Python: If you use Tailwind CSS classes in Python, uncomment the following line

@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "tsc": "tsc"
   },
   "dependencies": {
     "@alpinejs/focus": "^3.13.3",
@@ -28,6 +29,7 @@
     "vite-svg-loader": "^5.1.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.45"
+    "@types/react": "^18.2.45",
+    "typescript": "^5.3.3"
   }
 }
