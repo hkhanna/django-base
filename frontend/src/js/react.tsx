@@ -5,6 +5,8 @@ import { createRoot } from "react-dom/client";
 
 document.addEventListener("DOMContentLoaded", () => {
   axios.defaults.xsrfHeaderName = "X-CSRFToken";
+  axios.defaults.xsrfCookieName = "csrftoken";
+
   createInertiaApp({
     resolve: (name) => {
       // `name` will be the path of the component defined in

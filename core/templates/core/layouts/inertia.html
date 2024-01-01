@@ -1,6 +1,9 @@
 {% load django_vite %}
 <!DOCTYPE html>
-<html lang="en">
+<html
+  lang="en"
+  {% if html_class %}class="{{html_class}}"{% endif %}
+>
   <head>
     {# The require_title var is not set and will cause pytest to fail if not overriden by the child template. #}
     <title>{% block title %}{{require_title}}{% endblock title %} - django-base</title>
@@ -12,7 +15,7 @@
     {% block vite_assets %}{% vite_asset 'js/main.js' %}{% vite_asset 'js/react.tsx' %}{% endblock vite_assets %}
   </head>
 
-  <body>
+  <body {% if body_class %}class="{{body_class}}"{% endif %}>
     {% block inertia %}{% endblock inertia %}
   </body>
 </html>

@@ -1,5 +1,7 @@
 import logging
+from typing import Any
 
+from inertia import render as inertia_render
 from allauth.account import forms as auth_forms
 from allauth.account import models as auth_models
 from allauth.account import views as auth_views
@@ -8,11 +10,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import Http404, JsonResponse
+from django.http.response import HttpResponse as HttpResponse
 from django.shortcuts import redirect, render as django_render
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
@@ -283,3 +287,14 @@ def event_emit_view(request):
     services.event_emit(type=type, data=payload)
 
     return JsonResponse({"detail": "Created"}, status=201)
+
+
+class LoginView(DjangoLoginView):
+    def render_to_response(self, context, *args, **kwargs):
+        form = context["form"]
+        return inertia_render(
+            self.request,
+            "core/Login",
+            props={"errors": form.errors},
+            template_data={"html_class": "h-full bg-gray-50", "body_class": "h-full"},
+        )

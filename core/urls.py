@@ -9,7 +9,12 @@ from . import views
 
 page_not_found = lambda request: django.views.defaults.page_not_found(request, None)
 
+user_patterns = [
+    path("login/", views.LoginView.as_view(), name="login"),
+]
+
 urlpatterns = [
+    path("user/", include((user_patterns, "user"))),
     path("", RedirectView.as_view(url=settings.LOGIN_URL), name="index"),
     path(
         "terms/",
