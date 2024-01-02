@@ -9,6 +9,7 @@ const defaultTheme = require("tailwindcss/defaultTheme");
 const colors = require("tailwindcss/colors");
 
 module.exports = {
+  darkMode: "class",
   content: [
     /**
      * HTML. Paths to Django template files that will contain Tailwind CSS classes.
