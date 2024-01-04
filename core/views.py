@@ -336,6 +336,6 @@ class LoginView(DjangoLoginView):
             props={"errors": form.errors},
             template_data={
                 "html_class": "h-full bg-zinc-50",
-                "body_class": "h-full",
+                "body_class": "h-full dark:bg-zinc-900",
             },
         )

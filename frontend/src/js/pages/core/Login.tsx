@@ -11,8 +11,6 @@ import { useForm } from "@inertiajs/react";
 import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
 
-// TODO: dark mode and html class (remove tailwind.config.js darkMode setting)
-
 export default function Login() {
   const { data, setData, post, processing, errors } = useForm({
     username: "",
@@ -30,7 +28,7 @@ export default function Login() {
       <Head title="Login" />
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center text-zinc-900 dark:text-white">
             <svg
               className="mx-auto h-10"
               fill="none"
@@ -48,7 +46,7 @@ export default function Login() {
             </svg>
             <Text>django-base</Text>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-bold leading-9 tracking-tight text-zinc-900">
+          <h2 className="my-4 text-center text-3xl font-bold leading-9 tracking-tight text-zinc-800 dark:text-zinc-300">
             Sign in to your account
           </h2>
         </div>
@@ -61,7 +59,7 @@ export default function Login() {
         </Text>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
-          <div className="bg-white px-6 py-10 shadow sm:rounded-lg sm:px-12">
+          <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
             <form onSubmit={handleSubmit}>
               <Fieldset aria-label="Login form" className="space-y-5">
                 <Field>
