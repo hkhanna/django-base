@@ -5,8 +5,6 @@
   {% if html_class %}class="{{html_class}}"{% endif %}
 >
   <head>
-    {# The require_title var is not set and will cause pytest to fail if not overriden by the child template. #}
-    <title>{% block title %}{{require_title}}{% endblock title %} - django-base</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />

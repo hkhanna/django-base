@@ -35,5 +35,6 @@ CHECK_HTML_IGNORE_MESSAGES = [
     "trimming empty",
     "unescaped &",
     '<svg> attribute "stroke-width" has invalid value',
+    "inserting missing 'title' element",
 ]
 MIDDLEWARE.insert(-1, "check_html.CheckHTMLMiddleware")

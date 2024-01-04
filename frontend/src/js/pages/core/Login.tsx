@@ -1,19 +1,17 @@
 import React from "react";
+import { Head } from "@inertiajs/react";
 import {
   Field,
   Label,
   ErrorMessage,
   Fieldset,
-  FieldGroup,
 } from "@/components/catalyst/fieldset";
 import { Input } from "@/components/catalyst/input";
 import { useForm } from "@inertiajs/react";
 import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
 
-// TODO: Head title
 // TODO: dark mode and html class (remove tailwind.config.js darkMode setting)
-// TODO: always remember me
 
 export default function Login() {
   const { data, setData, post, processing, errors } = useForm({
@@ -29,6 +27,7 @@ export default function Login() {
 
   return (
     <>
+      <Head title="Login" />
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex flex-col items-center">
