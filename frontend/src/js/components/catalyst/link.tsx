@@ -3,12 +3,18 @@ import { Link as InertiaLink, type InertiaLinkProps } from "@inertiajs/react";
 import React from "react";
 
 export const Link = React.forwardRef(function Link(
-  props: InertiaLinkProps,
+  { refresh, ...props }: InertiaLinkProps & { refresh?: boolean },
   ref: React.ForwardedRef<HTMLAnchorElement>
 ) {
   return (
     <HeadlessDataInteractive>
-      <InertiaLink {...props} ref={ref} />
+      {refresh ? (
+        <a href={props.href} className={props.className} ref={ref}>
+          {props.children}
+        </a>
+      ) : (
+        <InertiaLink {...props} ref={ref} />
+      )}
     </HeadlessDataInteractive>
   );
 });

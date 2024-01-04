@@ -14,7 +14,6 @@ import { Button } from "@/components/catalyst/button";
 // TODO: Head title
 // TODO: dark mode and html class (remove tailwind.config.js darkMode setting)
 // TODO: always remember me
-// TODO: grep for href="#"
 
 export default function Login() {
   const { data, setData, post, processing, errors } = useForm({
@@ -56,7 +55,10 @@ export default function Login() {
         </div>
 
         <Text className="text-center">
-          Or <TextLink href="#">sign up for free.</TextLink>
+          Or{" "}
+          <TextLink refresh href="/accounts/signup/">
+            sign up for free.
+          </TextLink>
         </Text>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
@@ -112,7 +114,9 @@ export default function Login() {
                 </div>
 
                 <Text className="flex justify-center">
-                  <TextLink href="#">Forgot password?</TextLink>
+                  <TextLink refresh href="/accounts/password/reset/">
+                    Forgot password?
+                  </TextLink>
                 </Text>
               </Fieldset>
             </form>
