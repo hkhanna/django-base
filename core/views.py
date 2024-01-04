@@ -302,6 +302,8 @@ class HttpInertiaExternalRedirect(HttpResponseRedirect):
 
 
 class LoginView(DjangoLoginView):
+    redirect_authenticated_user = True
+
     class LoginForm(DjangoLoginForm):
         """Custom form for timezone-handling"""
 

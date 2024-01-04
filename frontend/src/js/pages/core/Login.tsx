@@ -11,9 +11,7 @@ import { useForm } from "@inertiajs/react";
 import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
 
-// TODO: message
 // TODO: Head title
-// TODO: auto-redirect if logged in
 // TODO: dark mode and html class (remove tailwind.config.js darkMode setting)
 // TODO: always remember me
 // TODO: grep for href="#"
