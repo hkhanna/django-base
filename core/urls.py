@@ -4,6 +4,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.urls import include, path
 from django.views.generic import RedirectView, TemplateView
+from django.contrib.auth.views import LogoutView
 
 from . import views
 
@@ -11,6 +12,7 @@ page_not_found = lambda request: django.views.defaults.page_not_found(request, N
 
 user_patterns = [
     path("login/", views.LoginView.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
 ]
 
 urlpatterns = [

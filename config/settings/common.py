@@ -199,6 +199,9 @@ SITE_CONFIG = {
 ROOT_URLCONF = "config.urls"
 HOST_URLCONFS: dict[str, str] = {}
 
+# Authentication
+LOGOUT_REDIRECT_URL = "/user/login/"
+
 # django-allauth
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
