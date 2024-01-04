@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 import pytz
 
 from inertia import render as inertia_render
@@ -24,6 +25,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, DeleteView, DetailView, TemplateView, View
 from django.utils import timezone
+from django.http import HttpResponseRedirect
 
 from . import forms, models, selectors, services, utils
 from .exceptions import ApplicationError, ApplicationWarning
@@ -291,6 +293,14 @@ def event_emit_view(request):
     return JsonResponse({"detail": "Created"}, status=201)
 
 
+class HttpInertiaExternalRedirect(HttpResponseRedirect):
+    status_code = 409
+
+    def __init__(self, redirect_to: str, *args: Any, **kwargs: Any) -> None:
+        super().__init__(redirect_to, *args, **kwargs)
+        self["X-Inertia-Location"] = self["Location"]
+
+
 class LoginView(DjangoLoginView):
     class LoginForm(DjangoLoginForm):
         """Custom form for timezone-handling"""
@@ -298,7 +308,7 @@ class LoginView(DjangoLoginView):
         detected_tz = forms.forms.CharField(max_length=254, required=False)
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        super().form_valid(form)
 
         # Set the user's timezone in their session if it was provided
         detected_tz = form.cleaned_data["detected_tz"]
@@ -312,7 +322,7 @@ class LoginView(DjangoLoginView):
                     f"User.email={self.cleaned_data['username']} Bad timezone {detected_tz}"
                 )
 
-        return response
+        return HttpInertiaExternalRedirect(self.get_success_url())
 
     authentication_form = LoginForm
 
