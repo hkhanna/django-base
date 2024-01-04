@@ -374,6 +374,9 @@ class User(AbstractUser):
         unique=True,
         error_messages={"unique": "A user with that email already exists."},
     )
+    # FIXME: Remove is_locked before closing #1.
+    # For deleting users, we can hard delete for now and make it a global setting whether its allowed.
+    # If we want soft deletions, we can add an is_deleted flag.
     is_locked = models.BooleanField(
         "locked", default=False, help_text="Prevent the user from logging in."
     )

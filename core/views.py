@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+import pytz
 
 from inertia import render as inertia_render
 from allauth.account import forms as auth_forms
@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm as DjangoLoginForm
 from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -22,6 +23,7 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, DeleteView, DetailView, TemplateView, View
+from django.utils import timezone
 
 from . import forms, models, selectors, services, utils
 from .exceptions import ApplicationError, ApplicationWarning
@@ -290,6 +292,30 @@ def event_emit_view(request):
 
 
 class LoginView(DjangoLoginView):
+    class LoginForm(DjangoLoginForm):
+        """Custom form for timezone-handling"""
+
+        detected_tz = forms.forms.CharField(max_length=254, required=False)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        # Set the user's timezone in their session if it was provided
+        detected_tz = form.cleaned_data["detected_tz"]
+        if detected_tz:
+            try:
+                tz = pytz.timezone(detected_tz)
+                self.request.session["detected_tz"] = detected_tz
+                timezone.activate(tz)
+            except pytz.exceptions.UnknownTimeZoneError:
+                logger.warning(
+                    f"User.email={self.cleaned_data['username']} Bad timezone {detected_tz}"
+                )
+
+        return response
+
+    authentication_form = LoginForm
+
     def render_to_response(self, context, *args, **kwargs):
         form = context["form"]
         return inertia_render(

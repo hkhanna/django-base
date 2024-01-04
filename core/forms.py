@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
+# FIXME: Delete this file before closing #1
+
 
 class LoginForm(auth_forms.LoginForm):
     remember = forms.BooleanField(

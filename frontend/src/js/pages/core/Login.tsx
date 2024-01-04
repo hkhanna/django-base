@@ -13,7 +13,6 @@ import { Button } from "@/components/catalyst/button";
 
 // TODO: message
 // TODO: Head title
-// TODO: timezone
 // TODO: auto-redirect if logged in
 // TODO: dark mode and html class (remove tailwind.config.js darkMode setting)
 // TODO: always remember me
@@ -23,6 +22,7 @@ export default function Login() {
   const { data, setData, post, processing, errors } = useForm({
     username: "",
     password: "",
+    detected_tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -61,63 +61,61 @@ export default function Login() {
           Or <TextLink href="#">sign up for free.</TextLink>
         </Text>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white px-6 py-10 shadow sm:rounded-lg sm:px-12">
             <form onSubmit={handleSubmit}>
-              <Fieldset aria-label="Login form" className="space-y-4">
-                <FieldGroup>
-                  <Field>
-                    <Label>Email address</Label>
-                    <Input
-                      name="username"
-                      type="email"
-                      value={data.username}
-                      onChange={(e) => setData("username", e.target.value)}
-                      required
-                      invalid={"username" in errors}
-                    />
-                    {errors.username && (
-                      <ErrorMessage>{errors.username}</ErrorMessage>
-                    )}
-                  </Field>
-
-                  <Field>
-                    <Label>Password</Label>
-                    <Input
-                      name="password"
-                      type="password"
-                      value={data.password}
-                      onChange={(e) => setData("password", e.target.value)}
-                      required
-                      invalid={"password" in errors}
-                    />
-                    {errors.password && (
-                      <ErrorMessage>{errors.password}</ErrorMessage>
-                    )}
-                  </Field>
-
-                  {"__all__" in errors && (
-                    <Field>
-                      <ErrorMessage>
-                        {errors.__all__ as React.ReactNode}
-                      </ErrorMessage>
-                    </Field>
+              <Fieldset aria-label="Login form" className="space-y-5">
+                <Field>
+                  <Label>Email address</Label>
+                  <Input
+                    name="username"
+                    type="email"
+                    value={data.username}
+                    onChange={(e) => setData("username", e.target.value)}
+                    required
+                    invalid={"username" in errors}
+                  />
+                  {errors.username && (
+                    <ErrorMessage>{errors.username}</ErrorMessage>
                   )}
+                </Field>
 
-                  <div>
-                    <Button
-                      type="submit"
-                      className="flex w-full justify-center"
-                      disabled={processing}
-                    >
-                      Sign in
-                    </Button>
-                  </div>
+                <Field>
+                  <Label>Password</Label>
+                  <Input
+                    name="password"
+                    type="password"
+                    value={data.password}
+                    onChange={(e) => setData("password", e.target.value)}
+                    required
+                    invalid={"password" in errors}
+                  />
+                  {errors.password && (
+                    <ErrorMessage>{errors.password}</ErrorMessage>
+                  )}
+                </Field>
 
-                  <Text className="flex justify-center">
-                    <TextLink href="#">Forgot password?</TextLink>
-                  </Text>
-                </FieldGroup>
+                {"__all__" in errors && (
+                  <Field>
+                    <ErrorMessage>
+                      {errors.__all__ as React.ReactNode}
+                    </ErrorMessage>
+                  </Field>
+                )}
+
+                <div>
+                  <Button
+                    type="submit"
+                    className="flex w-full justify-center"
+                    disabled={processing}
+                  >
+                    Sign in
+                  </Button>
+                </div>
+
+                <Text className="flex justify-center">
+                  <TextLink href="#">Forgot password?</TextLink>
+                </Text>
               </Fieldset>
             </form>
           </div>
