@@ -1,5 +1,5 @@
 import React from "react";
-import { Head } from "@inertiajs/react";
+import Head from "@/components/Head";
 import {
   Field,
   Label,
