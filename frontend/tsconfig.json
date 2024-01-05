@@ -16,7 +16,8 @@
     "incremental": true,
     "paths": {
       "@/*": ["./src/js/*"]
-    }
+    },
+    "types": ["vite/client"]
   },
   "include": ["src/js/**/*.ts", "src/js/**/*.tsx", "src/js/**/*.jsx"],
   "exclude": ["node_modules"]
