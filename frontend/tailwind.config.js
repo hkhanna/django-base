@@ -52,10 +52,6 @@ module.exports = {
         sans: ["Inter var", ...defaultTheme.fontFamily.sans],
         logo: ["Roboto Slab", ...defaultTheme.fontFamily.mono],
       },
-      colors: {
-        gray: colors.slate,
-        indigo: colors.sky,
-      },
     },
   },
   plugins: [
