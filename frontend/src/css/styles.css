@@ -29,7 +29,7 @@
   }
 
   .btn-primary[disabled] {
-    @apply cursor-default bg-indigo-300
+    @apply cursor-default bg-indigo-300;
   }
 
   .btn-secondary {
@@ -37,11 +37,11 @@
   }
 
   .btn-secondary:not([disabled]) {
-      @apply text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+    @apply text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
   }
 
   .btn-secondary[disabled] {
-    @apply cursor-default text-indigo-300 bg-indigo-100
+    @apply cursor-default text-indigo-300 bg-indigo-100;
   }
 
   .btn-white {
@@ -49,11 +49,11 @@
   }
 
   .btn-white:not([disabled]) {
-    @apply border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+    @apply border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
   }
 
   .btn-white[disabled] {
-    @apply cursor-default border-gray-200 text-gray-400
+    @apply cursor-default border-gray-200 text-gray-400;
   }
 
   .btn-danger {
@@ -61,22 +61,26 @@
   }
 
   .btn-danger:not([disabled]) {
-    @apply bg-red-600 hover:bg-red-500 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+    @apply bg-red-600 hover:bg-red-500 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
   }
 
   .btn-danger[disabled] {
-    @apply cursor-default bg-red-400
+    @apply cursor-default bg-red-400;
   }
 
   /* Default button variant is btn-primary */
   .btn:not(.btn-primary):not(.btn-secondary):not(.btn-white):not(.btn-danger) {
     @apply text-white border-transparent;
   }
-  .btn:not(.btn-primary):not(.btn-secondary):not(.btn-white):not(.btn-danger):not([disabled]) {
+  .btn:not(.btn-primary):not(.btn-secondary):not(.btn-white):not(
+      .btn-danger
+    ):not([disabled]) {
     @apply bg-indigo-600 hover:bg-indigo-500 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
   }
-  .btn:not(.btn-primary):not(.btn-secondary):not(.btn-white):not(.btn-danger)[disabled] {
-    @apply cursor-default bg-indigo-300
+  .btn:not(.btn-primary):not(.btn-secondary):not(.btn-white):not(
+      .btn-danger
+    )[disabled] {
+    @apply cursor-default bg-indigo-300;
   }
 
   .btn-xs {

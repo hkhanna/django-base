@@ -10,6 +10,7 @@ import { Input } from "@/components/catalyst/input";
 import { useForm } from "@inertiajs/react";
 import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
+import Layout from "@/components/Layout";
 
 export default function Login() {
   const { data, setData, post, processing, errors } = useForm({
@@ -24,7 +25,7 @@ export default function Login() {
   };
 
   return (
-    <>
+    <Layout>
       <Head title="Login" />
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -109,7 +110,6 @@ export default function Login() {
                     Sign in
                   </Button>
                 </div>
-
                 <Text className="flex justify-center">
                   <TextLink refresh href="/accounts/password/reset/">
                     Forgot password?
@@ -120,6 +120,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-    </>
+    </Layout>
   );
 }
