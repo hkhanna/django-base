@@ -1,12 +1,34 @@
+import uuid
 import json
 from importlib import import_module
 from typing import Callable, Optional, TYPE_CHECKING
 
+from django.contrib.messages import get_messages
+
+from inertia import render
 from . import constants
 from .exceptions import *
 
 if TYPE_CHECKING:
     from .types import ModelType
+
+
+def inertia_render(request, component, props={}, template_data={}):
+    """Inertia render function should include flash messages."""
+    # I don't think you can do it in middleware because it can skip a message that was
+    # added in the current request.
+    storage = get_messages(request)
+    messages = {
+        str(uuid.uuid4()): {"text": str(message), "level": message.level_tag}
+        for message in storage
+    }
+
+    return render(
+        request,
+        component,
+        props={"messages": messages} | props,
+        template_data=template_data,
+    )
 
 
 # This is used to test formset submissions and to create synthetic formset data.

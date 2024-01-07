@@ -2,7 +2,6 @@ import logging
 from typing import Any
 import pytz
 
-from inertia import render as inertia_render
 from allauth.account import forms as auth_forms
 from allauth.account import models as auth_models
 from allauth.account import views as auth_views
@@ -26,6 +25,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, DeleteView, DetailView, TemplateView, View
 from django.utils import timezone
 from django.http import HttpResponseRedirect
+
 
 from . import forms, models, selectors, services, utils
 from .exceptions import ApplicationError, ApplicationWarning
@@ -330,7 +330,8 @@ class LoginView(DjangoLoginView):
 
     def render_to_response(self, context, *args, **kwargs):
         form = context["form"]
-        return inertia_render(
+
+        return utils.inertia_render(
             self.request,
             "core/Login",
             props={"errors": form.errors},

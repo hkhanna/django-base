@@ -1,9 +1,9 @@
 import React from "react";
+import useMessages from "@/lib/use-messages";
 import { Toaster } from "@/components/shadcn/toaster";
-import { useToast } from "@/components/shadcn/use-toast";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { toast } = useToast();
+  useMessages();
 
   return (
     <>
