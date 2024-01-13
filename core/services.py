@@ -892,6 +892,11 @@ def org_user_org_user_setting_create(**kwargs) -> OrgUserOrgUserSetting:
     return model_create(klass=OrgUserOrgUserSetting, **kwargs)
 
 
+def user_update(instance: UserType, **kwargs) -> UserType:
+    # FIXME: typing once User possibly inherits from BaseModel
+    return model_update(instance=instance, **kwargs)  # type: ignore
+
+
 def model_create(
     *,
     klass: Type[BaseModelType],

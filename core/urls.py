@@ -13,6 +13,7 @@ page_not_found = lambda request: django.views.defaults.page_not_found(request, N
 user_patterns = [
     path("login/", views.LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("settings/profile/", views.UserProfileView.as_view(), name="profile"),
 ]
 
 urlpatterns = [

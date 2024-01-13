@@ -22,7 +22,14 @@ from django.shortcuts import redirect, render as django_render
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.views.generic import CreateView, DeleteView, DetailView, TemplateView, View
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    TemplateView,
+    View,
+    FormView,
+)
 from django.utils import timezone
 from django.http import HttpResponseRedirect
 
@@ -339,4 +346,35 @@ class LoginView(DjangoLoginView):
                 "html_class": "h-full bg-zinc-50",
                 "body_class": "h-full dark:bg-zinc-900",
             },
+        )
+
+
+class UserProfileView(LoginRequiredMixin, FormView):
+    success_url = "/user/settings/profile/"  # FIXME: should not be needed
+
+    class Form(forms.forms.Form):
+        first_name = forms.forms.CharField(max_length=150, required=True)
+        last_name = forms.forms.CharField(max_length=150, required=True)
+        email = forms.forms.EmailField(required=True)
+
+    form_class = Form
+
+    def get_initial(self):
+        return {
+            "first_name": self.request.user.first_name,
+            "last_name": self.request.user.last_name,
+            "email": self.request.user.email,
+        }
+
+    def form_valid(self, form):
+        services.user_update(instance=self.request.user, **form.cleaned_data)
+        messages.success(self.request, "Profile updated.")
+        return super().form_valid(form)
+
+    def render_to_response(self, context, *args, **kwargs):
+        form = context["form"]
+        return utils.inertia_render(
+            self.request,
+            "core/UserProfile",
+            props={"initial": form.initial, "errors": form.errors},
         )
