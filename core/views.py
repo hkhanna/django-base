@@ -16,7 +16,10 @@ from django.contrib.auth.forms import (
     PasswordChangeForm,
     PasswordResetForm as DjangoPasswordResetForm,
 )
-from django.contrib.auth.views import LoginView as DjangoLoginView
+from django.contrib.auth.views import (
+    LoginView as DjangoLoginView,
+    PasswordResetConfirmView as DjangoPasswordResetConfirmView,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
@@ -345,12 +348,10 @@ class LoginView(DjangoLoginView):
     authentication_form = LoginForm
 
     def render_to_response(self, context, *args, **kwargs):
-        form = context["form"]
-
         return utils.inertia_render(
             self.request,
             "core/Login",
-            props={"errors": form.errors},
+            props={"errors": context["form"].errors},
             template_data={
                 "html_class": "h-full bg-zinc-50",
                 "body_class": "h-full dark:bg-zinc-900",
@@ -387,11 +388,13 @@ class ProfileView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
     def render_to_response(self, context, *args, **kwargs):
-        form = context["form"]
         return utils.inertia_render(
             self.request,
             "core/Profile",
-            props={"initial": form.initial, "errors": form.errors},
+            props={
+                "initial": context["form"].initial,
+                "errors": context["form"].errors,
+            },
         )
 
 
@@ -421,11 +424,10 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
         return self.request.path
 
     def render_to_response(self, context, *args, **kwargs):
-        form = context["form"]
         return utils.inertia_render(
             self.request,
             "core/PasswordChange",
-            props={"errors": form.errors},
+            props={"errors": context["form"].errors},
         )
 
 
@@ -473,11 +475,32 @@ class PasswordResetView(FormView):
         return self.request.path
 
     def render_to_response(self, context, *args, **kwargs):
-        form = context["form"]
         return utils.inertia_render(
             self.request,
             "core/PasswordReset",
-            props={"errors": form.errors},
+            props={"errors": context["form"].errors},
+            template_data={
+                "html_class": "h-full bg-zinc-50",
+                "body_class": "h-full dark:bg-zinc-900",
+            },
+        )
+
+
+class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
+    success_url = reverse_lazy("user:login")
+    post_reset_login = True
+    post_reset_login_backend = "django.contrib.auth.backends.ModelBackend"
+
+    def render_to_response(self, context, *args, **kwargs):
+        errors = {}
+        form = context.get("form")
+        if form and hasattr(form, "errors"):
+            errors = form.errors
+
+        return utils.inertia_render(
+            self.request,
+            "core/PasswordResetConfirm",
+            props={"errors": errors, "validlink": context["validlink"]},
             template_data={
                 "html_class": "h-full bg-zinc-50",
                 "body_class": "h-full dark:bg-zinc-900",

@@ -19,8 +19,8 @@ user_patterns = [
     ),
     path("password-reset/", views.PasswordResetView.as_view(), name="password-reset"),
     path(
-        "password-reset-confirm/<str:uidb64>/<str:token>/",
-        views.PasswordResetView.as_view(),
+        "password-reset/<str:uidb64>/<str:token>/",
+        views.PasswordResetConfirmView.as_view(),
         name="password-reset-confirm",
     ),
 ]

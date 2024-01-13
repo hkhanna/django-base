@@ -893,7 +893,7 @@ def org_user_org_user_setting_create(**kwargs) -> OrgUserOrgUserSetting:
 
 
 def user_update(instance: UserType, **kwargs) -> UserType:
-    # FIXME: typing once User possibly inherits from BaseModel
+    # HACK: User should inherit from BaseModel so we don't have to deal with this type error.
     return model_update(instance=instance, **kwargs)  # type: ignore
 
 
