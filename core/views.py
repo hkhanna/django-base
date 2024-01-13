@@ -10,7 +10,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import AuthenticationForm as DjangoLoginForm
+from django.contrib.auth.forms import (
+    AuthenticationForm as DjangoLoginForm,
+    PasswordChangeForm,
+)
 from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -22,6 +25,7 @@ from django.shortcuts import redirect, render as django_render
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -31,6 +35,7 @@ from django.views.generic import (
     FormView,
 )
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect
 
 
@@ -349,9 +354,7 @@ class LoginView(DjangoLoginView):
         )
 
 
-class UserProfileView(LoginRequiredMixin, FormView):
-    success_url = "/user/settings/profile/"  # FIXME: should not be needed
-
+class ProfileView(LoginRequiredMixin, FormView):
     class Form(forms.forms.Form):
         first_name = forms.forms.CharField(max_length=150, required=True)
         last_name = forms.forms.CharField(max_length=150, required=True)
@@ -366,6 +369,9 @@ class UserProfileView(LoginRequiredMixin, FormView):
             "email": self.request.user.email,
         }
 
+    def get_success_url(self):
+        return self.request.path
+
     def form_valid(self, form):
         services.user_update(instance=self.request.user, **form.cleaned_data)
         messages.success(self.request, "Profile updated.")
@@ -375,6 +381,40 @@ class UserProfileView(LoginRequiredMixin, FormView):
         form = context["form"]
         return utils.inertia_render(
             self.request,
-            "core/UserProfile",
+            "core/Profile",
+            props={"initial": form.initial, "errors": form.errors},
+        )
+
+
+class PasswordChangeView(LoginRequiredMixin, FormView):
+    form_class = PasswordChangeForm
+
+    @method_decorator(sensitive_post_parameters())
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, "Account updated.")
+
+        # Updating the password logs out all other sessions for the user
+        # except the current one.
+        update_session_auth_hash(self.request, form.user)
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.request.path
+
+    def render_to_response(self, context, *args, **kwargs):
+        form = context["form"]
+        return utils.inertia_render(
+            self.request,
+            "core/PasswordChange",
             props={"initial": form.initial, "errors": form.errors},
         )
