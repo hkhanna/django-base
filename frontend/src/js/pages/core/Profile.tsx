@@ -19,7 +19,7 @@ export default function Profile({
 }: {
   initial: { first_name: string; last_name: string; email: string };
 }) {
-  const { data, setData, post, processing, errors } = useForm({
+  const { data, setData, post, processing, errors, reset } = useForm({
     first_name: initial.first_name,
     last_name: initial.last_name,
     email: initial.email,
@@ -27,7 +27,10 @@ export default function Profile({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    post("/user/settings/profile/", { forceFormData: true });
+    post("/user/settings/profile/", {
+      forceFormData: true,
+      onSuccess: () => reset(), // Show the normalized email address
+    });
   };
 
   return (

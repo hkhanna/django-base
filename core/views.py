@@ -360,6 +360,11 @@ class ProfileView(LoginRequiredMixin, FormView):
         last_name = forms.forms.CharField(max_length=150, required=True)
         email = forms.forms.EmailField(required=True)
 
+        def clean_email(self):
+            """Normalize email to lowercase."""
+            email = self.cleaned_data["email"].lower()
+            return email
+
     form_class = Form
 
     def get_initial(self):
