@@ -17,6 +17,12 @@ user_patterns = [
     path(
         "settings/password/", views.PasswordChangeView.as_view(), name="password-change"
     ),
+    path("password-reset/", views.PasswordResetView.as_view(), name="password-reset"),
+    path(
+        "password-reset-confirm/<str:uidb64>/<str:token>/",
+        views.PasswordResetView.as_view(),
+        name="password-reset-confirm",
+    ),
 ]
 
 urlpatterns = [

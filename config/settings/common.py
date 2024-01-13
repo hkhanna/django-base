@@ -200,6 +200,7 @@ ROOT_URLCONF = "config.urls"
 HOST_URLCONFS: dict[str, str] = {}
 
 # Authentication
+LOGIN_REDIRECT_URL = "/user/settings/profile/"
 LOGOUT_REDIRECT_URL = "/user/login/"
 
 # django-allauth
@@ -209,7 +210,6 @@ AUTHENTICATION_BACKENDS = [
 ]
 SESSION_COOKIE_AGE = 15_552_000  # 180 days
 ACCOUNT_ADAPTER = "core.adapter.AccountAdapter"
-LOGIN_REDIRECT_URL = "/accounts/settings/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
 ACCOUNT_LOGOUT_ON_GET = False
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True

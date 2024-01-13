@@ -9,10 +9,12 @@ from allauth.account.adapter import get_adapter
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import (
     AuthenticationForm as DjangoLoginForm,
     PasswordChangeForm,
+    PasswordResetForm as DjangoPasswordResetForm,
 )
 from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -22,7 +24,7 @@ from django.db import transaction
 from django.http import Http404, JsonResponse
 from django.http.response import HttpResponse as HttpResponse
 from django.shortcuts import redirect, render as django_render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.debug import sensitive_post_parameters
@@ -36,6 +38,8 @@ from django.views.generic import (
 )
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django.http import HttpResponseRedirect
 
 
@@ -355,7 +359,7 @@ class LoginView(DjangoLoginView):
 
 
 class ProfileView(LoginRequiredMixin, FormView):
-    class Form(forms.forms.Form):
+    class ProfileForm(forms.forms.Form):
         first_name = forms.forms.CharField(max_length=150, required=True)
         last_name = forms.forms.CharField(max_length=150, required=True)
         email = forms.forms.EmailField(required=True)
@@ -365,7 +369,7 @@ class ProfileView(LoginRequiredMixin, FormView):
             email = self.cleaned_data["email"].lower()
             return email
 
-    form_class = Form
+    form_class = ProfileForm
 
     def get_initial(self):
         return {
@@ -421,5 +425,61 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
         return utils.inertia_render(
             self.request,
             "core/PasswordChange",
-            props={"initial": form.initial, "errors": form.errors},
+            props={"errors": form.errors},
+        )
+
+
+class PasswordResetView(FormView):
+    class PasswordResetForm(DjangoPasswordResetForm):
+        def save(self, request):
+            """
+            Generate a one-use only link for resetting password and send it to the
+            user.
+            """
+            email = self.cleaned_data["email"]
+            for user in self.get_users(email):
+                reset_path = reverse(
+                    "user:password-reset-confirm",
+                    kwargs={
+                        "uidb64": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "token": default_token_generator.make_token(user),
+                    },
+                )
+                email_message = services.email_message_create(
+                    created_by=user,
+                    to_name=user.name,
+                    to_email=user.email,
+                    subject="Password Reset Request",
+                    sender_name=settings.SITE_CONFIG["account_from_name"],
+                    sender_email=settings.SITE_CONFIG["account_from_email"],
+                    reply_to_name=settings.SITE_CONFIG["account_reply_to_name"] or "",
+                    reply_to_email=settings.SITE_CONFIG["account_reply_to_email"] or "",
+                    template_prefix="core/email/password_reset",
+                    template_context={
+                        "user_name": user.name,
+                        "user_email": user.email,
+                        "password_reset_url": request.build_absolute_uri(reset_path),
+                    },
+                )
+                services.email_message_queue(email_message=email_message)
+
+    form_class = PasswordResetForm
+
+    def form_valid(self, form):
+        form.save(request=self.request)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.request.path
+
+    def render_to_response(self, context, *args, **kwargs):
+        form = context["form"]
+        return utils.inertia_render(
+            self.request,
+            "core/PasswordReset",
+            props={"errors": form.errors},
+            template_data={
+                "html_class": "h-full bg-zinc-50",
+                "body_class": "h-full dark:bg-zinc-900",
+            },
         )

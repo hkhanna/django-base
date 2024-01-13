@@ -41,7 +41,7 @@ export default function PasswordChange() {
         </div>
         <Separator />
         <form onSubmit={handleSubmit}>
-          <Fieldset aria-label="Profile form">
+          <Fieldset aria-label="Password change form">
             <FieldGroup>
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-4">
                 <Field>

@@ -111,7 +111,7 @@ export default function Login() {
                   </Button>
                 </div>
                 <Text className="flex justify-center">
-                  <TextLink refresh href="/accounts/password/reset/">
+                  <TextLink href="/user/password-reset/">
                     Forgot password?
                   </TextLink>
                 </Text>
