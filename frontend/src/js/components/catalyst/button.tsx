@@ -6,7 +6,7 @@ import { Link } from './link'
 let styles = {
   base: [
     // Base
-    'relative isolate inline-flex items-center justify-center gap-x-2 rounded-lg border text-base/6 font-semibold',
+    'relative isolate inline-flex gap-x-2 rounded-lg border text-base/6 font-semibold',
 
     // Sizing
     'px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[2.5])-1px)] sm:px-[calc(theme(spacing.3)-1px)] sm:py-[calc(theme(spacing[1.5])-1px)] sm:text-sm/6',
@@ -20,6 +20,7 @@ let styles = {
     // Icon
     '[&>[data-slot=icon]]:-mx-0.5 [&>[data-slot=icon]]:my-0.5 [&>[data-slot=icon]]:size-5 [&>[data-slot=icon]]:shrink-0 [&>[data-slot=icon]]:text-[--btn-icon] [&>[data-slot=icon]]:sm:my-1 [&>[data-slot=icon]]:sm:size-4 forced-colors:[--btn-icon:ButtonText] forced-colors:data-[hover]:[--btn-icon:ButtonText]',
   ],
+  center: ['items-center', 'justify-center'], // Added by me
   solid: [
     // Optical border, implemented as the button background to avoid corner artifacts
     'border-transparent bg-[--btn-border]',
@@ -180,15 +181,16 @@ type ButtonProps = (
   | { color?: keyof typeof styles.colors; outline?: never; plain?: never }
   | { color?: never; outline: true; plain?: never }
   | { color?: never; outline?: never; plain: true }
-) & { children: React.ReactNode } & (HeadlessButtonProps | React.ComponentPropsWithoutRef<typeof Link>)
+) & { nocenter?: boolean } & { children: React.ReactNode } & (HeadlessButtonProps | React.ComponentPropsWithoutRef<typeof Link>)
 
 export const Button = React.forwardRef(function Button(
-  { color, outline, plain, className, children, ...props }: ButtonProps,
+  { color, outline, plain, nocenter, className, children, ...props }: ButtonProps,
   ref: React.ForwardedRef<HTMLElement>
 ) {
   let classes = clsx(
     className,
     styles.base,
+    !nocenter && styles.center, // Added by me
     outline ? styles.outline : plain ? styles.plain : clsx(styles.solid, styles.colors[color ?? 'dark/zinc'])
   )
 
