@@ -38,6 +38,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve("./src/js/main.js"),
+        react: resolve("./src/js/react.tsx"),
       },
       output: {
         chunkFileNames: undefined,
