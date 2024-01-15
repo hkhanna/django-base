@@ -374,9 +374,6 @@ class User(AbstractUser):
         error_messages={"unique": "A user with that email already exists."},
     )
 
-    is_locked = models.BooleanField(
-        "locked", default=False, help_text="Prevent the user from logging in."
-    )
     email_history = ArrayField(
         models.EmailField(),
         default=list,
@@ -442,14 +439,6 @@ class User(AbstractUser):
         # Case-insensitive email address uniqueness check
         if User.objects.filter(email__iexact=self.email).exclude(id=self.id).exists():
             raise ValidationError({"email": "A user with that email already exists."})
-
-        if self.is_locked and not self.is_active:
-            raise ValidationError(
-                {
-                    "is_locked": "A locked user must be active.",
-                    "is_active": "A locked user must be active.",
-                }
-            )
 
         if not self._state.adding:
             # Don't require an Org for a brand new user

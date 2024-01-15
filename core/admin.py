@@ -241,7 +241,6 @@ class UserAdmin(DefaultUserAdmin):
             {
                 "fields": (
                     "is_active",
-                    "is_locked",
                     "is_staff",
                     "is_superuser",
                     # "groups",
