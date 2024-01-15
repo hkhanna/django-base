@@ -8,10 +8,11 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.functions import Lower
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
 
-from core import constants, utils
+from core import constants, utils, fields
 
 logger = logging.getLogger(__name__)
 
@@ -368,10 +369,9 @@ class User(AbstractUser):
         help_text="Secondary ID",
     )
     username = None  # type: ignore
-    email = models.EmailField(
-        "email address",
-        unique=True,
-        error_messages={"unique": "A user with that email already exists."},
+    email = fields.EmailFieldCaseInsensitive(
+        unique=True,  # Even though we have the constraint below, this is required because it is the USERNAME_FIELD.
+        verbose_name="email address",
     )
 
     email_history = ArrayField(
@@ -387,6 +387,14 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS: list = []  # type: ignore
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                Lower("email"),
+                name="unique_email_case_insensitive",
+            )
+        ]
+
     def __str__(self):
         return self.name
 
@@ -394,10 +402,6 @@ class User(AbstractUser):
         return f"<User: {self.email} (#{self.id})>"
 
     def save(self, *args, **kwargs):
-        # Normalize all emails to lowercase. This is mostly for emails saved via the admin since
-        # we already normalize in the settings/signup forms.
-        self.email = self.email.lower()
-
         # Keep a record of all email addresses
         if len(self.email_history) == 0:
             self.email_history.append(self.email)
@@ -436,10 +440,6 @@ class User(AbstractUser):
                 services.org_update(instance=org, name=self.name)
 
     def clean(self):
-        # Case-insensitive email address uniqueness check
-        if User.objects.filter(email__iexact=self.email).exclude(id=self.id).exists():
-            raise ValidationError({"email": "A user with that email already exists."})
-
         if not self._state.adding:
             # Don't require an Org for a brand new user
             if self.orgs.count() == 0:
