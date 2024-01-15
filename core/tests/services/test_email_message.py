@@ -16,13 +16,13 @@ def test_send_email(user, mailoutbox, settings):
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
 
@@ -51,7 +51,7 @@ def test_send_email_sanitize(user, name, email, expected, mailoutbox):
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         sender_name=name,
         sender_email=email,
         to_name=name,
@@ -61,7 +61,7 @@ def test_send_email_sanitize(user, name, email, expected, mailoutbox):
         template_context={
             "user_name": name,
             "user_email": email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
 
@@ -82,13 +82,13 @@ def test_subject_newlines(user, mailoutbox):
         subject="""A subject
         
         Exciting!""",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
 
@@ -105,13 +105,13 @@ def test_subject_limit(user, mailoutbox, settings):
     email_message = services.email_message_create(
         created_by=user,
         subject=subject,
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
 
@@ -127,13 +127,13 @@ def test_email_attachment(user, mailoutbox):
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
     services.email_message_prepare(email_message=email_message)
@@ -187,13 +187,13 @@ def test_email_attachment_matching_mime(user):
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
     services.email_message_prepare(email_message=email_message)
@@ -211,13 +211,13 @@ def test_postmark_message_stream(user, mailoutbox):
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
         postmark_message_stream="broadcast",
     )
@@ -233,13 +233,13 @@ def test_cooldown(user, mailoutbox):
     email_message_args = dict(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
 
@@ -280,13 +280,13 @@ def test_cooldown_scopes(user, mailoutbox):
     email_message_args = dict(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
 
@@ -348,13 +348,13 @@ def test_disable_outbound_email_global_setting(user, mailoutbox):
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
 
@@ -370,7 +370,7 @@ def test_send_email_with_reply_to(user, mailoutbox, settings):
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         reply_to_name="Support",
@@ -378,7 +378,7 @@ def test_send_email_with_reply_to(user, mailoutbox, settings):
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
 
@@ -394,14 +394,14 @@ def test_reply_to_name_no_email(user, mailoutbox, settings):
     email_message = services.email_message_create(
         created_by=user,
         subject="A subject",
-        template_prefix="account/email/email_confirmation",
+        template_prefix="core/email/password_reset",
         to_name=user.name,
         to_email=user.email,
         reply_to_name="Reply to name",
         template_context={
             "user_name": user.name,
             "user_email": user.email,
-            "activate_url": "",
+            "password_reset_url": "",
         },
     )
 
