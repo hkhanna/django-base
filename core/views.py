@@ -1,6 +1,5 @@
 import logging
 from typing import Any
-import pytz
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -343,7 +342,11 @@ class ProfileView(LoginRequiredMixin, FormView):
         def clean_email(self):
             """Normalize email to lowercase and verify uniqueness."""
             email = self.cleaned_data["email"]
-            if selectors.user_list(email__iexact=email).exists():
+            if (
+                selectors.user_list(email__iexact=email)
+                .exclude(pk=self.request.user.pk)
+                .exists()
+            ):
                 raise ValidationError("A user with that email already exists.")
             email = email.lower()
             return email
@@ -356,6 +359,13 @@ class ProfileView(LoginRequiredMixin, FormView):
             "last_name": self.request.user.last_name,
             "email": self.request.user.email,
         }
+
+    def get_form(self, form_class=None):
+        # We have to attach the request to the form so we
+        # know who the user is for email uniqueness validation.
+        form = super().get_form(form_class)
+        form.request = self.request
+        return form
 
     def get_success_url(self):
         return self.request.path

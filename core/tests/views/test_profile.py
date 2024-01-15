@@ -12,6 +12,25 @@ def test_get_profile(client, user):
     assert user.email in str(response.content)
 
 
+def test_no_change(client, user):
+    """User should be able to submit no changes."""
+    # This is a regression test for a bug where the user's email would be
+    # flagged as a duplicate if they didn't change it.
+    client.force_login(user)
+    payload = {
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+    }
+    response = client.post(reverse("user:profile"), payload, follow=True)
+    assert "Profile updated." in str(response.content)
+    user.refresh_from_db()
+    assert payload["first_name"] == user.first_name
+    assert payload["last_name"] == user.last_name
+    assert payload["email"] == user.email
+    assert len(user.email_history) == 1
+
+
 def test_change_info(client, user):
     """User can change their personal info"""
     client.force_login(user)
