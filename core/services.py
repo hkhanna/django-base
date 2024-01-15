@@ -908,8 +908,7 @@ def user_update(instance: UserType, **kwargs) -> UserType:
         else:
             instance.set_unusable_password()
 
-    # HACK: User should inherit from BaseModel so we don't have to deal with this type error.
-    return model_update(instance=instance, **kwargs)  # type: ignore
+    return model_update(instance=instance, **kwargs)
 
 
 def detect_timezone_from_form(form: forms.Form, request: HttpRequest) -> forms.Form:

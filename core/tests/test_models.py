@@ -57,7 +57,7 @@ def test_one_org(user):
 def test_auto_create_org():
     """Creating a user creates their personal organization"""
     assert models.Org.objects.count() == 0
-    user = User.objects.create(
+    user = services.user_create(
         first_name="First", last_name="Last", email="first@example.com"
     )
 

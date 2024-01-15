@@ -69,13 +69,13 @@ class BaseModel(models.Model):
     def save(self, *args, **kwargs):
         """Enforce use of services to save models."""
 
-        if self._allow_save is True:
-            self._allow_save = False
-            return super().save(*args, **kwargs)
-        else:
+        if self._allow_save is False:
             raise RuntimeError(
                 f"Must use services to save {self._meta.model_name} models."
             )
+        else:
+            self._allow_save = False
+            return super().save(*args, **kwargs)
 
 
 class EmailMessage(BaseModel):
@@ -324,7 +324,7 @@ class Plan(BaseModel):
         return self.slug
 
 
-class UserManager(BaseUserManager):
+class UserManager(BaseManager):
     """Customized user manager"""
 
     use_in_migrations = True
@@ -335,7 +335,7 @@ class UserManager(BaseUserManager):
         """
         if not email:
             raise ValueError("User must have an email address")
-        email = self.normalize_email(email)
+        email = email.lower()
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -357,9 +357,17 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
+    def get_by_natural_key(self, username):
+        # We can't use UUIDs as a natural key for users unless we override
+        # the default authentication backend.
+        return self.get(email=username)
+
 
 class User(AbstractUser):
     """Customized User model"""
+
+    # We don't inherit from BaseModel or enforce the _allow_save checks
+    # because too many built-in views mutate user instances directly.
 
     uuid = models.UUIDField(
         default=uuid.uuid4,
@@ -380,6 +388,8 @@ class User(AbstractUser):
         blank=True,
         help_text="Record of all email addresses the user has had.",
     )
+    date_joined = None  # type: ignore
+    created_at = models.DateTimeField(db_index=True, default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()  # type: ignore
@@ -448,10 +458,6 @@ class User(AbstractUser):
                 )
 
     @property
-    def created_at(self):
-        return self.date_joined
-
-    @property
     def name(self):
         if self.first_name and self.last_name:
             return f"{self.first_name} {self.last_name}"
@@ -477,6 +483,11 @@ class User(AbstractUser):
 
         assert ou is not None, "User does not have any Orgs"
         return ou.org
+
+    def natural_key(self):
+        # We can't use UUIDs as a natural key for users unless we override
+        # the default authentication backend.
+        return (self.email,)
 
 
 # -- SETTINGS: GLOBAL, ORG, ORGUSERS -- #

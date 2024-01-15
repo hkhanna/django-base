@@ -23,7 +23,7 @@ def user_create(**kwargs):
         password="goodpass",
     )
     params = defaults | kwargs
-    user = User.objects.create_user(**params)
+    user = services.user_create(**params)
 
     # If an org was passed, add the user to it.
     if org:
