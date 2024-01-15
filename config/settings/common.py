@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.sites",
     "inertia",
     "heroicons",
     "django_extensions",
@@ -166,22 +165,21 @@ EMAIL_MESSAGE_WEBHOOK_PATH = env(
     "EMAIL_MESSAGE_WEBHOOK_PATH", default="email_message_webhook/"
 )
 
-# Site Configuration - Refactor this if >1 Site is hosted from this codebase.
-SITE_ID = 1
+# Site Configuration - Refactor this if we implement multitenant
 SITE_CONFIG = {
     "name": "Django Base",
     "logo_url_link": "",
     "logo_url": "",
-    "default_from_name": "Jane Example",
-    "default_from_email": "jane@example.com",
+    "default_from_name": "Harry Khanna",
+    "default_from_email": "harry@example.com",
     "account_from_name": "Account Management",
     "account_from_email": "accounts@example.com",
     "account_reply_to_name": None,
     "account_reply_to_email": None,  # Set to None to not have any reply-to in account-related emails
     "company": "Khanna PLLC",
-    "company_address": "4445 Corporation Ln., Ste 264",  # Set to None to skip having an address.
-    "company_city_state_zip": "Virginia Beach, VA 23462",
-    "contact_email": "jane@example.com",
+    "company_address": "1629 K Street NW, Suite 300",  # Set to None to skip having an address.
+    "company_city_state_zip": "Washington, DC 20006",
+    "contact_email": "harry@example.com",
 }
 
 

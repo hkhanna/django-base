@@ -77,7 +77,6 @@ Then, generate the access key and secret key and hold onto it for the deploy to 
    - Make sure there aren't any obvious issues in production. `python manage.py check --deploy`
    - Create the first superuser on production: `python manage.py createsuperuser`
    - If you want to poke around, `python manage.py shell`.
-1. Update the Site name and domain in the Django admin.
 1. If you're using social auth, add the appropriate `Social Applications`.
 
 ### Render - Enable Celery if desired.
