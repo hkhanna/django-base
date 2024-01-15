@@ -296,6 +296,10 @@ class SignupView(RedirectURLMixin, FormView):
 
     @method_decorator(sensitive_post_parameters())
     def dispatch(self, request, *args, **kwargs):
+        # Globally disable signup
+        if services.global_setting_get_value("disable_signup"):
+            return self.render_to_response(context={}, disable_signup=True)
+
         if self.redirect_authenticated_user and self.request.user.is_authenticated:
             redirect_to = self.get_success_url()
             if redirect_to == self.request.path:
@@ -313,6 +317,16 @@ class SignupView(RedirectURLMixin, FormView):
         return super().form_valid(form)
 
     def render_to_response(self, context, *args, **kwargs):
+        if kwargs.get("disable_signup"):
+            return utils.inertia_render(
+                self.request,
+                "core/SignupDisabled",
+                template_data={
+                    "html_class": "h-full bg-zinc-50",
+                    "body_class": "h-full dark:bg-zinc-900",
+                },
+            )
+
         return utils.inertia_render(
             self.request,
             "core/Signup",

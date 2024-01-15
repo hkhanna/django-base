@@ -98,8 +98,8 @@ def test_disable_user_creation(client):
         "password": "a really good password!",
     }
     response = client.post(reverse("user:signup"), payload)
-    assert "Sign up is closed." in str(response.content)
-    assert 0 == services.user_list(email="harry@example.com").count()
+    assert "SignupDisabled" in response.context["page"]
+    assert 0 == selectors.user_list(email="harry@example.com").count()
 
 
 def test_email_lowercase(client):
