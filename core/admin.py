@@ -261,9 +261,11 @@ class UserAdmin(DefaultUserAdmin):
     filter_horizontal = ("groups", "user_permissions")
     readonly_fields = ("id", "uuid")
 
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        obj.sync_changed_email()
+    def user_change_password(self, *args, **kwargs):
+        # This seems like a Django bug. Change password view shouldn't choke
+        # if we pass extra context (i.e., the current environment) to the view.
+        kwargs.pop("extra_context", None)
+        return super().user_change_password(*args, **kwargs)
 
 
 admin.site.index_title = "Index"
