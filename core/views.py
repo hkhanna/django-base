@@ -46,7 +46,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.http import HttpResponseRedirect
 
 
-from . import forms, models, selectors, services, utils
+from . import models, selectors, services, utils
 from .exceptions import ApplicationError, ApplicationWarning
 from .permissions import OrgUserSettingPermissionMixin
 from .tasks import email_message_webhook_process as email_message_webhook_process_task
@@ -271,8 +271,11 @@ class SignupView(RedirectURLMixin, FormView):
         middle_initial = forms.CharField(max_length=150, required=False)
 
         def clean_email(self):
-            """Normalize email to lowercase."""
-            email = self.cleaned_data["email"].lower()
+            """Normalize email to lowercase and verify uniqueness."""
+            email = self.cleaned_data["email"]
+            if selectors.user_list(email__iexact=email).exists():
+                raise ValidationError("A user with that email already exists.")
+            email = email.lower()
             return email
 
         def clean_password(self):
@@ -330,8 +333,11 @@ class ProfileView(LoginRequiredMixin, FormView):
         email = forms.EmailField(required=True)
 
         def clean_email(self):
-            """Normalize email to lowercase."""
-            email = self.cleaned_data["email"].lower()
+            """Normalize email to lowercase and verify uniqueness."""
+            email = self.cleaned_data["email"]
+            if selectors.user_list(email__iexact=email).exists():
+                raise ValidationError("A user with that email already exists.")
+            email = email.lower()
             return email
 
     form_class = ProfileForm

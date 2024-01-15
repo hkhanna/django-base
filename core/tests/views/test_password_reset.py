@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from .. import models, services
+from ... import models, services
 
 
 @pytest.fixture

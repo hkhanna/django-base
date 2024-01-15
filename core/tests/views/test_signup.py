@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from .. import models, services, selectors, constants
+from ... import services, selectors, constants
 
 
 def test_signup_create(client):
