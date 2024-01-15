@@ -217,13 +217,18 @@ class LoginView(DjangoLoginView):
     redirect_authenticated_user = True
 
     class LoginForm(DjangoLoginForm):
-        """Custom form for error messages and timezone-handling"""
+        """Custom form for email address normalization, error messages and timezone-handling"""
 
         error_messages = {
             "invalid_login": "Please enter a correct %(username)s and password.",
             "inactive": "This account is inactive.",  # This is never used in the default authentication backend.
         }
         detected_tz = forms.CharField(max_length=254, required=False)
+
+        def clean_username(self):
+            """Normalize email to lowercase."""
+            username = self.cleaned_data["username"].lower()
+            return username
 
     def form_valid(self, form):
         form = services.detect_timezone_from_form(form, self.request)
