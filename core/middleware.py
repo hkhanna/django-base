@@ -136,20 +136,6 @@ class DisableClientCacheMiddleware:
         return response
 
 
-class BadRouteDetectMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        if "accounts/social/" in request.path:
-            logger.error(
-                "A route in socialaccount was accessed that should not have been: "
-                + request.path
-            )
-        response = self.get_response(request)
-        return response
-
-
 class HostUrlconfMiddleware:
     """ALT_URLCONF defines alternative urlconfs available based on an exact host match."""
 

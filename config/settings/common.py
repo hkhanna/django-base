@@ -68,7 +68,6 @@ MIDDLEWARE = [
     "core.middleware.DisableClientCacheMiddleware",
     "core.middleware.TimezoneMiddleware",
     "core.middleware.SetRemoteAddrFromForwardedFor",
-    "core.middleware.BadRouteDetectMiddleware",
     "core.middleware.HostUrlconfMiddleware",
     "core.middleware.OrgMiddleware",
 ]
@@ -194,6 +193,7 @@ ROOT_URLCONF = "config.urls"
 HOST_URLCONFS: dict[str, str] = {}
 
 # Authentication
+LOGIN_URL = "/user/login/"
 LOGIN_REDIRECT_URL = "/user/settings/profile/"
 LOGOUT_REDIRECT_URL = "/user/login/"
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
