@@ -147,6 +147,19 @@ export default function Signup() {
                   >
                     Create account
                   </Button>
+                  <p className="text-sm sm:text-xs text-zinc-500 dark:text-zinc-400">
+                    By clicking "Continue with Google" above or by creating an
+                    account with your email address, you acknowledge that you
+                    have read and understood, and agree to the{" "}
+                    <TextLink refresh href="/terms">
+                      Terms of Use
+                    </TextLink>{" "}
+                    and{" "}
+                    <TextLink refresh href="/privacy">
+                      Privacy Policy
+                    </TextLink>
+                    .
+                  </p>
                 </FieldGroup>
               </Fieldset>
             </form>
