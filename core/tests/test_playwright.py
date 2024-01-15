@@ -37,10 +37,10 @@ pytestmark = pytest.mark.skipif(
 @pytest.fixture
 def user(page: Page, live_server):
     user = factories.user_create(is_staff=True, is_superuser=True)
-    url = live_server.url + reverse("account_login")
+    url = live_server.url + reverse("user:login")
     page.goto(url)
-    page.get_by_label("E-mail").click()
-    page.get_by_label("E-mail").fill(user.email)
+    page.get_by_label("Email address").click()
+    page.get_by_label("Email address").fill(user.email)
     page.get_by_label("Password").click()
     page.get_by_label("Password").fill("goodpass")
     page.get_by_role("button", name="Sign in").click()
@@ -48,15 +48,15 @@ def user(page: Page, live_server):
     return user
 
 
-def test_settings(page: Page, live_server, user):
-    """User can update their information on the settings page."""
-    url = live_server.url + reverse("account_settings")
+def test_profile(page: Page, live_server, user):
+    """User can update their profile information."""
+    url = live_server.url + reverse("user:profile")
     page.goto(url)
     expect(page.get_by_label("First name")).to_have_value(user.first_name)
     expect(page.get_by_label("Last name")).to_have_value(user.last_name)
     expect(page.get_by_label("Email")).to_have_value(user.email)
 
-    # Updates personal information but use the wrong password
+    # Updates profile information
     page.get_by_label("First name").click()
     page.get_by_label("First name").fill("Example First")
     page.get_by_label("First name").press("Tab")
@@ -64,23 +64,19 @@ def test_settings(page: Page, live_server, user):
     page.get_by_label("Last name").press("Tab")
     page.get_by_label("Email").fill("new@example.com")
     page.get_by_label("Email").press("Tab")
-    page.get_by_placeholder("Current password", exact=True).fill("badpass")
-    page.get_by_placeholder("Current password", exact=True).press("Enter")
-    expect(page.get_by_text("Please type your current password.")).to_be_visible()
-    user.refresh_from_db()
-    assert user.first_name != "Example First"
-    assert user.last_name != "Example Last"
-    assert user.email != "new@example.com"
-
-    # Corrects password and personal information is updated
-    page.get_by_placeholder("Current password", exact=True).click()
-    page.get_by_placeholder("Current password", exact=True).fill("goodpass")
-    page.get_by_placeholder("Current password", exact=True).press("Enter")
     expect(page.get_by_text("Personal information saved")).to_be_visible()
     user.refresh_from_db()
     assert user.first_name == "Example First"
     assert user.last_name == "Example Last"
     assert user.email == "new@example.com"
+
+
+def test_change_password(page: Page, live_server, user):
+    url = live_server.url + reverse("user:password-change")
+    page.goto(url)
+    expect(page.get_by_label("New password")).to_be_editable()
+    expect(page.get_by_label("New password (again)")).to_be_editable()
+    expect(page.get_by_label("Current password")).to_be_editable()
 
     # Changes password, wrong current password
     page.get_by_placeholder("New Password", exact=True).click()
@@ -105,19 +101,13 @@ def test_settings(page: Page, live_server, user):
     user.refresh_from_db()
     assert user.check_password("newpass123") is True
 
-    # Log out
-    page.get_by_role("button", name="Open user menu").click()
-    page.get_by_role("menuitem", name="Sign out").click()
-    page.wait_for_url(live_server.url + reverse("account_login"))
-    assert page.url == live_server.url + reverse("account_login")
-
 
 def test_organizations(page: Page, live_server, user):
     """Organization views"""
 
     with freezegun.freeze_time(timezone.now() - timedelta(days=1)):
         org = factories.org_create(owner=user)
-    url = live_server.url + reverse("account_settings")
+    url = live_server.url + reverse("user:profile")
     page.goto(url)
 
     # Initially on the personal org
@@ -158,11 +148,6 @@ def test_organizations(page: Page, live_server, user):
 @pytest.mark.skip("not implemented")
 def test_signup(page: Page, live_server):
     """Signup and confirm email"""
-
-
-@pytest.mark.skip("not implemented")
-def test_email_confirmation(page: Page, live_server):
-    """Email confirmation (including resend)"""
 
 
 @pytest.mark.skip("not implemented")

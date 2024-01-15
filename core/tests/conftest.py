@@ -7,12 +7,6 @@ from .. import models, services
 @pytest.fixture
 def user():
     user = factories.user_create()
-
-    # Verify email address
-    email_address = user.emailaddress_set.first()
-    email_address.verified = True
-    email_address.save()
-
     return user
 
 

@@ -3,7 +3,7 @@ from typing import Union, Type
 from django.db.models import Model, QuerySet
 from django.utils import timezone
 
-from core.types import BaseModelType
+from core.types import BaseModelType, UserType
 
 from . import constants
 from .models import (
@@ -22,6 +22,7 @@ from .models import (
     EmailMessageAttachment,
     EmailMessageWebhook,
     Event,
+    User,
 )
 
 
@@ -90,6 +91,11 @@ def overridden_org_setting_list(**kwargs) -> QuerySet[OverriddenOrgSetting]:
 
 def org_setting_list(**kwargs) -> QuerySet[OrgSetting]:
     return model_list(klass=OrgSetting, **kwargs)
+
+
+def user_list(**kwargs) -> QuerySet[UserType]:
+    # HACK: Fix typing error when User properly inherits from BaseModelType
+    return model_list(klass=User, **kwargs)  # type: ignore
 
 
 def model_list(*, klass: Type[BaseModelType], **kwargs) -> QuerySet:

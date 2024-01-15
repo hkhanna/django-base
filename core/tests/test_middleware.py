@@ -59,17 +59,6 @@ def test_health_check(client):
     assert response.status_code == 200
 
 
-def test_route_flag(client, caplog):
-    """If the socialaccount routes are accessed, something is wrong, so flag a Sentry error"""
-
-    with caplog.at_level(logging.ERROR):
-        client.get(reverse("socialaccount_connections"))
-    assert (
-        "A route in socialaccount was accessed that should not have been: "
-        in caplog.text
-    )
-
-
 @override_settings(
     HOST_URLCONFS={"www.example.com": "core.urls"},
     ALLOWED_HOSTS=["testserver", "www.example.com"],

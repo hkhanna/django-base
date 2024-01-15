@@ -22,6 +22,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django import forms
 from django.db import transaction
 from django.http import Http404, JsonResponse
 from django.http.response import HttpResponse as HttpResponse
@@ -217,9 +218,13 @@ class LoginView(DjangoLoginView):
     redirect_authenticated_user = True
 
     class LoginForm(DjangoLoginForm):
-        """Custom form for timezone-handling"""
+        """Custom form for error messages and timezone-handling"""
 
-        detected_tz = forms.forms.CharField(max_length=254, required=False)
+        error_messages = {
+            "invalid_login": "Please enter a correct %(username)s and password.",
+            "inactive": "This account is inactive.",  # This is never used in the default authentication backend.
+        }
+        detected_tz = forms.CharField(max_length=254, required=False)
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -256,14 +261,14 @@ class SignupView(RedirectURLMixin, FormView):
     next_page = settings.LOGIN_REDIRECT_URL
     redirect_authenticated_user = True
 
-    class SignupForm(forms.forms.Form):
-        email = forms.forms.EmailField(max_length=254, required=True)
-        first_name = forms.forms.CharField(max_length=150, required=True)
-        last_name = forms.forms.CharField(max_length=150, required=True)
-        password = forms.forms.CharField(max_length=254, required=True)
+    class SignupForm(forms.Form):
+        email = forms.EmailField(max_length=254, required=True)
+        first_name = forms.CharField(max_length=150, required=True)
+        last_name = forms.CharField(max_length=150, required=True)
+        password = forms.CharField(max_length=254, required=True)
 
         # Honeypot
-        middle_initial = forms.forms.CharField(max_length=150, required=False)
+        middle_initial = forms.CharField(max_length=150, required=False)
 
         def clean_email(self):
             """Normalize email to lowercase."""
@@ -319,10 +324,10 @@ class SignupView(RedirectURLMixin, FormView):
 
 
 class ProfileView(LoginRequiredMixin, FormView):
-    class ProfileForm(forms.forms.Form):
-        first_name = forms.forms.CharField(max_length=150, required=True)
-        last_name = forms.forms.CharField(max_length=150, required=True)
-        email = forms.forms.EmailField(required=True)
+    class ProfileForm(forms.Form):
+        first_name = forms.CharField(max_length=150, required=True)
+        last_name = forms.CharField(max_length=150, required=True)
+        email = forms.EmailField(required=True)
 
         def clean_email(self):
             """Normalize email to lowercase."""

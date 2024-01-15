@@ -1,7 +1,7 @@
 {% extends "core/layouts/application.html" %}
 {% block title %}Logout{% endblock %}
 {% block main %}
-<form method="post" action="{% url 'account_logout' %}" x-init="$el.submit()">
+<form method="post" action="{% url 'user:logout' %}" x-init="$el.submit()">
   {% csrf_token %}
   {% if redirect_field_value %}
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>

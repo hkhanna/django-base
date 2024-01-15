@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from .. import models, services, constants
+from .. import models, services, selectors, constants
 
 
 def test_signup_create(client):
@@ -9,11 +9,11 @@ def test_signup_create(client):
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": "harry@example.com",
-        "password1": "a really good password!",
+        "password": "a really good password!",
         "middle_initial": "",  # Honeypot
     }
-    client.post(reverse("account_signup"), payload)
-    assert 1 == models.User.objects.filter(email="harry@example.com").count()
+    client.post(reverse("user:signup"), payload)
+    assert 1 == selectors.user_list(email="harry@example.com").count()
 
 
 def test_signup_login(client):
@@ -22,12 +22,12 @@ def test_signup_login(client):
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": "harry@example.com",
-        "password1": "a really good password!",
+        "password": "a really good password!",
     }
-    response = client.post(reverse("account_signup"), payload, follow=True)
+    response = client.post(reverse("user:signup"), payload, follow=True)
     assert (
         response.wsgi_request.user
-        == models.User.objects.filter(email="harry@example.com").first()
+        == selectors.user_list(email="harry@example.com").first()
     )
 
 
@@ -37,9 +37,9 @@ def test_signup_weak_password(client):
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": "harry@example.com",
-        "password1": "the",
+        "password": "the",
     }
-    response = client.post(reverse("account_signup"), payload)
+    response = client.post(reverse("user:signup"), payload)
     assert "common" in str(response.content)
 
 
@@ -49,10 +49,11 @@ def test_signup_duplicate(client, user):
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": user.email,
-        "password1": "a really good password!",
+        "password": "a really good password!",
     }
-    response = client.post(reverse("account_signup"), payload)
-    assert "already registered" in str(response.content)
+    response = client.post(reverse("user:signup"), payload)
+    assert "already exists" in str(response.content)
+    assert 1 == selectors.user_list().count()
 
 
 def test_signup_email_history(client):
@@ -60,27 +61,29 @@ def test_signup_email_history(client):
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": "harry@example.com",
-        "password1": "a really good password!",
+        "password": "a really good password!",
     }
-    client.post(reverse("account_signup"), payload)
+    client.post(reverse("user:signup"), payload)
     assert (
-        models.User.objects.filter(email="harry@example.com").first().email_history[0]
+        selectors.user_list(email="harry@example.com").first().email_history[0]
         == "harry@example.com"
     )
 
 
-def test_user_locked(client, user):
-    """A locked user cannot sign up"""
-    user.is_locked = True
-    user.save()
+def test_user_inactive(client, user):
+    """An inactive user cannot sign up"""
+    services.user_update(instance=user, is_active=False)
     payload = {
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": user.email,
-        "password1": "a really good password!",
+        "password": "a really good password!",
     }
-    response = client.post(reverse("account_signup"), payload)
-    assert "already registered" in str(response.content)
+    response = client.post(reverse("user:signup"), payload)
+    assert "already exists" in str(response.content)
+    assert 1 == selectors.user_list().count()
+    user.refresh_from_db()
+    assert user.is_active is False  # Still inactive
 
 
 def test_disable_user_creation(client):
@@ -92,11 +95,11 @@ def test_disable_user_creation(client):
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": "harry@example.com",
-        "password1": "a really good password!",
+        "password": "a really good password!",
     }
-    response = client.post(reverse("account_signup"), payload)
-    assert "Sign Up Closed" in str(response.content)
-    assert 0 == models.User.objects.filter(email="harry@example.com").count()
+    response = client.post(reverse("user:signup"), payload)
+    assert "Sign up is closed." in str(response.content)
+    assert 0 == services.user_list(email="harry@example.com").count()
 
 
 def test_email_lowercase(client):
@@ -105,10 +108,10 @@ def test_email_lowercase(client):
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": "harry@example.com".upper(),
-        "password1": "a really good password!",
+        "password": "a really good password!",
     }
-    client.post(reverse("account_signup"), payload)
-    assert models.User.objects.filter(email="harry@example.com").exists() is True
+    client.post(reverse("user:signup"), payload)
+    assert selectors.user_list(email="harry@example.com").exists() is True
 
 
 def test_email_unique_iexact(client, user):
@@ -117,15 +120,11 @@ def test_email_unique_iexact(client, user):
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": user.email.upper(),
-        "password1": "a really good password!",
+        "password": "a really good password!",
     }
-    response = client.post(reverse("account_signup"), payload)
-    assert "A user is already registered with this e-mail address" in str(
-        response.content
-    )
-    assert (
-        models.User.objects.filter(email="harry@example.com".upper()).exists() is False
-    )
+    response = client.post(reverse("user:signup"), payload)
+    assert "A user with that email already exists." in str(response.content)
+    assert selectors.user_list(email="harry@example.com".upper()).exists() is False
 
 
 def test_first_name_length(client, user):
@@ -134,13 +133,9 @@ def test_first_name_length(client, user):
         "first_name": "A" * 151,
         "last_name": "Khanna",
         "email": "a@example.com",
-        "password1": "a really good password!",
+        "password": "a really good password!",
     }
-    response = client.post(reverse("account_signup"), payload)
-    assert "first_name" in response.context["form"].errors
-    assert (
-        "has at most 150 characters" in response.context["form"].errors["first_name"][0]
-    )
+    response = client.post(reverse("user:signup"), payload)
     assert "has at most 150 characters" in str(response.content)
 
 
@@ -150,13 +145,9 @@ def test_last_name_length(client, user):
         "first_name": "Harry",
         "last_name": "A" * 151,
         "email": "a@example.com",
-        "password1": "a really good password!",
+        "password": "a really good password!",
     }
-    response = client.post(reverse("account_signup"), payload)
-    assert "last_name" in response.context["form"].errors
-    assert (
-        "has at most 150 characters" in response.context["form"].errors["last_name"][0]
-    )
+    response = client.post(reverse("user:signup"), payload)
     assert "has at most 150 characters" in str(response.content)
 
 
@@ -166,9 +157,9 @@ def test_honeypot(client):
         "first_name": "Harry",
         "last_name": "Khanna",
         "email": "a@example.com",
-        "password1": "a really good password!",
+        "password": "a really good password!",
         "middle_initial": "S",
     }
-    response = client.post(reverse("account_signup"), payload)
-    assert "Signup sadly closed." in str(response.content)
-    assert models.User.objects.count() == 0
+    response = client.post(reverse("user:signup"), payload)
+    assert "Signup closed." in str(response.content)
+    assert selectors.user_list().count() == 0

@@ -13,8 +13,8 @@
             </a>
           </div>
           <nav class="hidden sm:-my-px sm:ml-10 sm:flex sm:space-x-8" aria-label="Main">
-            {% navlink url_name="account_settings" name="Settings" %}
-            {% navlink url_name="account_logout" name="Logout" %}
+            {% navlink url_name="user:profile" name="Settings" %}
+            {% navlink url_name="user:logout" name="Logout" %}
           </nav>
         </div>
         <div class="hidden sm:ml-6 sm:flex sm:items-center">
@@ -38,8 +38,8 @@
     </div>
     <div class="sm:hidden bg-white shadow-sm" x-show="navOpen">
       <div class="pt-2 pb-3 space-y-1">
-        {% navlink url_name="account_settings" name="Settings" mobile=True %}
-        {% navlink url_name="account_logout" name="Logout" mobile=True %}
+        {% navlink url_name="user:profile" name="Settings" mobile=True %}
+        {% navlink url_name="user:logout" name="Logout" mobile=True %}
       </div>
       <div class="pt-4 pb-3 border-t border-gray-200">
        {% org_switcher %} 
