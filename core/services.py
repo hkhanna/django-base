@@ -892,7 +892,20 @@ def org_user_org_user_setting_create(**kwargs) -> OrgUserOrgUserSetting:
     return model_create(klass=OrgUserOrgUserSetting, **kwargs)
 
 
+def user_create(password=None, **kwargs) -> UserType:
+    # HACK: User should inherit from BaseModel so we don't have to deal with this type error.
+    user = model_create(klass=UserType, save=False, **kwargs)  # type: ignore
+    return user_update(instance=user, save=True, password=password)  # type: ignore
+
+
 def user_update(instance: UserType, **kwargs) -> UserType:
+    if "password" in kwargs:
+        password = kwargs.pop("password", None)
+        if password:
+            instance.set_password(password)
+        else:
+            instance.set_unusable_password()
+
     # HACK: User should inherit from BaseModel so we don't have to deal with this type error.
     return model_update(instance=instance, **kwargs)  # type: ignore
 

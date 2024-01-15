@@ -53,10 +53,7 @@ export default function Login() {
         </div>
 
         <Text className="text-center">
-          Or{" "}
-          <TextLink refresh href="/accounts/signup/">
-            sign up for free.
-          </TextLink>
+          Or <TextLink href="/user/signup/">sign up for free.</TextLink>
         </Text>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">

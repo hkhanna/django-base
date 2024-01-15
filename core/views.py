@@ -7,19 +7,22 @@ from allauth.account import models as auth_models
 from allauth.account import views as auth_views
 from allauth.account.adapter import get_adapter
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash, login as django_login
 from django.contrib.auth.forms import (
     AuthenticationForm as DjangoLoginForm,
     PasswordChangeForm,
     PasswordResetForm as DjangoPasswordResetForm,
 )
 from django.contrib.auth.views import (
+    RedirectURLMixin,
     LoginView as DjangoLoginView,
     PasswordResetConfirmView as DjangoPasswordResetConfirmView,
 )
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
@@ -329,7 +332,7 @@ class LoginView(DjangoLoginView):
         detected_tz = forms.forms.CharField(max_length=254, required=False)
 
     def form_valid(self, form):
-        super().form_valid(form)
+        response = super().form_valid(form)
 
         # Set the user's timezone in their session if it was provided
         detected_tz = form.cleaned_data["detected_tz"]
@@ -343,7 +346,7 @@ class LoginView(DjangoLoginView):
                     f"User.email={self.cleaned_data['username']} Bad timezone {detected_tz}"
                 )
 
-        return HttpInertiaExternalRedirect(self.get_success_url())
+        return response
 
     authentication_form = LoginForm
 
@@ -352,6 +355,72 @@ class LoginView(DjangoLoginView):
             self.request,
             "core/Login",
             props={"errors": context["form"].errors},
+            template_data={
+                "html_class": "h-full bg-zinc-50",
+                "body_class": "h-full dark:bg-zinc-900",
+            },
+        )
+
+
+class SignupView(RedirectURLMixin, FormView):
+    next_page = settings.LOGIN_REDIRECT_URL
+    redirect_authenticated_user = True
+
+    class SignupForm(forms.forms.Form):
+        email = forms.forms.EmailField(max_length=254, required=True)
+        first_name = forms.forms.CharField(max_length=150, required=True)
+        last_name = forms.forms.CharField(max_length=150, required=True)
+        password = forms.forms.CharField(max_length=254, required=True)
+
+        # Honeypot
+        middle_initial = forms.forms.CharField(max_length=150, required=False)
+
+        def clean_email(self):
+            """Normalize email to lowercase."""
+            email = self.cleaned_data["email"].lower()
+            return email
+
+        def clean_password(self):
+            password = self.cleaned_data["password"]
+            validate_password(self.cleaned_data["password"])
+            return password
+
+        def clean(self):
+            cleaned_data = super().clean()
+
+            # Check honeypot
+            honeypot = cleaned_data.pop("middle_initial", None)
+            if honeypot:
+                raise ValidationError("Signup closed.")
+            return cleaned_data
+
+    form_class = SignupForm
+
+    @method_decorator(sensitive_post_parameters())
+    def dispatch(self, request, *args, **kwargs):
+        if self.redirect_authenticated_user and self.request.user.is_authenticated:
+            redirect_to = self.get_success_url()
+            if redirect_to == self.request.path:
+                raise ValueError(
+                    "Redirection loop for authenticated user detected. Check that "
+                    "your LOGIN_REDIRECT_URL doesn't point to a login page."
+                )
+            return HttpResponseRedirect(redirect_to)
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        user = services.user_create(**form.cleaned_data)
+        django_login(self.request, user, "django.contrib.auth.backends.ModelBackend")
+        messages.success(self.request, f"Welcome {user.name}!")
+        return super().form_valid(form)
+
+    def render_to_response(self, context, *args, **kwargs):
+        return utils.inertia_render(
+            self.request,
+            "core/Signup",
+            props={
+                "errors": context["form"].errors,
+            },
             template_data={
                 "html_class": "h-full bg-zinc-50",
                 "body_class": "h-full dark:bg-zinc-900",
