@@ -23,7 +23,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django import forms
-from django.db import transaction
 from django.http import Http404, JsonResponse
 from django.http.response import HttpResponse as HttpResponse
 from django.shortcuts import redirect, render as django_render
@@ -227,21 +226,8 @@ class LoginView(DjangoLoginView):
         detected_tz = forms.CharField(max_length=254, required=False)
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-
-        # Set the user's timezone in their session if it was provided
-        detected_tz = form.cleaned_data["detected_tz"]
-        if detected_tz:
-            try:
-                tz = pytz.timezone(detected_tz)
-                self.request.session["detected_tz"] = detected_tz
-                timezone.activate(tz)
-            except pytz.exceptions.UnknownTimeZoneError:
-                logger.warning(
-                    f"User.email={self.cleaned_data['username']} Bad timezone {detected_tz}"
-                )
-
-        return response
+        form = services.detect_timezone_from_form(form, self.request)
+        return super().form_valid(form)
 
     authentication_form = LoginForm
 
@@ -266,6 +252,7 @@ class SignupView(RedirectURLMixin, FormView):
         first_name = forms.CharField(max_length=150, required=True)
         last_name = forms.CharField(max_length=150, required=True)
         password = forms.CharField(max_length=254, required=True)
+        detected_tz = forms.CharField(max_length=254, required=False)
 
         # Honeypot
         middle_initial = forms.CharField(max_length=150, required=False)
@@ -311,6 +298,8 @@ class SignupView(RedirectURLMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        # Set the user's timezone in their session if it was provided
+        form = services.detect_timezone_from_form(form, self.request)
         user = services.user_create(**form.cleaned_data)
         django_login(self.request, user, "django.contrib.auth.backends.ModelBackend")
         messages.success(self.request, f"Welcome {user.name}!")

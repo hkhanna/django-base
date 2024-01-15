@@ -163,3 +163,21 @@ def test_honeypot(client):
     response = client.post(reverse("user:signup"), payload)
     assert "Signup closed." in str(response.content)
     assert selectors.user_list().count() == 0
+
+
+def test_signup_detected_tz(client):
+    """Signing up with a detected_tz stores it in the user's session"""
+    client.post(
+        reverse("user:signup"),
+        {
+            "first_name": "Harry",
+            "last_name": "Khanna",
+            "email": "a@example.com",
+            "password": "a really good password!",
+            "detected_tz": "America/New_York",
+        },
+    )
+
+    response = client.get(reverse("user:profile"))
+    session = response.wsgi_request.session
+    assert session["detected_tz"] == "America/New_York"

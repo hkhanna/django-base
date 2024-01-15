@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 from importlib import import_module
 from typing import IO, Any, AnyStr, Dict, List, Optional, Type, Union
 from uuid import uuid4
+import pytz
 
 from django.conf import settings
 from django.core.files import File
@@ -35,6 +36,7 @@ from django.http import HttpRequest
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django import forms
 
 from . import constants, selectors, utils
 from .exceptions import *
@@ -908,6 +910,29 @@ def user_update(instance: UserType, **kwargs) -> UserType:
 
     # HACK: User should inherit from BaseModel so we don't have to deal with this type error.
     return model_update(instance=instance, **kwargs)  # type: ignore
+
+
+def detect_timezone_from_form(form: forms.Form, request: HttpRequest) -> forms.Form:
+    """
+    Detects the timezone from the form data and activates it for the current request
+    and stores it on the session for future requests.
+
+    Args:
+        form (forms.Form): The form containing the timezone data.
+        request (HttpRequest): The current request object.
+
+    Returns:
+        forms.Form: The updated form object.
+    """
+    detected_tz = form.cleaned_data.pop("detected_tz", None)
+    if detected_tz:
+        try:
+            tz = pytz.timezone(detected_tz)
+            request.session["detected_tz"] = detected_tz
+            timezone.activate(tz)
+        except pytz.exceptions.UnknownTimeZoneError:
+            logger.warning(f"Bad timezone {detected_tz}")
+    return form
 
 
 def model_create(
