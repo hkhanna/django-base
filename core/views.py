@@ -301,7 +301,7 @@ class SignupView(RedirectURLMixin, FormView):
         # Set the user's timezone in their session if it was provided
         form = services.detect_timezone_from_form(form, self.request)
         user = services.user_create(**form.cleaned_data)
-        django_login(self.request, user, "django.contrib.auth.backends.ModelBackend")
+        django_login(self.request, user)
         messages.success(self.request, f"Welcome {user.name}!")
         return super().form_valid(form)
 
@@ -462,7 +462,6 @@ class PasswordResetView(FormView):
 class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
     success_url = reverse_lazy("user:login")
     post_reset_login = True
-    post_reset_login_backend = "django.contrib.auth.backends.ModelBackend"
 
     def render_to_response(self, context, *args, **kwargs):
         errors = {}
