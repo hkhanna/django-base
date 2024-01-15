@@ -30,12 +30,12 @@ urlpatterns = [
     path("", RedirectView.as_view(url=settings.LOGIN_URL), name="index"),
     path(
         "terms/",
-        TemplateView.as_view(template_name="core/terms.html"),
+        views.TermsOfUseView.as_view(),
         name="terms_of_use",
     ),
     path(
         "privacy/",
-        TemplateView.as_view(template_name="core/privacy.html"),
+        views.PrivacyPolicyView.as_view(),
         name="privacy_policy",
     ),
     path("org/switch/", views.OrgSwitchView.as_view(), name="org_switch"),

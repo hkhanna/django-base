@@ -224,3 +224,16 @@ def test_admin(page: Page, live_server):
     expect(page.get_by_role("link", name="Administration")).to_contain_text(
         f"Administration ({settings.ENVIRONMENT})"
     )
+
+
+def test_terms_and_privacy(page: Page, live_server):
+    """Terms of Use and Privacy Policy pages."""
+    url = live_server.url + reverse("terms_of_use")
+    page.goto(url)
+    expect(page).to_have_url(url)
+    expect(page.get_by_role("heading", level=1, name="Terms of Use")).to_be_visible()
+
+    url = live_server.url + reverse("privacy_policy")
+    page.goto(url)
+    expect(page).to_have_url(url)
+    expect(page.get_by_role("heading", level=1, name="Privacy Policy")).to_be_visible()

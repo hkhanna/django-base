@@ -37,7 +37,6 @@ from django.views.generic import (
     View,
     FormView,
 )
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -492,4 +491,22 @@ class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
                 "html_class": "h-full bg-zinc-50",
                 "body_class": "h-full dark:bg-zinc-900",
             },
+        )
+
+
+class TermsOfUseView(TemplateView):
+    def render_to_response(self, context, *args, **kwargs):
+        return utils.inertia_render(
+            self.request,
+            "core/TermsOfUse",
+            props={},
+        )
+
+
+class PrivacyPolicyView(TemplateView):
+    def render_to_response(self, context, *args, **kwargs):
+        return utils.inertia_render(
+            self.request,
+            "core/PrivacyPolicy",
+            props={},
         )

@@ -9,7 +9,6 @@ django-vite==3.0.1
 django-web-components==0.2.0
 heroicons==2.5.0
 inertia-django==0.5.3
-markdown==3.5.1
 # python-gnupg==0.5.1
 python-postmark==0.6.0
 pytz==2023.3.post1
