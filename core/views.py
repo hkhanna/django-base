@@ -2,10 +2,6 @@ import logging
 from typing import Any
 import pytz
 
-from allauth.account import forms as auth_forms
-from allauth.account import models as auth_models
-from allauth.account import views as auth_views
-from allauth.account.adapter import get_adapter
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.contrib import messages
@@ -168,112 +164,6 @@ class OrgInvitationResendView(
 
         messages.success(request, "Invitation resent.")
         return redirect("org_detail")
-
-
-class UserSettingsView(LoginRequiredMixin, View):
-    template_name = "account/settings.html"
-
-    def get(self, request, *args, **kwargs):
-        if request.user.has_usable_password():
-            password_formclass = auth_forms.ChangePasswordForm
-        else:
-            password_formclass = auth_forms.SetPasswordForm
-
-        context = {
-            "pi_form": forms.PersonalInformationForm(instance=request.user),
-            "password_form": password_formclass(user=request.user),
-            "disconnect_form": forms.DisconnectForm(request=request),
-            "disable_account_deletion": services.global_setting_get_value(
-                "disable_account_deletion"
-            ),
-        }
-        return django_render(request, self.template_name, context)
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get("form_name") == "pi":
-            pi_form = forms.PersonalInformationForm(
-                data=request.POST, instance=request.user
-            )
-        else:
-            pi_form = forms.PersonalInformationForm(instance=request.user)
-
-        if request.user.has_usable_password():
-            password_formclass = auth_forms.ChangePasswordForm
-        else:
-            password_formclass = auth_forms.SetPasswordForm
-
-        if request.POST.get("form_name") == "password":
-            password_form = password_formclass(data=request.POST, user=request.user)
-        else:
-            password_form = password_formclass(user=request.user)
-
-        if request.POST.get("form_name") == "disconnect":
-            disconnect_form = forms.DisconnectForm(data=request.POST, request=request)
-        else:
-            disconnect_form = forms.DisconnectForm(request=request)
-
-        context = {
-            "pi_form": pi_form,
-            "password_form": password_form,
-            "disconnect_form": disconnect_form,
-        }
-
-        if pi_form.is_valid():
-            pi_form.save()
-            email_address = request.user.sync_changed_email()
-            if email_address:
-                email_address.send_confirmation()
-                messages.success(
-                    request,
-                    "Personal information saved. A confirmation email has been sent to your new email address.",
-                )
-            else:
-                messages.success(request, "Personal information saved.")
-            return redirect("account_settings")
-
-        if password_form.is_valid():
-            password_form.save()
-            messages.success(request, "Password successfully changed.")
-            update_session_auth_hash(request, request.user)  # Don't log the user out
-            return redirect("account_settings")
-
-        if disconnect_form.is_valid():
-            disconnect_form.save()
-            messages.info(request, "The social account has been disconnected.")
-            return redirect("account_settings")
-
-        return django_render(request, self.template_name, context)
-
-
-class ResendConfirmationEmailView(LoginRequiredMixin, View):
-    def post(self, request, *args, **kwargs):
-        email_address = auth_models.EmailAddress.objects.filter(
-            user=request.user, verified=False
-        ).first()
-        if email_address:
-            get_adapter(request).add_message(
-                request,
-                messages.INFO,
-                "account/messages/" "email_confirmation_sent.txt",
-                {"email": email_address.email},
-            )
-            email_address.send_confirmation(request)
-        return redirect("account_settings")
-
-
-class AccountDeleteView(LoginRequiredMixin, auth_views.LogoutFunctionalityMixin, View):
-    def post(self, request, *args, **kwargs):
-        if services.global_setting_get_value("disable_account_deletion"):
-            raise Http404("Account deletion is disabled.")
-
-        with transaction.atomic():
-            request.user.is_active = False
-            request.user.save()
-            request.user.emailaddress_set.update(verified=False)
-            request.user.socialaccount_set.all().delete()
-        messages.info(request, "Your account has been deleted.")
-        self.logout()
-        return redirect("account_login")
 
 
 @csrf_exempt

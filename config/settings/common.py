@@ -49,16 +49,10 @@ INSTALLED_APPS = [
     "django_vite",
     # Non-core apps should come before core so layouts can be overriden.
     # core must come before admin because it overrides an admin template
-    # core must come before allauth so that core templates take precedence
     "core.apps.CoreConfig",
     # core should come before staticfiles because we override collectstatic
     "django.contrib.staticfiles",
     "django.contrib.admin",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
-    "allauth.socialaccount.providers.github",
 ]
 
 MIDDLEWARE = [
@@ -202,53 +196,9 @@ HOST_URLCONFS: dict[str, str] = {}
 # Authentication
 LOGIN_REDIRECT_URL = "/user/settings/profile/"
 LOGOUT_REDIRECT_URL = "/user/login/"
-
-# django-allauth
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-]
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 SESSION_COOKIE_AGE = 15_552_000  # 180 days
-ACCOUNT_ADAPTER = "core.adapter.AccountAdapter"
-ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
-ACCOUNT_LOGOUT_ON_GET = False
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_FORMS = {
-    "login": "core.forms.LoginForm",
-    "signup": "core.forms.SignupForm",
-    "add_email": "allauth.account.forms.AddEmailForm",
-    "change_password": "allauth.account.forms.ChangePasswordForm",
-    "set_password": "allauth.account.forms.SetPasswordForm",
-    "reset_password": "allauth.account.forms.ResetPasswordForm",
-    "reset_password_from_key": "allauth.account.forms.ResetPasswordKeyForm",
-    "disconnect": "allauth.socialaccount.forms.DisconnectForm",
-}
-## See https://django-allauth.readthedocs.io/en/latest/advanced.html#custom-user-models
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_PREVENT_ENUMERATION = False
-ACCOUNT_SESSION_REMEMBER = True
-
 PERMISSION_DENIED_REDIRECT = LOGIN_REDIRECT_URL
-
-# django-allauth social
-SOCIALACCOUNT_ADAPTER = "core.adapter.SocialAccountAdapter"
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-    },
-    "github": {},
-}
 
 # Event Handlers
 EVENT_HANDLERS = {"default": "core.services.event_noop"}

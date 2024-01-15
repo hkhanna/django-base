@@ -2,7 +2,6 @@ from datetime import timedelta
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from faker import Faker
-from allauth.account import models as auth_models
 from ..models import EmailMessage
 from .. import services
 
@@ -25,9 +24,6 @@ def user_create(**kwargs):
     )
     params = defaults | kwargs
     user = User.objects.create_user(**params)
-    auth_models.EmailAddress.objects.get_or_create(
-        user=user, email=user.email, primary=True
-    )
 
     # If an org was passed, add the user to it.
     if org:

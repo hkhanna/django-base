@@ -2,7 +2,6 @@ import logging
 import secrets
 import uuid
 
-from allauth.account import models as auth_models
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -459,32 +458,9 @@ class User(AbstractUser):
                     "A user must belong to at least one organization."
                 )
 
-    def sync_changed_email(self):
-        """If user.email has changed, remove all a User's EmailAddresses
-        (although they should only have one), and replace it with the new one.
-        Returns the EmailAddress if one was created to send a confirmation email if desired.
-        """
-        if not auth_models.EmailAddress.objects.filter(
-            user=self, email__iexact=self.email
-        ).exists():
-            auth_models.EmailAddress.objects.filter(user=self).delete()
-            email_address = auth_models.EmailAddress.objects.create(
-                user=self, email=self.email, primary=True, verified=False
-            )
-            return email_address
-        else:
-            return None
-
     @property
     def created_at(self):
         return self.date_joined
-
-    @property
-    def is_email_verified(self):
-        email_address = self.emailaddress_set.first()
-        if not email_address:
-            email_address = self.sync_changed_email()
-        return email_address.verified
 
     @property
     def name(self):

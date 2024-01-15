@@ -1,5 +1,4 @@
 import django.views.defaults
-from allauth.account import views as auth_views
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import include, path
@@ -53,32 +52,6 @@ urlpatterns = [
     ),
     path("org/", views.OrgDetailView.as_view(), name="org_detail"),
     path("event/emit/", views.event_emit_view, name="event_emit"),
-    path(
-        "accounts/settings/", views.UserSettingsView.as_view(), name="account_settings"
-    ),
-    path(
-        "accounts/resend-confirmation-email/",
-        views.ResendConfirmationEmailView.as_view(),
-        name="account_resend_confirmation_email",
-    ),
-    path("accounts/delete/", views.AccountDeleteView.as_view(), name="account_delete"),
-    path("accounts/password/change/", page_not_found, name="account_change_password"),
-    path(
-        "accounts/password/set/",
-        page_not_found,
-        name="account_set_password",
-    ),
-    path("accounts/inactive/", page_not_found, name="account_inactive"),
-    path("accounts/email/", page_not_found, name="account_email"),
-    path(
-        "accounts/confirm-email/",
-        page_not_found,
-        name="account_email_verification_sent",
-    ),
-    path("accounts/", include("allauth.urls")),
-    # This intercepts the page when a social signup fails because the email belongs to someone else.
-    # For whatever reason, reverse resolves the name backwards...
-    path("accounts/login/", auth_views.signup, name="socialaccount_signup"),
     path(
         "render-template-debug/<path:template>",
         views.render_template_with_params,

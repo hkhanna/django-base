@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from allauth.socialaccount.models import SocialApp
 from config.settings.local import env
 import core.models
 from core import services
@@ -40,24 +39,3 @@ class Command(BaseCommand):
         site.name = "localhost"
         site.domain = "localhost:" + env("WEB_PORT")
         site.save()
-
-        # -- Social Authentication Providers -- #
-        # Google
-        if env("SOCIAL_AUTH_GOOGLE_CLIENT_ID") and env("SOCIAL_AUTH_GOOGLE_SECRET_KEY"):
-            google = SocialApp.objects.create(
-                provider="google",
-                name="Google",
-                client_id=env("SOCIAL_AUTH_GOOGLE_CLIENT_ID"),
-                secret=env("SOCIAL_AUTH_GOOGLE_SECRET_KEY"),
-            )
-            google.sites.add(site)
-
-        # Github
-        if env("SOCIAL_AUTH_GITHUB_CLIENT_ID") and env("SOCIAL_AUTH_GITHUB_SECRET_KEY"):
-            github = SocialApp.objects.create(
-                provider="github",
-                name="Github",
-                client_id=env("SOCIAL_AUTH_GITHUB_CLIENT_ID"),
-                secret=env("SOCIAL_AUTH_GITHUB_SECRET_KEY"),
-            )
-            github.sites.add(site)
