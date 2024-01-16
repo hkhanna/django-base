@@ -25,6 +25,7 @@ from uuid import uuid4
 import pytz
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.core.files.storage import storages
@@ -61,6 +62,7 @@ from .tasks import email_message_send as email_message_send_task
 from .types import BaseModelType, UserType
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 
 def database_backup():
@@ -894,13 +896,16 @@ def org_user_org_user_setting_create(**kwargs) -> OrgUserOrgUserSetting:
     return model_create(klass=OrgUserOrgUserSetting, **kwargs)
 
 
-def user_create(password=None, **kwargs) -> UserType:
-    # HACK: User should inherit from BaseModel so we don't have to deal with this type error.
-    user = model_create(klass=UserType, save=False, **kwargs)  # type: ignore
-    return user_update(instance=user, save=True, password=password)  # type: ignore
+def user_create(**kwargs) -> UserType:
+    if not kwargs.get("display_name"):
+        first_name = kwargs.get("first_name", "")
+        last_name = kwargs.get("last_name", "")
+        kwargs["display_name"] = (first_name + " " + last_name).strip()
+
+    return User.objects.create_user(**kwargs)
 
 
-def user_update(instance: UserType, **kwargs) -> UserType:
+def user_update(instance: UserType, save=True, **kwargs) -> UserType:
     if "password" in kwargs:
         password = kwargs.pop("password", None)
         if password:
@@ -913,7 +918,48 @@ def user_update(instance: UserType, **kwargs) -> UserType:
         last_name = kwargs.get("last_name", instance.last_name)
         kwargs["display_name"] = first_name + " " + last_name
 
-    return model_update(instance=instance, **kwargs)
+    # The below is very much based on model_update.
+    # We've needed to reproduce it to avoid typing errors because
+    # User isn't a subclass of BaseModel.
+    m2m_data = {}
+    model_fields = {field.name: field for field in instance._meta.get_fields()}
+
+    for field in kwargs:
+        # If field is not an actual model field, raise an error
+        model_field = model_fields.get(field)
+
+        assert (
+            model_field is not None
+        ), f"{field} is not part of {instance.__class__.__name__} fields."
+
+        # We disallow updating a m2o field this way because, somewhat obviously,
+        # it will as a side-effect reassign the fk relationship.
+        # If there's ever a use case for doing that, remove this check.
+        if isinstance(model_field, models.ManyToOneRel):
+            raise ApplicationError(
+                "Cannot update a ManyToOneRel field via user_update."
+            )
+
+        # If we have m2m field, handle differently
+        if isinstance(model_field, (models.ManyToManyField, models.ManyToOneRel)):
+            m2m_data[field] = kwargs[field]
+            continue
+
+        setattr(instance, field, kwargs[field])
+
+    if save:
+        instance.full_clean()
+        instance.save()
+    elif len(m2m_data) > 0:
+        raise RuntimeError(
+            "Cannot save m2m data without saving the instance. Set save=True."
+        )
+
+    for field_name, value in m2m_data.items():
+        related_manager = getattr(instance, field_name)
+        related_manager.set(value)
+
+    return instance
 
 
 def detect_timezone_from_form(form: forms.Form, request: HttpRequest) -> forms.Form:

@@ -18,7 +18,9 @@ class Command(BaseCommand):
         # Create just one user for now that is a superuser
         email = input("Superuser email address: ")
         password = getpass.getpass()
-        user = User.objects.create_superuser(email, password)
+        user = services.user_create(
+            email=email, password=password, is_staff=True, is_superuser=True
+        )
 
         # -- Orgs -- #
         # Create an additional Org for the user with the user as the owner.

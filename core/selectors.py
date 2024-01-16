@@ -1,11 +1,11 @@
 from typing import Union, Type
 
-from django.db.models import Model, QuerySet
+from django.contrib.auth import get_user_model
+from django.db.models import QuerySet
 from django.utils import timezone
 
 from core.types import BaseModelType, UserType
 
-from . import constants
 from .models import (
     GlobalSetting,
     Org,
@@ -22,8 +22,9 @@ from .models import (
     EmailMessageAttachment,
     EmailMessageWebhook,
     Event,
-    User,
 )
+
+User = get_user_model()
 
 
 def email_message_list(**kwargs) -> QuerySet[EmailMessage]:
@@ -94,8 +95,7 @@ def org_setting_list(**kwargs) -> QuerySet[OrgSetting]:
 
 
 def user_list(**kwargs) -> QuerySet[UserType]:
-    # HACK: Fix typing error when User properly inherits from BaseModelType
-    return model_list(klass=User, **kwargs)  # type: ignore
+    return User._default_manager.filter(**kwargs)
 
 
 def model_list(*, klass: Type[BaseModelType], **kwargs) -> QuerySet:
