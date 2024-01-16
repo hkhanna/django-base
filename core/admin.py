@@ -235,7 +235,10 @@ class OrgUserSettingAdmin(BaseModelAdmin):
 class UserAdmin(DefaultUserAdmin):
     fieldsets = (
         (None, {"fields": ("id", "uuid", "email", "password")}),
-        ("Personal info", {"fields": ("first_name", "last_name", "email_history")}),
+        (
+            "Personal info",
+            {"fields": ("first_name", "last_name", "display_name", "email_history")},
+        ),
         (
             "Permissions",
             {
