@@ -18,10 +18,9 @@ def inertia_render(request, component, props={}, template_data={}):
     # I don't think you can do it in middleware because it can skip a message that was
     # added in the current request.
     storage = get_messages(request)
-    messages = {
-        str(uuid.uuid4()): {"text": str(message), "level": message.level_tag}
-        for message in storage
-    }
+    messages = [
+        {"text": str(message), "level": message.level_tag} for message in storage
+    ]
 
     return render(
         request,
