@@ -229,8 +229,16 @@ class LoginView(DjangoLoginView):
             return username
 
     def form_valid(self, form):
-        form = services.detect_timezone_from_form(form, self.request)
-        return super().form_valid(form)
+        form = services.detect_timezone_from_form(form=form, request=self.request)
+        response = super().form_valid(form)
+        services.event_emit(
+            type="user.login",
+            data={
+                "user": str(self.request.user.uuid),
+                "user_email": self.request.user.email,
+            },
+        )
+        return response
 
     authentication_form = LoginForm
 
@@ -302,10 +310,17 @@ class SignupView(RedirectURLMixin, FormView):
 
     def form_valid(self, form):
         # Set the user's timezone in their session if it was provided
-        form = services.detect_timezone_from_form(form, self.request)
+        form = services.detect_timezone_from_form(form=form, request=self.request)
         user = services.user_create(**form.cleaned_data)
         django_login(self.request, user)
         messages.success(self.request, f"Welcome {user.name}!")
+        services.event_emit(
+            type="user.signup",
+            data={
+                "user": str(self.request.user.uuid),
+                "user_email": self.request.user.email,
+            },
+        )
         return super().form_valid(form)
 
     def render_to_response(self, context, *args, **kwargs):
@@ -374,6 +389,13 @@ class ProfileView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         services.user_update(instance=self.request.user, **form.cleaned_data)
         messages.success(self.request, "Profile updated.")
+        services.event_emit(
+            type="user.update.profile",
+            data={
+                "user": str(self.request.user.uuid),
+                "user_email": self.request.user.email,
+            },
+        )
         return super().form_valid(form)
 
     def render_to_response(self, context, *args, **kwargs):
@@ -406,6 +428,14 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
         # Updating the password logs out all other sessions for the user
         # except the current one.
         update_session_auth_hash(self.request, form.user)
+
+        services.event_emit(
+            type="user.update.password",
+            data={
+                "user": str(self.request.user.uuid),
+                "user_email": self.request.user.email,
+            },
+        )
 
         return super().form_valid(form)
 
@@ -458,6 +488,11 @@ class PasswordResetView(FormView):
 
     def form_valid(self, form):
         form.save(request=self.request)
+        services.event_emit(
+            type="user.password_reset_request",
+            data={"email": form.cleaned_data["email"]},
+        )
+
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -478,6 +513,17 @@ class PasswordResetView(FormView):
 class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
     success_url = reverse_lazy("user:login")
     post_reset_login = True
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        services.event_emit(
+            type="user.update.password_reset",
+            data={
+                "user": str(self.request.user.uuid),
+                "user_email": self.request.user.email,
+            },
+        )
+        return response
 
     def render_to_response(self, context, *args, **kwargs):
         errors = {}

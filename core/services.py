@@ -905,7 +905,7 @@ def user_create(**kwargs) -> UserType:
     return User.objects.create_user(**kwargs)
 
 
-def user_update(instance: UserType, save=True, **kwargs) -> UserType:
+def user_update(*, instance: UserType, save=True, **kwargs) -> UserType:
     if "password" in kwargs:
         password = kwargs.pop("password", None)
         if password:
@@ -962,7 +962,7 @@ def user_update(instance: UserType, save=True, **kwargs) -> UserType:
     return instance
 
 
-def detect_timezone_from_form(form: forms.Form, request: HttpRequest) -> forms.Form:
+def detect_timezone_from_form(*, form: forms.Form, request: HttpRequest) -> forms.Form:
     """
     Detects the timezone from the form data and activates it for the current request
     and stores it on the session for future requests.
