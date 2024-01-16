@@ -417,12 +417,6 @@ class User(AbstractUser):
         return f"<User: {self.email} (#{self.id})>"
 
     def save(self, *args, **kwargs):
-        # Keep a record of all email addresses
-        if len(self.email_history) == 0:
-            self.email_history.append(self.email)
-        elif self.email_history[-1] != self.email:
-            self.email_history.append(self.email)
-
         adding = False
         if self._state.adding is True:
             # If we don't set this now, self._state.adding doesn't work

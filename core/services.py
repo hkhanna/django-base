@@ -902,6 +902,10 @@ def user_create(**kwargs) -> UserType:
         last_name = kwargs.get("last_name", "")
         kwargs["display_name"] = (first_name + " " + last_name).strip()
 
+    # Keep a record of all email addresses
+    if not kwargs.get("email_history"):
+        kwargs["email_history"] = [kwargs["email"]]
+
     return User.objects.create_user(**kwargs)
 
 
@@ -917,6 +921,13 @@ def user_update(*, instance: UserType, save=True, **kwargs) -> UserType:
         first_name = kwargs.get("first_name", instance.first_name)
         last_name = kwargs.get("last_name", instance.last_name)
         kwargs["display_name"] = first_name + " " + last_name
+
+    # Keep a record of all email addresses
+    if "email_history" not in kwargs:
+        if instance.email not in instance.email_history:
+            instance.email_history.append(instance.email)
+        if kwargs.get("email") and kwargs["email"] not in instance.email_history:
+            instance.email_history.append(kwargs["email"])
 
     # The below is very much based on model_update.
     # We've needed to reproduce it to avoid typing errors because
