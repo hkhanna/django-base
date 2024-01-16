@@ -47,7 +47,9 @@ export default function Profile({
       <Head title="Profile Settings" />
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium">Profile</h3>
+          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
+            Profile
+          </h3>
           <Text>This is how others will see you on the site.</Text>
         </div>
         <Separator />

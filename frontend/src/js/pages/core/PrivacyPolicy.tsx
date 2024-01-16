@@ -1,3 +1,4 @@
+import Layout from "@/components/Layout";
 import Logo from "@/components/Logo";
 import markdownit from "markdown-it";
 
@@ -5,21 +6,23 @@ const md = markdownit();
 
 export default function PrivacyPolicy() {
   return (
-    <div className="bg-white px-6 py-16 lg:px-8">
-      <div className="mx-auto max-w-3xl text-base leading-7 text-zinc-700">
-        <Logo />
-        <p className="mt-6 text-base font-semibold leading-7 text-indigo-600">
-          Last updated on January 1, 1970
-        </p>
-        <h1 className="mt-2 mb-6 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
-          Privacy Policy
-        </h1>
-        <div
-          className="prose text-zinc-500"
-          dangerouslySetInnerHTML={{ __html: md.render(privacy) }}
-        />
+    <Layout>
+      <div className="bg-zinc-50 dark:bg-zinc-900 px-6 py-16 lg:px-8">
+        <div className="mx-auto max-w-3xl text-base leading-7 text-zinc-700">
+          <Logo />
+          <p className="mt-6 text-base font-semibold leading-7 text-indigo-600 dark:text-indigo-400">
+            Last updated on January 1, 1970
+          </p>
+          <h1 className="mt-2 mb-6 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
+            Privacy Policy
+          </h1>
+          <div
+            className="prose prose-zinc dark:prose-invert"
+            dangerouslySetInnerHTML={{ __html: md.render(privacy) }}
+          />
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
 

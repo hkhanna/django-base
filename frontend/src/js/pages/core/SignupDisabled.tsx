@@ -1,15 +1,6 @@
 import React from "react";
 import Head from "@/components/Head";
-import {
-  Field,
-  Label,
-  ErrorMessage,
-  Fieldset,
-} from "@/components/catalyst/fieldset";
-import { Input } from "@/components/catalyst/input";
-import { useForm } from "@inertiajs/react";
-import { Text, TextLink } from "@/components/catalyst/text";
-import { Button } from "@/components/catalyst/button";
+import { Text } from "@/components/catalyst/text";
 import Layout from "@/components/Layout";
 import Logo from "@/components/Logo";
 

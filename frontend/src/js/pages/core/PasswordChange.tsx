@@ -36,7 +36,9 @@ export default function PasswordChange() {
       <Head title="Account Settings" />
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium">Password</h3>
+          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
+            Password
+          </h3>
           <Text>Change your password.</Text>
         </div>
         <Separator />
