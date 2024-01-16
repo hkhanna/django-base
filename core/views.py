@@ -336,6 +336,7 @@ class ProfileView(LoginRequiredMixin, FormView):
     class ProfileForm(forms.Form):
         first_name = forms.CharField(max_length=150, required=True)
         last_name = forms.CharField(max_length=150, required=True)
+        display_name = forms.CharField(max_length=300, required=False)
         email = forms.EmailField(required=True)
 
         def clean_email(self):
@@ -356,6 +357,7 @@ class ProfileView(LoginRequiredMixin, FormView):
         return {
             "first_name": self.request.user.first_name,
             "last_name": self.request.user.last_name,
+            "display_name": self.request.user.display_name,
             "email": self.request.user.email,
         }
 

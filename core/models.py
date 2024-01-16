@@ -381,12 +381,17 @@ class User(AbstractUser):
         unique=True,  # Even though we have the constraint below, this is required because it is the USERNAME_FIELD.
         verbose_name="email address",
     )
-
     email_history = ArrayField(
         models.EmailField(),
         default=list,
         blank=True,
         help_text="Record of all email addresses the user has had.",
+    )
+
+    display_name = models.CharField(
+        max_length=254,
+        blank=True,
+        help_text="The name that will be displayed by default to other users.",
     )
     date_joined = None  # type: ignore
     created_at = models.DateTimeField(db_index=True, default=timezone.now)
@@ -459,7 +464,9 @@ class User(AbstractUser):
 
     @property
     def name(self):
-        if self.first_name and self.last_name:
+        if self.display_name:
+            return self.display_name
+        elif self.first_name and self.last_name:
             return f"{self.first_name} {self.last_name}"
         elif self.first_name:
             return self.first_name

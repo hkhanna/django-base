@@ -92,6 +92,7 @@ def test_profile(page: Page, live_server, user):
     expect(page.get_by_label("Email")).to_have_value(user.email)
     expect(page.get_by_label("First name")).to_have_value(user.first_name)
     expect(page.get_by_label("Last name")).to_have_value(user.last_name)
+    expect(page.get_by_label("Display name")).to_have_value(user.display_name)
 
     # Updates profile information
     page.get_by_label("First name").click()
@@ -108,6 +109,26 @@ def test_profile(page: Page, live_server, user):
     user.refresh_from_db()
     assert user.first_name == "Example First"
     assert user.last_name == "Example Last"
+    assert user.email == "new@example.com"
+
+    # Normalize fields appropriately
+    # Display name is still set to the old name
+    assert user.display_name != "Example First" + " " + "Example Last"
+
+    # Blank it out to regenerate it from the name on submit.
+    page.get_by_label("Display name").fill("")
+    page.get_by_role("button", name="Update profile").click()
+    expect(page.get_by_label("Display name")).to_have_value(
+        "Example First Example Last"
+    )
+    user.refresh_from_db()
+    assert user.display_name == "Example First" + " " + "Example Last"
+
+    # Put weird casing in the email to normalize it on submit.
+    page.get_by_label("Email").fill("NEW@EXAMPLE.COM")
+    page.get_by_role("button", name="Update profile").click()
+    expect(page.get_by_label("Email")).to_have_value("new@example.com")
+    user.refresh_from_db()
     assert user.email == "new@example.com"
 
 

@@ -908,6 +908,11 @@ def user_update(instance: UserType, **kwargs) -> UserType:
         else:
             instance.set_unusable_password()
 
+    if not kwargs.get("display_name"):
+        first_name = kwargs.get("first_name", instance.first_name)
+        last_name = kwargs.get("last_name", instance.last_name)
+        kwargs["display_name"] = first_name + " " + last_name
+
     return model_update(instance=instance, **kwargs)
 
 

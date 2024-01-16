@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Head from "@/components/Head";
 import { SettingsLayout } from "@/components/SettingsLayout";
 import {
@@ -7,9 +7,10 @@ import {
   ErrorMessage,
   Fieldset,
   FieldGroup,
+  Description,
 } from "@/components/catalyst/fieldset";
 import { Input } from "@/components/catalyst/input";
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
 import { Separator } from "@/components/shadcn/separator";
@@ -17,11 +18,17 @@ import { Separator } from "@/components/shadcn/separator";
 export default function Profile({
   initial,
 }: {
-  initial: { first_name: string; last_name: string; email: string };
+  initial: {
+    first_name: string;
+    last_name: string;
+    display_name: string;
+    email: string;
+  };
 }) {
-  const { data, setData, post, processing, errors, reset } = useForm({
+  const { data, setData, post, processing, errors } = useForm({
     first_name: initial.first_name,
     last_name: initial.last_name,
+    display_name: initial.display_name,
     email: initial.email,
   });
 
@@ -29,7 +36,9 @@ export default function Profile({
     e.preventDefault();
     post("/user/settings/profile/", {
       forceFormData: true,
-      onSuccess: () => reset(), // Show the normalized email address
+      // If there's no errors, refresh the state to get normalized fields.
+      // If there are errors, don't refresh the state because we need to display the errors.
+      preserveState: (page) => !!Object.keys(page.props.errors).length,
     });
   };
 
@@ -73,6 +82,21 @@ export default function Profile({
                   )}
                 </Field>
               </div>
+              <Field>
+                <Label>Display name</Label>
+                <Description>
+                  This is how your name will be displayed to others.
+                </Description>
+                <Input
+                  name="display_name"
+                  value={data.display_name}
+                  onChange={(e) => setData("display_name", e.target.value)}
+                  invalid={"display_name" in errors}
+                />
+                {errors.display_name && (
+                  <ErrorMessage>{errors.display_name}</ErrorMessage>
+                )}
+              </Field>
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-4">
                 <Field className="col-span-2">
                   <Label>Email address</Label>
