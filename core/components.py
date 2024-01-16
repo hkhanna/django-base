@@ -17,7 +17,7 @@ def input(context):
     return CachedTemplate(
         """
         <div>
-        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-zinc-700">{{ field.label }}</label>
         <div class="mt-1">
             {{field}}
         </div>

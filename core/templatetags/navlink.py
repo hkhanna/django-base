@@ -7,11 +7,11 @@ register = template.Library()
 
 default_classes = {
     "common": "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium",
-    "current": "border-indigo-500 text-gray-900",
-    "noncurrent": "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
+    "current": "border-indigo-500 text-zinc-900",
+    "noncurrent": "border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300",
     "mobile_common": "block pl-3 pr-4 py-2 border-l-4 text-base font-medium",
     "mobile_current": "bg-indigo-50 border-indigo-500 text-indigo-700",
-    "mobile_noncurrent": "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800",
+    "mobile_noncurrent": "border-transparent text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 hover:text-zinc-800",
 }
 
 
