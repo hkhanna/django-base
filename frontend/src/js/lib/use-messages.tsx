@@ -1,6 +1,5 @@
 import { useRemember } from "@inertiajs/react";
 import { usePage } from "@inertiajs/react";
-import { useToast } from "@/components/shadcn/use-toast";
 
 export default function useMessages() {
   const page = usePage<{
@@ -22,7 +21,7 @@ export default function useMessages() {
   // It's kind of a mess. I'm going to think more about this.
 
   const [seenMessageIds, setSeenMessageIds] = useRemember<string[]>([]);
-  const { toast } = useToast();
+  // const { toast } = useToast();
 
   const unseen = Object.keys(page.props.messages).filter(
     (key) => !seenMessageIds.includes(key)
@@ -32,7 +31,7 @@ export default function useMessages() {
     unseen.forEach((id) => {
       const variant =
         page.props.messages[id].level === "error" ? "destructive" : "default";
-      toast({ description: page.props.messages[id].text, variant });
+      // toast({ description: page.props.messages[id].text, variant });
     });
     setSeenMessageIds([...seenMessageIds, ...unseen]);
   }
