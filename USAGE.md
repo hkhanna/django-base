@@ -165,10 +165,9 @@ They are related to` Orgs`, `OrgUsers` and `Plans` in different ways.
 ### Development Notes:
 
 - At this point, it doesn't seem useful to attach `OrgUserSetting` defaults to a `Plan`, so we don't. We can easily change this down the road though.
-- A one-time payment situation would probably only use the default Plan and override OrgSettings as the purchase is made.
-- Each setting stores its value as an integer, but if the type is set to `bool` instead of `int`, it will report it as True or False.
+- A one-time payment situation would probably only use the default `Plan` and override `OrgSettings` as the purchase is made.
 
 ### Built-in OrgUserSettings
 
 - `can_invite_members`: the `OrgUser` can invite and cancel invitations to an `Org`.
-- `can_remove_members`: the `OrgUser` can invite and cancel invitations to an `Org`.
+- `can_remove_members`: the `OrgUser` can remove members from an `Org`.
