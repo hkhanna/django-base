@@ -22,6 +22,7 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 - Add to `ALLOWED_HOSTS` in production settings whatever the domain is going to be.
 - Update `SITE_CONFIG`.
 - Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
+- Update `SENTRY_DSN` in `frontend/src/js/react.tsx` if you want to track errors in the frontend. This will only be used in prod.
 
 ## Enable AWS for backups if desired
 

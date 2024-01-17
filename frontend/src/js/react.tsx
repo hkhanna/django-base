@@ -2,6 +2,20 @@ import React from "react";
 import axios from "axios";
 import { createInertiaApp } from "@inertiajs/react";
 import { createRoot } from "react-dom/client";
+import * as Sentry from "@sentry/react";
+
+const SENTRY_DSN = ""; // If set, will only be used in prod.
+
+if (import.meta.env.PROD && SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    integrations: [new Sentry.Replay()],
+    // Capture Replay for 10% of all sessions,
+    // plus for 100% of sessions with an error
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   axios.defaults.xsrfHeaderName = "X-CSRFToken";
