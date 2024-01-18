@@ -198,6 +198,11 @@ AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 SESSION_COOKIE_AGE = 15_552_000  # 180 days
 PERMISSION_DENIED_REDIRECT = LOGIN_REDIRECT_URL
 
+# Google OAuth
+SOCIAL_AUTH_GOOGLE_ENABLED = True
+SOCIAL_AUTH_GOOGLE_CLIENT_ID = env("SOCIAL_AUTH_GOOGLE_CLIENT_ID", default=None)
+SOCIAL_AUTH_GOOGLE_CLIENT_SECRET = env("SOCIAL_AUTH_GOOGLE_CLIENT_SECRET", default=None)
+
 # Event Handlers
 EVENT_HANDLERS = {"default": "core.services.event_noop"}
 EVENT_SECRET = env("EVENT_SECRET", default="insecure")

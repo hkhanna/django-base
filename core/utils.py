@@ -1,8 +1,9 @@
-import uuid
 import json
 from importlib import import_module
 from typing import Callable, Optional, TYPE_CHECKING
 
+from django.conf import settings
+from django.urls import reverse
 from django.contrib.messages import get_messages
 
 from inertia import render
@@ -27,6 +28,19 @@ def inertia_render(request, component, props={}, template_data={}):
         component,
         props={"messages": messages} | props,
         template_data=template_data,
+    )
+
+
+def get_google_authorization_uri(request):
+    """Return the Google authorization URI"""
+    redirect_uri = request.build_absolute_uri(reverse("user:google-callback"))
+
+    return (
+        f"https://accounts.google.com/o/oauth2/v2/auth?"
+        f"scope=https://www.googleapis.com/auth/userinfo.profile"
+        f"response_type=code&"
+        f"redirect_uri={redirect_uri}&"
+        f"client_id={settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID}"
     )
 
 
