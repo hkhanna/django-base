@@ -246,7 +246,15 @@ class LoginView(DjangoLoginView):
         return utils.inertia_render(
             self.request,
             "core/Login",
-            props={"errors": context["form"].errors},
+            props={
+                "errors": context["form"].errors,
+                "social_auth": {
+                    "google": settings.SOCIAL_AUTH_GOOGLE_ENABLED,
+                    "google_authorization_uri": utils.get_google_authorization_uri(
+                        self.request
+                    ),
+                },
+            },
             template_data={
                 "html_class": "h-full bg-zinc-50",
                 "body_class": "h-full dark:bg-zinc-900",

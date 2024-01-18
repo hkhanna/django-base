@@ -24,6 +24,13 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 - Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
 - Update `SENTRY_DSN` in `frontend/src/js/react.tsx` if you want to track errors in the frontend. This will only be used in prod.
 
+# Enable Google Authentication if desired
+
+- Create a Google OAuth2 client ID and secret at https://console.cloud.google.com/apis/credentials
+- Create separate client IDs for local development and production.
+- Add the local development client ID and secret to the appropriate `.env` files.
+- In `settings/common.py` set `SOCIAL_AUTH_GOOGLE_ENABLED` = True
+
 ## Enable AWS for backups if desired
 
 1. Generate a passphrase and store it safely in 1Password.
@@ -127,6 +134,8 @@ If you're using Heroku, at a minimum, these are the environment variables that m
   - Optional. Defaults to `admin/`.
 - `BACKUP_ENCRYPTION_PASSPHRASE`
   - Optional if you're using the automated backups.
+- `SOCIAL_AUTH_GOOGLE_CLIENT_ID` and `SOCIAL_AUTH_GOOGLE_CLIENT_SECRET`
+  - Optional if you're using social auth.
 
 ### Heroku - Enable Celery if desired.
 

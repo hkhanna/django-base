@@ -14,7 +14,12 @@ import Layout from "@/components/Layout";
 import Logo from "@/components/Logo";
 import { ContinueWithGoogle } from "@/components/SocialAuth";
 
-export default function Login() {
+type SocialAuth = {
+  google: boolean;
+  google_authorization_uri: string;
+};
+
+export default function Login({ social_auth }: { social_auth: SocialAuth }) {
   const { data, setData, post, processing, errors } = useForm({
     username: "",
     password: "",
@@ -43,17 +48,23 @@ export default function Login() {
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
-            <ContinueWithGoogle />
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">
-                  Or continue with
-                </span>
-              </div>
-            </div>
+            {social_auth.google && (
+              <>
+                <ContinueWithGoogle
+                  authorizationUri={social_auth.google_authorization_uri}
+                />
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="bg-white px-2 text-gray-500">
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
             <form onSubmit={handleSubmit}>
               <Fieldset aria-label="Login form" className="space-y-5">
                 <Field>
