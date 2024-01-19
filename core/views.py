@@ -6,7 +6,11 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth import update_session_auth_hash, login as django_login
+from django.contrib.auth import (
+    update_session_auth_hash,
+    login as django_login,
+    authenticate,
+)
 from django.contrib.auth.forms import (
     AuthenticationForm as DjangoLoginForm,
     PasswordChangeForm,
@@ -43,7 +47,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.http import HttpResponseRedirect
 
 
-from . import models, selectors, services, utils
+from . import models, selectors, services, utils, backends
 from .exceptions import ApplicationError, ApplicationWarning
 from .permissions import OrgUserSettingPermissionMixin
 from .tasks import email_message_webhook_process as email_message_webhook_process_task
@@ -353,6 +357,37 @@ class SignupView(RedirectURLMixin, FormView):
                 "body_class": "h-full dark:bg-zinc-900",
             },
         )
+
+
+class GoogleCallbackView(RedirectURLMixin, View):
+    next_page = reverse_lazy("user:login")
+
+    def get(self, request):
+        error = request.GET.get("error")
+        if error:
+            messages.error(request, f"Could not log in with Google. Error: {error}")
+            return redirect(
+                "user:login"
+            )  # FIXME: should return to signup page if appropriate
+
+        code = request.GET.get("code")
+        if code:
+            user = authenticate(request, code=code)
+            if user:
+                django_login(request, user=user)
+                services.event_emit(
+                    type="user.login.google",  # FIXME: signup
+                    data={
+                        "user": str(user.uuid),
+                        "user_email": user.email,
+                    },
+                )
+                return redirect(self.get_success_url())
+            else:
+                messages.error(
+                    request, "This account could not be located. Please sign up."
+                )
+                return redirect("user:login")
 
 
 class ProfileView(LoginRequiredMixin, FormView):

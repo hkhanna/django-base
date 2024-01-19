@@ -13,6 +13,7 @@ inertia-django==0.5.3
 python-postmark==0.6.0
 pytz==2023.3.post1
 redis==5.0.1
+requests==2.31.0
 whitenoise==6.6.0
 
 # -- End base requirements -- #

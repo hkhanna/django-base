@@ -37,7 +37,7 @@ def get_google_authorization_uri(request):
 
     return (
         f"https://accounts.google.com/o/oauth2/v2/auth?"
-        f"scope=https://www.googleapis.com/auth/userinfo.profile"
+        f"scope=https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile&"
         f"response_type=code&"
         f"redirect_uri={redirect_uri}&"
         f"client_id={settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID}"
