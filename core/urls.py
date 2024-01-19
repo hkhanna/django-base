@@ -23,6 +23,11 @@ user_patterns = [
         views.PasswordResetConfirmView.as_view(),
         name="password-reset-confirm",
     ),
+    path(
+        "google/callback/",
+        views.GoogleCallbackView.as_view(),
+        name="google-callback",
+    ),
 ]
 
 urlpatterns = [
