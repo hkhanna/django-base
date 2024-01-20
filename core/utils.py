@@ -19,9 +19,21 @@ def inertia_render(request, component, props={}, template_data={}):
     # I don't think you can do it in middleware because it can skip a message that was
     # added in the current request.
     storage = get_messages(request)
-    messages = [
-        {"text": str(message), "level": message.level_tag} for message in storage
-    ]
+    messages = []
+    for message in storage:
+        # If the `extra_tags` parameter to `messages.add_message` is passed, the `extra_tags`
+        # parameter becomes the title, and the text of the message is the description.
+
+        if message.extra_tags:
+            messages.append(
+                {
+                    "title": message.extra_tags,
+                    "description": str(message),
+                    "level": message.level_tag,
+                }
+            )
+        else:
+            messages.append({"title": str(message), "level": message.level_tag})
 
     return render(
         request,
@@ -33,7 +45,7 @@ def inertia_render(request, component, props={}, template_data={}):
 
 def get_google_authorization_uri(request):
     """Return the Google authorization URI"""
-    redirect_uri = request.build_absolute_uri(reverse("user:google-callback"))
+    redirect_uri = request.build_absolute_uri(reverse("user:google-login-callback"))
 
     return (
         f"https://accounts.google.com/o/oauth2/v2/auth?"

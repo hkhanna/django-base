@@ -266,6 +266,38 @@ class LoginView(DjangoLoginView):
         )
 
 
+class GoogleLoginCallbackView(RedirectURLMixin, View):
+    next_page = settings.LOGIN_REDIRECT_URL
+
+    def get(self, request):
+        error = request.GET.get("error")
+        if error:
+            messages.error(request, f"Could not log in with Google. Error: {error}")
+            return redirect("user:login")
+
+        code = request.GET.get("code")
+        if code:
+            user = authenticate(request, code=code)
+            if user:
+                django_login(request, user=user)
+                services.event_emit(
+                    type="user.login.google",
+                    data={
+                        "user": str(user.uuid),
+                        "user_email": user.email,
+                    },
+                )
+                return redirect(self.get_success_url())
+            else:
+                # No account on login fails. But existing account on signup just logs you in.
+                messages.error(
+                    request,
+                    "This account could not be located.",
+                    extra_tags="Please sign up.",
+                )
+                return redirect("user:login")
+
+
 class SignupView(RedirectURLMixin, FormView):
     next_page = settings.LOGIN_REDIRECT_URL
     redirect_authenticated_user = True
@@ -357,37 +389,6 @@ class SignupView(RedirectURLMixin, FormView):
                 "body_class": "h-full dark:bg-zinc-900",
             },
         )
-
-
-class GoogleCallbackView(RedirectURLMixin, View):
-    next_page = reverse_lazy("user:login")
-
-    def get(self, request):
-        error = request.GET.get("error")
-        if error:
-            messages.error(request, f"Could not log in with Google. Error: {error}")
-            return redirect(
-                "user:login"
-            )  # FIXME: should return to signup page if appropriate
-
-        code = request.GET.get("code")
-        if code:
-            user = authenticate(request, code=code)
-            if user:
-                django_login(request, user=user)
-                services.event_emit(
-                    type="user.login.google",  # FIXME: signup
-                    data={
-                        "user": str(user.uuid),
-                        "user_email": user.email,
-                    },
-                )
-                return redirect(self.get_success_url())
-            else:
-                messages.error(
-                    request, "This account could not be located. Please sign up."
-                )
-                return redirect("user:login")
 
 
 class ProfileView(LoginRequiredMixin, FormView):

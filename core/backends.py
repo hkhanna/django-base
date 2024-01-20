@@ -16,7 +16,7 @@ class GoogleAuthBackend(BaseBackend):
     def _get_access_token(self, request, code):
         """Return access_token from code"""
 
-        redirect_uri = request.build_absolute_uri(reverse("user:google-callback"))
+        redirect_uri = request.build_absolute_uri(reverse("user:google-login-callback"))
         response = requests.post(
             "https://oauth2.googleapis.com/token",
             data={
@@ -48,10 +48,7 @@ class GoogleAuthBackend(BaseBackend):
                 google_user_details = requests.get(
                     f"https://www.googleapis.com/oauth2/v2/userinfo?access_token={access_token}"
                 )
-                # FIXME:
-                xxx = google_user_details.json()
-                print(xxx)
-                email = xxx.get("email")
+                email = google_user_details.json().get("email")
                 try:
                     user = selectors.user_list(email=email).get()
                     return user
