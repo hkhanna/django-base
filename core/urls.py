@@ -28,6 +28,11 @@ user_patterns = [
         views.GoogleLoginCallbackView.as_view(),
         name="google-login-callback",
     ),
+    path(
+        "google/signup/callback/",
+        views.GoogleSignupCallbackView.as_view(),
+        name="google-signup-callback",
+    ),
 ]
 
 urlpatterns = [
