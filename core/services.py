@@ -555,7 +555,7 @@ class GoogleOAuthSevice:
                 reverse("user:google-login-callback")
             )
         elif self.view == "signup":
-            redirect_uri = request.build_absolute_uri(
+            self.redirect_uri = request.build_absolute_uri(
                 reverse("user:google-signup-callback")
             )
         else:
