@@ -271,14 +271,23 @@ class GoogleLoginCallbackView(RedirectURLMixin, View):
 
     def get(self, request):
         error = request.GET.get("error")
+        code = request.GET.get("code")
+        google_user_info = None
+        user = None
+
         if error:
             messages.error(request, f"Could not log in with Google. Error: {error}")
             return redirect("user:login")
 
-        code = request.GET.get("code")
         if code:
-            user = authenticate(request, code=code)
-            if user:
+            google_user_info = services.GoogleOAuthSevice(
+                request, "login"
+            ).get_google_user_info(code)
+
+        if google_user_info:
+            email = google_user_info.get("email")
+            try:
+                user = selectors.user_list(email=email).get()
                 django_login(request, user=user)
                 services.event_emit(
                     type="user.login.google",
@@ -288,14 +297,19 @@ class GoogleLoginCallbackView(RedirectURLMixin, View):
                     },
                 )
                 return redirect(self.get_success_url())
-            else:
+
+            except User.DoesNotExist:
                 # No account on login fails. But existing account on signup just logs you in.
                 messages.error(
                     request,
-                    "This account could not be located.",
+                    "This account does not exist.",
                     extra_tags="Please sign up.",
                 )
-                return redirect("user:login")
+                return redirect("user:signup")
+
+        messages.error(request, f"Could not log in with Google. No error provided.")
+        logger.error("Google login failed. No error provided.")
+        return redirect("user:login")
 
 
 class SignupView(RedirectURLMixin, FormView):

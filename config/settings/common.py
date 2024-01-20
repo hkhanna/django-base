@@ -194,10 +194,7 @@ HOST_URLCONFS: dict[str, str] = {}
 LOGIN_URL = "/user/login/"
 LOGIN_REDIRECT_URL = "/user/settings/profile/"
 LOGOUT_REDIRECT_URL = "/user/login/"
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "core.backends.GoogleAuthBackend",
-]
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 SESSION_COOKIE_AGE = 15_552_000  # 180 days
 PERMISSION_DENIED_REDIRECT = LOGIN_REDIRECT_URL
 
