@@ -2,7 +2,7 @@ import django.views.defaults
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import include, path
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView
 from django.contrib.auth.views import LogoutView
 
 from . import views
@@ -24,9 +24,9 @@ user_patterns = [
         name="password-reset-confirm",
     ),
     path(
-        "google/callback/",
-        views.GoogleCallbackView.as_view(),
-        name="google-callback",
+        "google/login/callback/",
+        views.GoogleLoginCallbackView.as_view(),
+        name="google-login-callback",
     ),
 ]
 

@@ -7,14 +7,15 @@ import { Toaster } from "@/components/shadcn/sonner";
 export default function Layout({ children }: { children: React.ReactNode }) {
   const page = usePage<{
     messages: {
-      text: string;
+      title: string;
+      description?: string;
       level: "success" | "info" | "warning" | "error";
     }[];
   }>();
 
   useEffect(() => {
     page.props.messages.forEach((message) =>
-      toast[message.level](message.text)
+      toast[message.level](message.title, { description: message.description })
     );
   }, [page.props.messages]);
 

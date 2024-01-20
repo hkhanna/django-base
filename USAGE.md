@@ -24,7 +24,7 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 - Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
 - Update `SENTRY_DSN` in `frontend/src/js/react.tsx` if you want to track errors in the frontend. This will only be used in prod.
 
-# Enable Google Authentication if desired
+## Enable Google Authentication if desired
 
 - Create a Google OAuth2 client ID and secret at https://console.cloud.google.com/apis/credentials
 - Create separate client IDs for local development and production.
@@ -181,3 +181,9 @@ They are related to` Orgs`, `OrgUsers` and `Plans` in different ways.
 
 - `can_invite_members`: the `OrgUser` can invite and cancel invitations to an `Org`.
 - `can_remove_members`: the `OrgUser` can remove members from an `Org`.
+
+## Other Things to Know
+
+### Messages Framework
+
+If the `extra_tags` parameter to `messages.add_message` is passed, the `extra_tags` parameter becomes the title, and the text of the message is the description.
