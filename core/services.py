@@ -20,9 +20,10 @@ import mimetypes
 import traceback
 from datetime import datetime, timedelta
 from importlib import import_module
-from typing import IO, Any, AnyStr, Dict, List, Optional, Type, Union
+from typing import IO, Any, AnyStr, Dict, List, Optional, Type, Literal
 from uuid import uuid4
 import pytz
+import requests
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -37,6 +38,7 @@ from django.http import HttpRequest
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.urls import reverse
 from django import forms
 
 from . import constants, selectors, utils
@@ -523,6 +525,73 @@ def email_message_webhook_process(
             status=constants.EmailMessageWebhook.Status.ERROR,
             note=traceback.format_exc(),
         )
+
+
+class GoogleOAuthSevice:
+    """
+    A class that provides methods for handling Google OAuth authentication.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        view (Literal["login", "signup"]): The view type, either "login" or "signup".
+
+    Attributes:
+        view (Literal["login", "signup"]): The view type, either "login" or "signup".
+        redirect_uri (str): The redirect URI based on the view type.
+
+    Raises:
+        ValueError: If an invalid view type is provided.
+
+    Methods:
+        get_authorization_uri(): Returns the Google authorization URI.
+        get_google_user_info(code: str): Returns Google user info from the authorization code.
+    """
+
+    def __init__(self, request: HttpRequest, view: Literal["login", "signup"]):
+        self.view = view
+
+        if self.view == "login":
+            self.redirect_uri = request.build_absolute_uri(
+                reverse("user:google-login-callback")
+            )
+        elif self.view == "signup":
+            redirect_uri = request.build_absolute_uri(
+                reverse("user:google-signup-callback")
+            )
+        else:
+            raise ValueError(f"Invalid view: {self.view}")
+
+    def get_authorization_uri(self) -> str:
+        """Return the Google authorization URI"""
+        return (
+            f"https://accounts.google.com/o/oauth2/v2/auth?"
+            f"scope=https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile&"
+            f"response_type=code&"
+            f"redirect_uri={self.redirect_uri}&"
+            f"client_id={settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID}"
+        )
+
+    def get_google_user_info(self, code: str) -> dict | None:
+        """Return Google user info from code"""
+        response = requests.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "code": code,
+                "client_id": settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID,
+                "client_secret": settings.SOCIAL_AUTH_GOOGLE_CLIENT_SECRET,
+                "redirect_uri": self.redirect_uri,
+                "grant_type": "authorization_code",
+            },
+        )
+        access_token = response.json().get("access_token")
+        if access_token:
+            google_user_details = requests.get(
+                f"https://www.googleapis.com/oauth2/v2/userinfo?access_token={access_token}"
+            )
+            return google_user_details.json()
+        else:
+            logger.error("Could not obtain Google access_token from code")
+        return None
 
 
 def org_invitation_validate_new(
