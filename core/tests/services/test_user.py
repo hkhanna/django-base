@@ -1,6 +1,9 @@
 import pytest
+from pytest_django.asserts import assertRaisesMessage
 from unittest.mock import MagicMock
-from core import services
+from django.urls import reverse
+from core import services, selectors, constants
+from core.exceptions import *
 
 
 @pytest.fixture
@@ -76,3 +79,17 @@ def test_google_oauth_signup_from_user_info(req):
     assert user.first_name == "John"
     assert user.last_name == "Doe"
     assert user.email == "john@example.com"
+
+
+def test_google_oauth_signup_disabled(req):
+    services.global_setting_create(
+        slug="disable_signup", type=constants.SettingType.BOOL, value="true"
+    )
+    oauth_service = services.GoogleOAuthService(request=req, view="login")
+    user, user_info = oauth_service.attempt_login(request=req, code="test")
+    assert user is None
+
+    with assertRaisesMessage(ApplicationError, "User signup is disabled."):
+        user = oauth_service.signup_from_user_info(user_info)
+
+    assert 0 == selectors.user_list(email="harry@example.com").count()

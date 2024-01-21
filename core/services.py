@@ -1013,6 +1013,9 @@ def user_login(
 
 
 def user_create(*, event_type: str = "user.signup", **kwargs) -> UserType:
+    if global_setting_get_value("disable_signup"):
+        raise ApplicationError("User signup is disabled.")
+
     if not kwargs.get("display_name"):
         first_name = kwargs.get("first_name", "")
         last_name = kwargs.get("last_name", "")
