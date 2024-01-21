@@ -6,10 +6,9 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.tokens import default_token_generator
+from django.utils import timezone
 from django.contrib.auth import (
     update_session_auth_hash,
-    login as django_login,
-    authenticate,
     get_user_model,
 )
 from django.contrib.auth.forms import (
@@ -237,8 +236,11 @@ class LoginView(DjangoLoginView):
             return username
 
     def form_valid(self, form):
-        form = services.detect_timezone_from_form(form=form, request=self.request)
-        services.user_login(request=self.request, user=form.get_user())
+        services.user_login(
+            request=self.request,
+            user=form.get_user(),
+            detected_tz=form.cleaned_data["detected_tz"],
+        )
         return redirect(self.get_success_url())
 
     authentication_form = LoginForm
@@ -269,6 +271,7 @@ class GoogleLoginCallbackView(RedirectURLMixin, View):
     def get(self, request):
         error = request.GET.get("error")
         code = request.GET.get("code")
+        detected_tz = request.GET.get("state", "")
 
         try:
             if error:
@@ -276,7 +279,9 @@ class GoogleLoginCallbackView(RedirectURLMixin, View):
 
             if code:
                 oauth_service = services.GoogleOAuthService(request, "login")
-                user, _ = oauth_service.attempt_login(request=request, code=code)
+                user, _ = oauth_service.attempt_login(
+                    request=request, code=code, detected_tz=detected_tz
+                )
                 if user:
                     return redirect(self.get_success_url())
                 else:
@@ -349,10 +354,9 @@ class SignupView(RedirectURLMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        # Set the user's timezone in their session if it was provided
-        form = services.detect_timezone_from_form(form=form, request=self.request)
+        detected_tz = form.cleaned_data.pop("detected_tz")
         user = services.user_create(**form.cleaned_data)
-        services.user_login(request=self.request, user=user)
+        services.user_login(request=self.request, user=user, detected_tz=detected_tz)
         messages.success(self.request, f"Welcome {user.name}!")
         return super().form_valid(form)
 
@@ -392,6 +396,7 @@ class GoogleSignupCallbackView(RedirectURLMixin, View):
     def get(self, request):
         error = request.GET.get("error")
         code = request.GET.get("code")
+        detected_tz = request.GET.get("state", "")
 
         try:
             if error:
@@ -402,13 +407,18 @@ class GoogleSignupCallbackView(RedirectURLMixin, View):
                 # First, try logging in in case the user already has an account.
                 # Google also gives us the name of the user that we can use if we need to create an account.
                 user, user_info = oauth_service.attempt_login(
-                    request=request, code=code
+                    request=request, code=code, detected_tz=detected_tz
                 )
                 if user:
                     return redirect(self.get_success_url())
                 else:
                     user = oauth_service.signup_from_user_info(user_info)
-                    services.user_login(user)
+                    services.user_login(
+                        request=request,
+                        user=user,
+                        detected_tz=detected_tz,
+                        event_type="user.login.google",
+                    )
                     messages.success(self.request, f"Welcome {user.name}!")
                     return redirect(self.get_success_url())
         except ApplicationError as e:

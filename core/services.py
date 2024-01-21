@@ -562,7 +562,7 @@ class GoogleOAuthService:
             raise ValueError(f"Invalid view: {self.view}")
 
     def attempt_login(
-        self, *, request: HttpRequest, code: str
+        self, *, request: HttpRequest, code: str, detected_tz: str
     ) -> tuple[UserType | None, dict]:
         user_info = self._get_google_user_info(code=code)
         email = user_info.get("email")
@@ -571,7 +571,12 @@ class GoogleOAuthService:
         except User.DoesNotExist:
             return None, user_info
 
-        user_login(request=request, user=user, event_type="user.login.google")
+        user_login(
+            request=request,
+            user=user,
+            event_type="user.login.google",
+            detected_tz=detected_tz,
+        )
 
         return user, user_info
 
@@ -998,10 +1003,17 @@ def org_user_org_user_setting_create(**kwargs) -> OrgUserOrgUserSetting:
 
 
 def user_login(
-    *, request: HttpRequest, user: UserType, event_type: str = "user.login"
+    *,
+    request: HttpRequest,
+    user: UserType,
+    detected_tz: str,
+    event_type: str = "user.login",
 ) -> None:
     """Log in a user."""
     django_login(request, user)
+
+    if detected_tz:
+        set_timezone(request=request, detected_tz=detected_tz)
 
     event_emit(
         type=event_type,
@@ -1100,27 +1112,14 @@ def user_update(*, instance: UserType, save=True, **kwargs) -> UserType:
     return instance
 
 
-def detect_timezone_from_form(*, form: forms.Form, request: HttpRequest) -> forms.Form:
-    """
-    Detects the timezone from the form data and activates it for the current request
-    and stores it on the session for future requests.
-
-    Args:
-        form (forms.Form): The form containing the timezone data.
-        request (HttpRequest): The current request object.
-
-    Returns:
-        forms.Form: The updated form object.
-    """
-    detected_tz = form.cleaned_data.pop("detected_tz", None)
-    if detected_tz:
-        try:
-            tz = pytz.timezone(detected_tz)
-            request.session["detected_tz"] = detected_tz
-            timezone.activate(tz)
-        except pytz.exceptions.UnknownTimeZoneError:
-            logger.warning(f"Bad timezone {detected_tz}")
-    return form
+def set_timezone(*, request: HttpRequest, detected_tz: str) -> None:
+    """Sets the timezone for the session."""
+    try:
+        tz = pytz.timezone(detected_tz)
+        request.session["detected_tz"] = detected_tz
+        timezone.activate(tz)
+    except pytz.exceptions.UnknownTimeZoneError:
+        logger.warning(f"Bad timezone {detected_tz}")
 
 
 def model_create(

@@ -2,11 +2,16 @@ import { Button } from "./catalyst/button";
 
 export function ContinueWithGoogle({
   authorizationUri,
+  detectedTz,
 }: {
   authorizationUri: string;
+  detectedTz?: string;
 }) {
+  const formAction = detectedTz
+    ? authorizationUri + "&state=" + detectedTz
+    : authorizationUri;
   return (
-    <form action={authorizationUri} method="POST">
+    <form action={formAction} method="POST">
       <Button color="white" type="submit" className="w-full space-x-4">
         <svg
           xmlns="http://www.w3.org/2000/svg"
