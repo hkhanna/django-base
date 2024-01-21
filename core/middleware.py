@@ -3,6 +3,7 @@ import threading
 import uuid
 
 import pytz
+from inertia import share as inertia_share
 from django.apps import apps
 from django.conf import settings
 from django.urls import resolve
@@ -197,3 +198,16 @@ class OrgMiddleware:
             core.services.org_user_update(instance=ou, last_accessed_at=timezone.now())
 
         return response
+
+
+class InertiaUserMiddleware:
+    """Provide the user to all Inertia templates.""" ""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        inertia_share(
+            request, user=lambda: request.user.is_authenticated and request.user or None
+        )
+        return self.get_response(request)
