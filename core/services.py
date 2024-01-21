@@ -26,7 +26,7 @@ import pytz
 import requests
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, login as django_login
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.core.files.storage import storages
@@ -527,7 +527,7 @@ def email_message_webhook_process(
         )
 
 
-class GoogleOAuthSevice:
+class GoogleOAuthService:
     """
     A class that provides methods for handling Google OAuth authentication.
 
@@ -561,6 +561,39 @@ class GoogleOAuthSevice:
         else:
             raise ValueError(f"Invalid view: {self.view}")
 
+    def attempt_login(
+        self, *, request: HttpRequest, code: str
+    ) -> tuple[UserType | None, dict]:
+        user_info = self._get_google_user_info(code=code)
+        email = user_info.get("email")
+        try:
+            user = selectors.user_list(email=email).get()
+        except User.DoesNotExist:
+            return None, user_info
+
+        user_login(request=request, user=user, event_type="user.login.google")
+
+        return user, user_info
+
+    def signup_from_user_info(self, user_info: dict) -> UserType:
+        """Create a new user from Google user info."""
+        first_name = user_info.get("given_name")
+        last_name = user_info.get("family_name")
+        name = user_info.get("name")
+        email = user_info.get("email")
+
+        if not first_name or not last_name or not name or not email:
+            raise ApplicationError("Missing required fields from Google user info")
+
+        user = user_create(
+            first_name=first_name,
+            last_name=last_name,
+            display_name=name,
+            email=email,
+            event_type="user.signup.google",
+        )
+        return user
+
     def get_authorization_uri(self) -> str:
         """Return the Google authorization URI"""
         return (
@@ -571,7 +604,7 @@ class GoogleOAuthSevice:
             f"client_id={settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID}"
         )
 
-    def get_google_user_info(self, code: str) -> dict | None:
+    def _get_google_user_info(self, code: str) -> dict:
         """Return Google user info from code"""
         response = requests.post(
             "https://oauth2.googleapis.com/token",
@@ -590,8 +623,7 @@ class GoogleOAuthSevice:
             )
             return google_user_details.json()
         else:
-            logger.error("Could not obtain Google access_token from code")
-        return None
+            raise ApplicationError("Could not obtain Google access_token from code")
 
 
 def org_invitation_validate_new(
@@ -965,7 +997,22 @@ def org_user_org_user_setting_create(**kwargs) -> OrgUserOrgUserSetting:
     return model_create(klass=OrgUserOrgUserSetting, **kwargs)
 
 
-def user_create(**kwargs) -> UserType:
+def user_login(
+    *, request: HttpRequest, user: UserType, event_type: str = "user.login"
+) -> None:
+    """Log in a user."""
+    django_login(request, user)
+
+    event_emit(
+        type=event_type,
+        data={
+            "user": str(user.uuid),
+            "user_email": user.email,
+        },
+    )
+
+
+def user_create(*, event_type: str = "user.signup", **kwargs) -> UserType:
     if not kwargs.get("display_name"):
         first_name = kwargs.get("first_name", "")
         last_name = kwargs.get("last_name", "")
@@ -975,7 +1022,15 @@ def user_create(**kwargs) -> UserType:
     if not kwargs.get("email_history"):
         kwargs["email_history"] = [kwargs["email"]]
 
-    return User.objects.create_user(**kwargs)
+    user = User.objects.create_user(**kwargs)
+    event_emit(
+        type=event_type,
+        data={
+            "user": str(user.uuid),
+            "user_email": user.email,
+        },
+    )
+    return user
 
 
 def user_update(*, instance: UserType, save=True, **kwargs) -> UserType:
