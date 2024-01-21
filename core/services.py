@@ -1010,6 +1010,10 @@ def user_login(
     event_type: str = "user.login",
 ) -> None:
     """Log in a user."""
+
+    if not user.is_active:
+        raise ApplicationError("User is not active.")
+
     django_login(request, user)
 
     if detected_tz:
