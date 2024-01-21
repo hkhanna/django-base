@@ -15,6 +15,7 @@ from django.contrib.auth import (
 from django.contrib.auth.forms import (
     AuthenticationForm as DjangoLoginForm,
     PasswordChangeForm,
+    SetPasswordForm,
     PasswordResetForm as DjangoPasswordResetForm,
 )
 from django.contrib.auth.views import (
@@ -275,7 +276,7 @@ class GoogleLoginCallbackView(RedirectURLMixin, View):
 
             if code:
                 oauth_service = services.GoogleOAuthService(request, "login")
-                user, _ = oauth_service.attempt_login(code)
+                user, _ = oauth_service.attempt_login(request=request, code=code)
                 if user:
                     return redirect(self.get_success_url())
                 else:
@@ -400,7 +401,9 @@ class GoogleSignupCallbackView(RedirectURLMixin, View):
                 oauth_service = services.GoogleOAuthService(request, "signup")
                 # First, try logging in in case the user already has an account.
                 # Google also gives us the name of the user that we can use if we need to create an account.
-                user, user_info = oauth_service.attempt_login(code)
+                user, user_info = oauth_service.attempt_login(
+                    request=request, code=code
+                )
                 if user:
                     return redirect(self.get_success_url())
                 else:
@@ -477,11 +480,15 @@ class ProfileView(LoginRequiredMixin, FormView):
 
 
 class PasswordChangeView(LoginRequiredMixin, FormView):
-    form_class = PasswordChangeForm
-
     @method_decorator(sensitive_post_parameters())
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+    def get_form_class(self):
+        if self.request.user.has_usable_password():
+            return PasswordChangeForm
+        else:
+            return SetPasswordForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -490,7 +497,7 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         form.save()
-        messages.success(self.request, "Account updated.")
+        messages.success(self.request, "Password changed.")
 
         # Updating the password logs out all other sessions for the user
         # except the current one.
@@ -513,7 +520,10 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
         return utils.inertia_render(
             self.request,
             "core/PasswordChange",
-            props={"errors": context["form"].errors},
+            props={
+                "errors": context["form"].errors,
+                "has_password": self.request.user.has_usable_password(),
+            },
         )
 
 
