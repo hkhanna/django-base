@@ -52,6 +52,7 @@ export default function Login({ social_auth }: { social_auth: SocialAuth }) {
               <>
                 <ContinueWithGoogle
                   authorizationUri={social_auth.google_authorization_uri}
+                  detectedTz={data.detected_tz}
                 />
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">

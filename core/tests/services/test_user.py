@@ -55,7 +55,9 @@ def test_google_oauth_attempt_login(req, user, google_api_mock):
     }
     google_api_mock.responses["user_info"] = user_info
     oauth_service = services.GoogleOAuthService(request=req, view="login")
-    user_, user_info_ = oauth_service.attempt_login(request=req, code="test")
+    user_, user_info_ = oauth_service.attempt_login(
+        request=req, code="test", detected_tz="America/New_York"
+    )
     assert user == user_
     assert user_info == user_info_
     assert req.user == user
@@ -64,7 +66,9 @@ def test_google_oauth_attempt_login(req, user, google_api_mock):
 def test_google_oauth_attempt_login_nouser(req):
     """Attempt to log in with Google OAuth if the user does not exist"""
     oauth_service = services.GoogleOAuthService(request=req, view="login")
-    user, user_info = oauth_service.attempt_login(request=req, code="test")
+    user, user_info = oauth_service.attempt_login(
+        request=req, code="test", detected_tz="America/New_York"
+    )
     assert user is None
     assert user_info["email"] == "john@example.com"
 
@@ -73,7 +77,9 @@ def test_google_oauth_signup_from_user_info(req):
     """This test verifies that the `signup_from_user_info` method of the GoogleOAuthService class correctly creates a new user
     based on the user information retrieved from the Google OAuth service."""
     oauth_service = services.GoogleOAuthService(request=req, view="login")
-    user, user_info = oauth_service.attempt_login(request=req, code="test")
+    user, user_info = oauth_service.attempt_login(
+        request=req, code="test", detected_tz="America/New_York"
+    )
     assert user is None
     user = oauth_service.signup_from_user_info(user_info)
     assert user.first_name == "John"
@@ -86,7 +92,9 @@ def test_google_oauth_signup_disabled(req):
         slug="disable_signup", type=constants.SettingType.BOOL, value="true"
     )
     oauth_service = services.GoogleOAuthService(request=req, view="login")
-    user, user_info = oauth_service.attempt_login(request=req, code="test")
+    user, user_info = oauth_service.attempt_login(
+        request=req, code="test", detected_tz="America/New_York"
+    )
     assert user is None
 
     with assertRaisesMessage(ApplicationError, "User signup is disabled."):
