@@ -420,70 +420,27 @@ class GoogleSignupCallbackView(RedirectURLMixin, View):
     def get(self, request):
         error = request.GET.get("error")
         code = request.GET.get("code")
-        google_user_info = None
-        user = None
 
-        if error:
-            messages.error(request, f"Could not sign up with Google. Error: {error}")
+        try:
+            if error:
+                raise ApplicationError(f"Could not sign up with Google. Error: {error}")
+
+            if code:
+                oauth_service = services.GoogleOAuthService(request, "signup")
+                # First, try logging in in case the user already has an account.
+                # Google also gives us the name of the user that we can use if we need to create an account.
+                user, user_info = oauth_service.attempt_login(code)
+                if user:
+                    return redirect(self.get_success_url())
+                else:
+                    user = oauth_service.signup_from_user_info(user_info)
+                    services.user_login(user)
+                    messages.success(self.request, f"Welcome {user.name}!")
+                    return redirect(self.get_success_url())
+        except ApplicationError as e:
+            logger.exception(e)
+            messages.error(request, str(e))
             return redirect("user:signup")
-
-        if code:
-            google_user_info = services.GoogleOAuthSevice(
-                request, "signup"
-            ).get_google_user_info(code)
-
-        if google_user_info:
-            # First, try logging in in case the user already has an account.
-            email = google_user_info.get("email")
-            try:
-                user = selectors.user_list(email=email).get()
-                django_login(
-                    request,
-                    user,
-                    "django.contrib.auth.backends.ModelBackend",
-                )
-                services.event_emit(
-                    type="user.login.google",
-                    data={
-                        "user": str(user.uuid),
-                        "user_email": user.email,
-                    },
-                )
-                return redirect(self.get_success_url())
-
-            except User.DoesNotExist:
-                # No account, so sign them up.
-                first_name = google_user_info.get("given_name")
-                last_name = google_user_info.get("family_name")
-                display_name = google_user_info.get("name")
-
-                user = services.user_create(
-                    first_name=first_name,
-                    last_name=last_name,
-                    display_name=display_name,
-                    email=email,
-                )
-                services.event_emit(
-                    type="user.signup",
-                    data={
-                        "user": str(user.uuid),
-                        "user_email": user.email,
-                    },
-                )
-                django_login(request, user, "django.contrib.auth.backends.ModelBackend")
-                services.event_emit(
-                    type="user.login.google",
-                    data={
-                        "user": str(user.uuid),
-                        "user_email": user.email,
-                    },
-                )
-                messages.success(self.request, f"Welcome {user.name}!")
-                return redirect(self.get_success_url())
-
-        messages.error(request, f"Could not sign up with Google. No error provided.")
-        logger.error("Google signup failed. No error provided.")
-        return redirect("user:signup")
 
 
 class ProfileView(LoginRequiredMixin, FormView):

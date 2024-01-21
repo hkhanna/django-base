@@ -19,6 +19,7 @@ def user_create(**kwargs):
     defaults = dict(
         first_name=first_name,
         last_name=last_name,
+        display_name=" ".join([first_name, last_name]),
         email=f"{first_name}.{last_name}@example.com".lower(),
         password="goodpass",
     )
