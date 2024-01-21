@@ -136,3 +136,19 @@ def test_reset_email_from(client, user, mailoutbox, settings):
     client.post(reverse("user:password-reset"), {"email": user.email}, follow=True)
     assert len(mailoutbox) == 1
     assert mailoutbox[0].from_email == "Support <support@example.com>"
+
+
+def test_reset_password_unusable(client, user, mailoutbox):
+    """Launch a password reset email even for users with an unusuable password"""
+    user.set_unusable_password()
+    user.save()
+    response = client.post(reverse("user:password-reset"), {"email": user.email})
+    email_messages = models.EmailMessage.objects.all()
+
+    assert response.status_code == 302
+    assert len(email_messages) == 1
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].subject == "Password Reset Request"
+
+    assert "http://" in mailoutbox[0].body
+    assert "http://" in mailoutbox[0].alternatives[0][0]
