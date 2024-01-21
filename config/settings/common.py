@@ -69,6 +69,7 @@ MIDDLEWARE = [
     "core.middleware.SetRemoteAddrFromForwardedFor",
     "core.middleware.HostUrlconfMiddleware",
     "core.middleware.OrgMiddleware",
+    "core.middleware.InertiaUserMiddleware",
 ]
 
 
