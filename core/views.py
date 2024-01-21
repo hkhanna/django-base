@@ -571,6 +571,10 @@ class PasswordResetView(FormView):
                 )
                 services.email_message_queue(email_message=email_message)
 
+        def get_users(self, email):
+            """Any active user can reset their password"""
+            return selectors.user_list(is_active=True, email=email)
+
     form_class = PasswordResetForm
 
     def form_valid(self, form):
