@@ -27,6 +27,10 @@ envVarGroups:
         sync: false
     # - key: BACKUP_ENCRYPTION_PASSPHRASE
     #   sync: false
+    #  - key: SOCIAL_AUTH_GOOGLE_CLIENT_ID
+    #    sync: false
+    #  - key: SOCIAL_AUTH_GOOGLE_CLIENT_SECRET
+    #    sync: false
 
 services:
   - type: web
