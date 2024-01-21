@@ -237,15 +237,8 @@ class LoginView(DjangoLoginView):
 
     def form_valid(self, form):
         form = services.detect_timezone_from_form(form=form, request=self.request)
-        response = super().form_valid(form)
-        services.event_emit(
-            type="user.login",
-            data={
-                "user": str(self.request.user.uuid),
-                "user_email": self.request.user.email,
-            },
-        )
-        return response
+        services.user_login(request=self.request, user=form.get_user())
+        return redirect(self.get_success_url())
 
     authentication_form = LoginForm
 
@@ -257,7 +250,7 @@ class LoginView(DjangoLoginView):
                 "errors": context["form"].errors,
                 "social_auth": {
                     "google": settings.SOCIAL_AUTH_GOOGLE_ENABLED,
-                    "google_authorization_uri": services.GoogleOAuthSevice(
+                    "google_authorization_uri": services.GoogleOAuthService(
                         self.request, "login"
                     ).get_authorization_uri(),
                 },
@@ -275,44 +268,29 @@ class GoogleLoginCallbackView(RedirectURLMixin, View):
     def get(self, request):
         error = request.GET.get("error")
         code = request.GET.get("code")
-        google_user_info = None
-        user = None
 
-        if error:
-            messages.error(request, f"Could not log in with Google. Error: {error}")
+        try:
+            if error:
+                raise ApplicationError(f"Could not log in with Google. Error: {error}")
+
+            if code:
+                oauth_service = services.GoogleOAuthService(request, "login")
+                user, _ = oauth_service.attempt_login(code)
+                if user:
+                    return redirect(self.get_success_url())
+                else:
+                    # No account on login fails. But existing account on signup just logs you in.
+                    messages.error(
+                        request,
+                        "This account does not exist.",
+                        extra_tags="Please sign up.",
+                    )
+                    return redirect("user:login")
+
+        except ApplicationError as e:
+            logger.exception(e)
+            messages.error(request, str(e))
             return redirect("user:login")
-
-        if code:
-            google_user_info = services.GoogleOAuthSevice(
-                request, "login"
-            ).get_google_user_info(code)
-
-        if google_user_info:
-            email = google_user_info.get("email")
-            try:
-                user = selectors.user_list(email=email).get()
-                django_login(request, user=user)
-                services.event_emit(
-                    type="user.login.google",
-                    data={
-                        "user": str(user.uuid),
-                        "user_email": user.email,
-                    },
-                )
-                return redirect(self.get_success_url())
-
-            except User.DoesNotExist:
-                # No account on login fails. But existing account on signup just logs you in.
-                messages.error(
-                    request,
-                    "This account does not exist.",
-                    extra_tags="Please sign up.",
-                )
-                return redirect("user:signup")
-
-        messages.error(request, f"Could not log in with Google. No error provided.")
-        logger.error("Google login failed. No error provided.")
-        return redirect("user:login")
 
 
 class SignupView(RedirectURLMixin, FormView):
@@ -373,15 +351,8 @@ class SignupView(RedirectURLMixin, FormView):
         # Set the user's timezone in their session if it was provided
         form = services.detect_timezone_from_form(form=form, request=self.request)
         user = services.user_create(**form.cleaned_data)
-        django_login(self.request, user, "django.contrib.auth.backends.ModelBackend")
+        services.user_login(request=self.request, user=user)
         messages.success(self.request, f"Welcome {user.name}!")
-        services.event_emit(
-            type="user.signup",
-            data={
-                "user": str(self.request.user.uuid),
-                "user_email": self.request.user.email,
-            },
-        )
         return super().form_valid(form)
 
     def render_to_response(self, context, *args, **kwargs):
@@ -402,7 +373,7 @@ class SignupView(RedirectURLMixin, FormView):
                 "errors": context["form"].errors,
                 "social_auth": {
                     "google": settings.SOCIAL_AUTH_GOOGLE_ENABLED,
-                    "google_authorization_uri": services.GoogleOAuthSevice(
+                    "google_authorization_uri": services.GoogleOAuthService(
                         self.request, "signup"
                     ).get_authorization_uri(),
                 },
