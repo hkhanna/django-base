@@ -151,7 +151,7 @@ def test_change_password(page: Page, live_server, user):
     expect(
         page.get_by_text("Your old password was entered incorrectly.")
     ).to_be_visible()
-    expect(page.get_by_text("Account updated.")).not_to_be_visible()
+    expect(page.get_by_text("Password changed.")).not_to_be_visible()
 
     # Changes password, correct current password
     page.get_by_label("New password", exact=True).click()
@@ -162,7 +162,7 @@ def test_change_password(page: Page, live_server, user):
     page.get_by_label("Current password", exact=True).fill("goodpass")
     page.get_by_label("Current password", exact=True).press("Enter")
     expect(page.get_by_role("region", name="Notifications alt+T")).to_have_text(
-        "Account updated."
+        "Password changed."
     )
     user.refresh_from_db()
     assert user.check_password("newpass123") is True

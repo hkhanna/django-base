@@ -14,7 +14,11 @@ import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
 import { Separator } from "@/components/shadcn/separator";
 
-export default function PasswordChange() {
+export default function PasswordChange({
+  has_password,
+}: {
+  has_password: boolean;
+}) {
   const { data, setData, post, processing, errors, reset } = useForm({
     new_password1: "",
     new_password2: "",
@@ -39,7 +43,11 @@ export default function PasswordChange() {
           <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
             Password
           </h3>
-          <Text>Change your password.</Text>
+          {has_password ? (
+            <Text>Change your password.</Text>
+          ) : (
+            <Text>Set a password.</Text>
+          )}
         </div>
         <Separator />
         <form onSubmit={handleSubmit}>
@@ -74,24 +82,26 @@ export default function PasswordChange() {
                     <ErrorMessage>{errors.new_password2}</ErrorMessage>
                   )}
                 </Field>
-                <Field>
-                  <Label>Current password</Label>
-                  <Input
-                    name="old_password"
-                    type="password"
-                    value={data.old_password}
-                    onChange={(e) => setData("old_password", e.target.value)}
-                    required
-                    invalid={"old_password" in errors}
-                  />
-                  {errors.old_password && (
-                    <ErrorMessage>{errors.old_password}</ErrorMessage>
-                  )}
-                </Field>
+                {has_password && (
+                  <Field>
+                    <Label>Current password</Label>
+                    <Input
+                      name="old_password"
+                      type="password"
+                      value={data.old_password}
+                      onChange={(e) => setData("old_password", e.target.value)}
+                      required
+                      invalid={"old_password" in errors}
+                    />
+                    {errors.old_password && (
+                      <ErrorMessage>{errors.old_password}</ErrorMessage>
+                    )}
+                  </Field>
+                )}
               </div>
 
               <Button type="submit" disabled={processing}>
-                Change password
+                {has_password ? "Change password" : "Set password"}
               </Button>
             </FieldGroup>
           </Fieldset>
