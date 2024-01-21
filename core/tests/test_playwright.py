@@ -103,7 +103,7 @@ def test_profile(page: Page, live_server, user):
     page.get_by_label("Email").fill("new@example.com")
     page.get_by_label("Email").press("Tab")
     page.get_by_role("button", name="Update profile").click()
-    expect(page.get_by_role("region", name="Notifications (F8)")).to_have_text(
+    expect(page.get_by_role("region", name="Notifications alt+T")).to_have_text(
         "Profile updated."
     )
     user.refresh_from_db()
@@ -161,7 +161,7 @@ def test_change_password(page: Page, live_server, user):
     page.get_by_label("New password (again)").press("Tab")
     page.get_by_label("Current password", exact=True).fill("goodpass")
     page.get_by_label("Current password", exact=True).press("Enter")
-    expect(page.get_by_role("region", name="Notifications (F8)")).to_have_text(
+    expect(page.get_by_role("region", name="Notifications alt+T")).to_have_text(
         "Account updated."
     )
     user.refresh_from_db()
