@@ -98,13 +98,6 @@ class OrgSwitchView(LoginRequiredMixin, View):
         return redirect("index")
 
 
-class OrgDetailView(LoginRequiredMixin, DetailView):
-    template_name = "core/org_detail.html"
-
-    def get_object(self, *args, **kwargs):
-        return self.request.org
-
-
 @csrf_exempt
 @require_http_methods(["POST"])
 def email_message_webhook_view(request):
