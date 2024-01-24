@@ -655,6 +655,17 @@ def org_user_create(*, org: Org, user: UserType, **kwargs) -> OrgUser:
 
 def org_create(**kwargs) -> Org:
     """Create an Org and return the Org."""
+
+    # Set plans if not provided
+    if "primary_plan" not in kwargs or "default_plan" not in kwargs:
+        try:
+            plan = selectors.plan_list(is_default=True).get()
+        except Plan.DoesNotExist:
+            plan = plan_create(name="Default Plan", is_default=True)
+
+        kwargs.setdefault("primary_plan", plan)
+        kwargs.setdefault("default_plan", plan)
+
     org = model_create(klass=Org, **kwargs)
 
     # If owner isn't an OrgUser, create one.

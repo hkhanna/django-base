@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 import pytest
 
 from .. import factories
-from ... import models, services
+from ... import models, services, selectors
 
 
 User = get_user_model()
@@ -58,3 +58,16 @@ def test_org_switch_inactive_unauthorized(req, user, org):
         services.org_switch(request=req, slug=other_org.slug)
 
     assert req.org == org
+
+
+def test_org_create_default_plan(user):
+    """Creating an org with a missing primary_plan or default_plan will use or create a default plan"""
+    assert selectors.plan_list().count() == 0
+    org = services.org_create(name="Example Org", owner=user)
+
+    assert selectors.plan_list().count() == 1
+    plan = selectors.plan_list().first()
+    assert plan.is_default is True
+
+    assert org.primary_plan == plan
+    assert org.default_plan == plan
