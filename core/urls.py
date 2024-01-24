@@ -48,7 +48,6 @@ urlpatterns = [
         views.PrivacyPolicyView.as_view(),
         name="privacy_policy",
     ),
-    path("org/switch/", views.OrgSwitchView.as_view(), name="org_switch"),
     path("event/emit/", views.event_emit_view, name="event_emit"),
     path(
         "render-template-debug/<path:template>",
