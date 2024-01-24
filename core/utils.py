@@ -10,7 +10,7 @@ from . import constants
 from .exceptions import *
 
 if TYPE_CHECKING:
-    from .types import ModelType
+    from .types import DjangoModelType
 
 
 def inertia_render(request, component, props={}, template_data={}):
@@ -187,7 +187,7 @@ def trim_string(field: str) -> str:
     return sanitized
 
 
-def get_snake_case(model: "ModelType") -> str:
+def get_snake_case(model: "DjangoModelType") -> str:
     verbose_name = model._meta.verbose_name
     if not verbose_name:
         raise ValueError(f"Model {model} has no verbose_name")
