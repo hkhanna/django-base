@@ -24,8 +24,8 @@ def test_owner_org_user(user):
     org = services.org_create(
         name="Example Org",
         owner=user,
-        primary_plan=core.tests.factories.plan_create(),
-        default_plan=core.tests.factories.plan_create(),
+        primary_plan=factories.plan_create(),
+        default_plan=factories.plan_create(),
     )
     assert org.org_users.filter(user=user, org=org).exists()
 
