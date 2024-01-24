@@ -160,7 +160,15 @@ Avoid making changes directly to the `core` directory to avoid merge conflicts w
 - Update the README as appropriate.
 - Delete this file.
 
-## Orgs, Plans & Settings
+## Organizations
+
+The concept of organizations (`Org`) is available for use, but not required. If you create a model that relies on the `Org` model or other of the other models related to `Org`, you'll need to handle the case that there is no active org. This can happen:
+
+- when a user initially signs up;
+- a User is removed from or leaves an org; or
+- an org is deleted.
+
+### Org-related Settings
 
 There are 2 types of settings, settings for an `Org` (`OrgSetting`) and settings for an `OrgUser` (`OrgUserSetting`).
 They are related to` Orgs`, `OrgUsers` and `Plans` in different ways.
@@ -171,15 +179,48 @@ They are related to` Orgs`, `OrgUsers` and `Plans` in different ways.
   - We set an `owner_value` on the base `OrgUserSetting` that is always used for the `Org` owner, who is kind of a superuser.
 - If an `OrgSetting` or `OrgUserSetting` does not exist but is queried, that setting will autocreate with a default of `False` and an owner_value of `True`.
 
-### Development Notes:
+#### Development Notes:
 
 - At this point, it doesn't seem useful to attach `OrgUserSetting` defaults to a `Plan`, so we don't. We can easily change this down the road though.
 - A one-time payment situation would probably only use the default `Plan` and override `OrgSettings` as the purchase is made.
 
-### Built-in OrgUserSettings
+### Org-related Product Decisions
 
-- `can_invite_members`: the `OrgUser` can invite and cancel invitations to an `Org`.
-- `can_remove_members`: the `OrgUser` can remove members from an `Org`.
+You will need to make a few product decisions, and write code to handle the following:
+
+- Can a user create an org?
+- Is there a limit to the number of orgs a user can own?
+- Does deleting an Org hard delete it or set Org.is_active to false? And if it's soft deleted, users should no longer be able to access the org.
+- Can only the org's owner delete it? Should whether an org be deleted be configureable as an OrgSetting or a GlobalSetting?
+- Should changing org information like it's name be limited to the owner, or should it be available in an OrgUserSetting?
+- If you create the ability for users to delete their accounts, should they be able to delete their account if they are the owner of an org? If so, what should happen to the org?
+- Can an owner transfer ownership of an org?
+- Should you prevent an owner from leaving an org before transfering it?
+- Can a user leave an org? Should this be configurable as an OrgSetting?
+- Can a user be removed and if so, is there an OrgUserSetting for this permission or can only the owner do it? If there is a setting, an org owner should probably not be removable.
+
+I recommend writing a test for each answer to the foregoing quetions.
+
+#### Personal orgs, default orgs, or view restrictions.
+
+One approach to help answer these questions is to create the concept of a "personal org". This adds some complexity because that org would be treated differently in many cases. For example, if a personal org is named after the owner, should changing the owner's name change the name of the personal org? If a user is created because they were invited to an org, does it make sense to create a personal org too? And if a user leaves their last org and doesn't have a personal org, perhaps it should create one. In a lot of applications, the concept of a personal org would not make sense. But in primarily consumer-facing ones, it might.
+
+Another approach might be the concept of a single "default" org that a user gets added to if they don't have another one. This is simpler, but runs the risk of users seeing each others' data, depending on which models are linked to the `Org` model.
+
+A third approach might simply be to prevent a user from accessing any org-required views until they create an org. Perhaps something they could do on signup if they didn't join via an invitation from an org.
+
+#### Invitations
+
+If you create a system where an OrgUser can invite another user to an org (perhaps via email), consider the following scenarios:
+
+- The user does not exist in the system yet.
+- The user exists in the system, but is not yet a member of the org.
+- Canceling a pending invitation.
+- Who can invite a new user? Only the owner or is there an OrgUserSetting for it?
+- Can you "resend" the invitation? Is there a maximum of number of times you can do it or a cooldown period?
+- Should the inviter have a verified email address before they can invite anyone?
+
+Again, it would be a good idea to write tests for the answers to the above questions.
 
 ## Other Things to Know
 
