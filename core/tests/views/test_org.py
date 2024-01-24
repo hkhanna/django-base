@@ -1,4 +1,3 @@
-import pytest
 from django.urls import reverse
 
 from .. import factories
@@ -107,25 +106,3 @@ def test_org_invitation_view_permissions():
         assert views.LoginRequiredMixin in view.__bases__
         assert permissions.OrgUserSettingPermissionMixin in view.__bases__
         assert view.org_user_setting == "can_invite_members"
-
-
-@pytest.mark.skip("Not implemented")
-def test_invite_permission_ui(client, user, org):
-    """Without can_invite_members permission, the UI doesn't show invitation, cancel, or resend button."""
-    client.force_login(user)
-    client.post(reverse("org_invite"), {"email": factories.fake.email()})
-    response = client.get(reverse("org_detail"))
-    assert "Invite a Member" in str(response.content)
-    assert "Cancel Invitation" in str(response.content)
-    assert "Resend Invitation" in str(response.content)
-
-    ou = selectors.org_user_list(user=user, org=org).get()
-    setting = selectors.org_user_setting_list(slug="can_invite_members").get()
-    services.org_user_org_user_setting_create(
-        org_user=ou, setting=setting, value=0
-    )  # Remove can_invite_members from this OrgUser
-
-    response = client.get(reverse("org_detail"))
-    assert "Invite a Member" not in str(response.content)
-    assert "Cancel Invitation" not in str(response.content)
-    assert "Resend Invitation" not in str(response.content)
