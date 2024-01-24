@@ -217,6 +217,8 @@ If you create a system where an OrgUser can invite another user to an org (perha
 
 - The user does not exist in the system yet.
 - The user exists in the system, but is not yet a member of the org.
+- The user is already a member of the org.
+- The user is invited that already has a pending invitation to the org.
 - Canceling a pending invitation.
 - Who can invite a new user? Only the owner or is there an OrgUserSetting for it?
 - Can you "resend" the invitation? Is there a maximum of number of times you can do it or a cooldown period?

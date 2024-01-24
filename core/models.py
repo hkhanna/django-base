@@ -254,38 +254,6 @@ class OrgUser(BaseModel):
         return f"{self.org} / {self.user} ({self.pk})"
 
 
-class OrgInvitation(BaseModel):
-    """An invitation to join an Org"""
-
-    org = models.ForeignKey(Org, on_delete=models.CASCADE, related_name="invitations")
-    token = models.CharField(max_length=254, default=secrets.token_urlsafe)
-
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name="org_invitations_created",
-    )
-    invitee = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="org_invitations_received",
-    )
-
-    email = models.EmailField(help_text="Email address of the invitee")
-    email_messages = models.ManyToManyField(
-        "core.EmailMessage",
-        related_name="org_invitations",
-    )
-
-    @property
-    def status(self):
-        if not self.email_messages.exists():
-            return "New"
-        return "Sent"
-
-
 class Plan(BaseModel):
     """Represents a group of OrgSettings. Often tied to billing."""
 

@@ -49,17 +49,6 @@ urlpatterns = [
         name="privacy_policy",
     ),
     path("org/switch/", views.OrgSwitchView.as_view(), name="org_switch"),
-    path("org/invitation/", views.OrgInvitationCreateView.as_view(), name="org_invite"),
-    path(
-        "org/invitation/<uuid:uuid>/cancel/",
-        views.OrgInvitationCancelView.as_view(),
-        name="org_invitation_cancel",
-    ),
-    path(
-        "org/invitation/<uuid:uuid>/resend/",
-        views.OrgInvitationResendView.as_view(),
-        name="org_invitation_resend",
-    ),
     path("org/", views.OrgDetailView.as_view(), name="org_detail"),
     path("event/emit/", views.event_emit_view, name="event_emit"),
     path(

@@ -50,7 +50,6 @@ from .models import (
     Event,
     GlobalSetting,
     Org,
-    OrgInvitation,
     OrgSetting,
     OrgUser,
     OrgUserOrgUserSetting,
@@ -631,76 +630,6 @@ class GoogleOAuthService:
             raise ApplicationError("Could not obtain Google access_token from code")
 
 
-def org_invitation_validate_new(
-    *, org: Org, created_by: UserType, org_invitation: OrgInvitation
-) -> OrgInvitation:
-    """Validate that an OrgInvitation is ready to be created and sent."""
-    if not org_invitation._state.adding:
-        raise RuntimeError(
-            "org_invitation_send service must be called with a new object"
-        )
-    if not org_invitation.email:
-        raise RuntimeError(
-            "org_invitation_send service must be called with an OrgInvitation that has an email"
-        )
-
-    if selectors.org_invitation_list(org=org, email=org_invitation.email).exists():
-        raise ApplicationWarning(
-            f"{org_invitation.email} already has an invitation to {org}."
-        )
-
-    if selectors.org_user_list(org=org, user__email=org_invitation.email).exists():
-        raise ApplicationError(f"{org_invitation.email} is already a member of {org}.")
-
-    # This will blow up if there are problems because we don't catch ValidationError.
-    # But that is fine as there should never be problems and if there are we want to know.
-    return org_invitation_update(
-        instance=org_invitation, org=org, created_by=created_by
-    )
-
-
-def org_invitation_send(*, org_invitation: OrgInvitation) -> None:
-    """Send a new OrgInvitation."""
-    assert settings.SITE_CONFIG["default_from_email"] is not None
-    sender_email = settings.SITE_CONFIG["default_from_email"]
-    sender_name = utils.get_email_display_name(
-        org_invitation.created_by,
-        header="From",
-        email=sender_email,
-        suffix=f"via {settings.SITE_CONFIG['name']}",
-    )
-
-    reply_to_name = utils.get_email_display_name(
-        org_invitation.created_by, header="Reply-To"
-    )
-    reply_to_email = org_invitation.created_by.email
-
-    email_message = email_message_create(
-        created_by=org_invitation.created_by,
-        org=org_invitation.org,
-        subject=f"Invitation to join {org_invitation.org.name} on {settings.SITE_CONFIG['name']}",
-        to_email=org_invitation.email,
-        sender_name=sender_name,
-        sender_email=sender_email,
-        reply_to_name=reply_to_name,
-        reply_to_email=reply_to_email,
-        template_prefix="core/email/org_invitation",
-        template_context={
-            "org_name": org_invitation.org.name,
-            "inviter": org_invitation.created_by.name,
-            "action_url": "",
-        },
-    )
-    email_message_queue(email_message=email_message)
-    org_invitation.email_messages.add(email_message)
-
-
-def org_invitation_resend(*, org: Org, uuid: str) -> None:
-    """Resend an OrgInvitation."""
-    org_invitation = selectors.org_invitation_list(org=org, uuid=uuid).get()
-    org_invitation_send(org_invitation=org_invitation)
-
-
 def org_switch(*, request: HttpRequest, slug: str) -> None:
     """Switch a user to a different Org."""
     org = selectors.org_list(slug=slug, users=request.user, is_active=True).get()
@@ -795,11 +724,6 @@ def global_setting_update(*, instance: GlobalSetting, **kwargs) -> GlobalSetting
 
 def org_user_update(*, instance: OrgUser, **kwargs) -> OrgUser:
     """Update an OrgUser and return the OrgUser."""
-    return model_update(instance=instance, **kwargs)
-
-
-def org_invitation_update(*, instance: OrgInvitation, **kwargs) -> OrgInvitation:
-    """Update an OrgInvitation and return the OrgInvitation."""
     return model_update(instance=instance, **kwargs)
 
 
@@ -980,10 +904,6 @@ def org_user_setting_default_create(**kwargs) -> OrgUserSettingDefault:
 
 def plan_org_setting_create(**kwargs) -> PlanOrgSetting:
     return model_create(klass=PlanOrgSetting, **kwargs)
-
-
-def org_invitation_create(**kwargs) -> OrgInvitation:
-    return model_create(klass=OrgInvitation, **kwargs)
 
 
 def overridden_org_setting_create(**kwargs) -> OverriddenOrgSetting:

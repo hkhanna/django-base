@@ -9,7 +9,6 @@ from core.types import BaseModelType, UserType
 from .models import (
     GlobalSetting,
     Org,
-    OrgInvitation,
     OrgSetting,
     OrgUser,
     OverriddenOrgSetting,
@@ -49,10 +48,6 @@ def global_setting_list(**kwargs) -> QuerySet[GlobalSetting]:
 
 def org_list(**kwargs) -> QuerySet[Org]:
     return model_list(klass=Org, **kwargs)
-
-
-def org_invitation_list(**kwargs) -> QuerySet[OrgInvitation]:
-    return model_list(klass=OrgInvitation, **kwargs)
 
 
 def org_user_list(**kwargs) -> QuerySet[OrgUser]:
