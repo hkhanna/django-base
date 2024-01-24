@@ -162,7 +162,9 @@ Avoid making changes directly to the `core` directory to avoid merge conflicts w
 
 ## Organizations
 
-The concept of organizations (`Org`) is available for use, but not required. If you create a model that relies on the `Org` model or other of the other models related to `Org`, you'll need to handle the case that there is no active org. This can happen:
+The concept of organizations (`Org`) is available for use, but not required. To use the organizations functionality, you'll need to add `core.middleware.OrgMiddleware` to the middleware.
+
+If you create a model that relies on the `Org` model or other of the other models related to `Org`, you'll need to handle the case that there is no active org. This can happen:
 
 - when a user initially signs up;
 - a User is removed from or leaves an org; or

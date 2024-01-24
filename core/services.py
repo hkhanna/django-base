@@ -727,15 +727,7 @@ def org_create(**kwargs) -> Org:
 def org_update(*, instance: Org, **kwargs) -> Org:
     """Update an Org and return the Org."""
 
-    # If this is a personal org, activate the AutoSlugField's overwrite flag.
-    # This makes it so that the slug will auto-reference the name field.
-    if instance.is_personal:
-        instance._meta.get_field("slug").overwrite = True
-
     org = model_update(instance=instance, **kwargs)
-
-    # Reset the slug overwrite flag to its default value.
-    instance._meta.get_field("slug").overwrite = False
 
     # If owner isn't an OrgUser, create one.
     if not selectors.org_user_list(org=org, user=org.owner).exists():

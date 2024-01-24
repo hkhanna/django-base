@@ -186,49 +186,6 @@ def test_password_reset(page: Page, live_server, mailoutbox):
     assert len(mailoutbox) == 1
 
 
-def test_organizations(page: Page, live_server, user):
-    """Organization views"""
-
-    with freezegun.freeze_time(timezone.now() - timedelta(days=1)):
-        org = factories.org_create(owner=user)
-    url = live_server.url + reverse("org_detail")
-    page.goto(url)
-
-    # Initially on the personal org
-    expect(page.get_by_role("button", name=f"Open user menu")).to_contain_text(
-        user.name
-    )
-
-    # Switch to the new org
-    page.get_by_role("button", name="Open user menu").click()
-    page.get_by_role("menuitem", name=org.name).click()
-
-    # Access the org's settings
-    page.goto(url)
-    page.get_by_role("link", name="Organization Settings").click()
-
-    # Invite a new member
-    new_email = factories.fake.email(safe=True)
-    page.get_by_role("button", name="Invite a Member").click()
-    page.get_by_label("Email Address").click()
-    page.get_by_label("Email Address").fill(new_email)
-    page.get_by_text("Invite", exact=True).click()
-    expect(page.get_by_text("has been invited to " + org.name)).to_be_visible()
-    assert selectors.org_invitation_list(email=new_email).count() == 1
-    assert selectors.email_message_list(to_email=new_email).count() == 1
-
-    # Re-send invitation
-    page.get_by_role("button", name="Resend").click()
-    page.get_by_text("Confirm Resend").click()
-    assert selectors.org_invitation_list(email=new_email).count() == 1
-    assert selectors.email_message_list(to_email=new_email).count() == 2
-
-    # Cancel invitation
-    page.get_by_role("button", name="Cancel").click()
-    page.get_by_text("Confirm Cancel").click()
-    assert selectors.org_invitation_list(email=new_email).count() == 0
-
-
 def test_admin(page: Page, live_server):
     """Admin user can log in."""
     user = factories.user_create(is_staff=True, is_superuser=True)

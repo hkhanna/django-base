@@ -155,7 +155,7 @@ class HostUrlconfMiddleware:
 
 
 class OrgMiddleware:
-    """If there's no org in the session, set the org to the user's personal org, or if none, the most recently updated org."""
+    """If there's no org in the session, set the org to the user's most recently accessed org."""
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -176,7 +176,7 @@ class OrgMiddleware:
                     request.org = org
 
             if request.org is None:
-                # Otherwise, use the user's default org.
+                # Otherwise, use the user's default org, if any.
                 request.org = request.user.default_org
 
         response = self.get_response(request)

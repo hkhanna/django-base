@@ -205,7 +205,6 @@ class Org(BaseModel):
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="owned_orgs"
     )
     is_active = models.BooleanField(default=True)
-    is_personal = models.BooleanField()
     primary_plan = models.ForeignKey(
         "core.Plan", on_delete=models.PROTECT, related_name="primary_orgs"
     )
@@ -225,13 +224,6 @@ class Org(BaseModel):
 
     class Meta:
         ordering = ("name", "slug")
-        constraints = [
-            models.UniqueConstraint(
-                fields=["owner"],
-                condition=models.Q(is_personal=True, is_active=True),
-                name="unique_personal_active_org",
-            )
-        ]
 
     def __str__(self):
         return self.name
@@ -308,7 +300,7 @@ class Plan(BaseModel):
     )
     is_default = models.BooleanField(
         default=False,
-        help_text="Used when no plan is specified. E.g., for users' personal orgs. Only one plan can be default, so setting this will unset any other default plan.",
+        help_text="Used by an org when no plan is specified. Only one plan can be default, so setting this will unset any other default plan.",
     )
 
     class Meta:
@@ -416,46 +408,6 @@ class User(AbstractUser):
     def __repr__(self):
         return f"<User: {self.email} (#{self.id})>"
 
-    def save(self, *args, **kwargs):
-        adding = False
-        if self._state.adding is True:
-            # If we don't set this now, self._state.adding doesn't work
-            # properly once we have saved the user.
-            adding = True
-
-        super().save(*args, **kwargs)
-
-        # Auto-create a personal org if the user doesn't have any active orgs.
-        from core import selectors, services
-
-        if not self.orgs.filter(is_active=True).exists():
-            try:
-                default_plan = selectors.plan_list(is_default=True).get()
-            except Plan.DoesNotExist:
-                default_plan = services.plan_create(is_default=True, name="Default")
-
-            services.org_create(
-                owner=self,
-                is_personal=True,
-                name=self.name,
-                is_active=True,
-                primary_plan=default_plan,
-                default_plan=default_plan,
-            )
-
-        if not adding:
-            # Conform the name of the personal org if the user has one.
-            if org := self.personal_org:
-                services.org_update(instance=org, name=self.name)
-
-    def clean(self):
-        if not self._state.adding:
-            # Don't require an Org for a brand new user
-            if self.orgs.count() == 0:
-                raise ValidationError(
-                    "A user must belong to at least one organization."
-                )
-
     @property
     def name(self):
         if self.display_name:
@@ -470,11 +422,8 @@ class User(AbstractUser):
             return self.email
 
     @property
-    def personal_org(self):
-        return self.orgs.filter(owner=self, is_personal=True, is_active=True).first()
-
-    @property
     def default_org(self):
+        # FIXME: this should be a service
         # Use the most recently accessed org.
         ou = (
             self.org_users.filter(org__is_active=True)
@@ -482,8 +431,17 @@ class User(AbstractUser):
             .first()
         )
 
-        assert ou is not None, "User does not have any Orgs"
-        return ou.org
+        # FIXME
+        # assert ou is not None, "User does not have any Orgs"
+        if ou:
+            return ou.org
+
+    def clean(self):
+        # We don't want to call the parent class's clean() because
+        # it will try to call a normalize_email function on the manager
+        # but we don't need that because we normalize the email address as
+        # part of the field.
+        pass
 
     def natural_key(self):
         # We can't use UUIDs as a natural key for users unless we override

@@ -8,8 +8,6 @@ register = template.Library()
 def org_switcher(context):
     request = context["request"]
     org_name_extended = request.org.name
-    if request.org.is_personal:
-        org_name_extended += " (Personal)"
 
     available_orgs = [
         {"name": org.name, "slug": org.slug}
