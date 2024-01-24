@@ -1,7 +1,8 @@
+from django.http import HttpResponse
 from freezegun import freeze_time
-from django.test import override_settings
+from django.test import override_settings, modify_settings
 from django.utils import timezone
-from django.urls import reverse
+from django.urls import reverse, path, clear_url_caches
 from django.test import Client
 from django.conf import settings
 from . import factories
@@ -133,7 +134,7 @@ def test_org_middleware_org_in_session(client, user):
 
 
 @override_settings(MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"])
-def test_org_middleware_org_in_session_bad(client, user):
+def test_org_middleware_org_in_session_bad(client, user, org):
     """If there's an org in the session, but it doesn't match the user, don't use it."""
     client.force_login(user)
     other_org = factories.org_create(
@@ -145,9 +146,8 @@ def test_org_middleware_org_in_session_bad(client, user):
     session.save()
 
     response = client.get(reverse("index"))
+    assert response.wsgi_request.org == org
     assert response.wsgi_request.org != other_org
-    # FIXME: Need to decide what to do if user has no org.
-    assert response.wsgi_request.org is not None
 
 
 @override_settings(MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"])
@@ -158,7 +158,7 @@ def test_org_middleware_ou_last_accessed(client, user, org):
         owner=user,
         is_active=True,
     )
-    assert user.default_org == org2
+    assert services.org_get_recent_for_user(user) == org2
 
     with freeze_time("2023-03-16 12:00:00Z") as frozen_dt:
         response = client.get(reverse("index"))
@@ -166,9 +166,3 @@ def test_org_middleware_ou_last_accessed(client, user, org):
         ou = org2.org_users.get(user=user)
         assert ou.last_accessed_at == timezone.now()
         assert user.org_users.get(org=org).last_accessed_at != timezone.now()
-
-
-# FIXME
-"""Set the session org to request.org"""
-
-"""Remove the session org if request.org is None"""

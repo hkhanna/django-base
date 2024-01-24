@@ -389,21 +389,6 @@ class User(AbstractUser):
         else:
             return self.email
 
-    @property
-    def default_org(self):
-        # FIXME: this should be a service
-        # Use the most recently accessed org.
-        ou = (
-            self.org_users.filter(org__is_active=True)
-            .order_by("-last_accessed_at")
-            .first()
-        )
-
-        # FIXME
-        # assert ou is not None, "User does not have any Orgs"
-        if ou:
-            return ou.org
-
     def clean(self):
         # We don't want to call the parent class's clean() because
         # it will try to call a normalize_email function on the manager

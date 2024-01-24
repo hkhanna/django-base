@@ -173,6 +173,8 @@ If you create a model that relies on the `Org` model or other of the other model
 - a User is removed from or leaves an org; or
 - an org is deleted.
 
+You must not assume that a `user` has an org or that `request.org` is not None.
+
 ### Org-related Settings
 
 There are 2 types of settings, settings for an `Org` (`OrgSetting`) and settings for an `OrgUser` (`OrgUserSetting`).
