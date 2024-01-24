@@ -4,9 +4,7 @@ import pytest
 from django.urls import reverse
 
 from .. import factories
-from ...models import OrgInvitation
-from ..assertions import assertMessageContains
-from ... import views, permissions, services, selectors, constants
+from ... import views, services, selectors, constants
 
 
 @pytest.fixture(autouse=True)
@@ -73,18 +71,6 @@ def test_org_detail(client, user, org):
     assert other_user.name in str(response.content)
 
 
-def test_org_invitation_cancel(client, user):
-    """Cancel an invitation"""
-    client.force_login(user)
-    email = factories.fake.email()
-    client.post(reverse("org_invite"), {"email": email})
-    assert OrgInvitation.objects.count() == 1
-    uuid = OrgInvitation.objects.first().uuid
-    response = client.post(reverse("org_invitation_cancel", kwargs={"uuid": uuid}))
-    assertMessageContains(response, f"Invitation canceled.")
-    assert OrgInvitation.objects.count() == 0
-
-
 def test_org_user_setting_permission_mixin(rf, user, org):
     """The OrgUserSettingPermissionMixin is a mixin that requires a given OrgUserSetting to be True."""
     org_user_setting = services.org_user_setting_create(
@@ -107,15 +93,3 @@ def test_org_user_setting_permission_mixin(rf, user, org):
         org_user=org_user, setting=org_user_setting, value="true"
     )
     assert mixin.test_func() is True
-
-
-def test_org_invitation_view_permissions():
-    """The create, cancel, and resend invitation views require can_invite_members permission"""
-    for view in (
-        views.OrgInvitationCreateView,
-        views.OrgInvitationCancelView,
-        views.OrgInvitationResendView,
-    ):
-        assert views.LoginRequiredMixin in view.__bases__
-        assert permissions.OrgUserSettingPermissionMixin in view.__bases__
-        assert view.org_user_setting == "can_invite_members"

@@ -1,9 +1,0 @@
-{% extends "core/email/base.txt" %}
-{% block content %}
-Hello,
-
-You have been invited to join {{org_name}} on {{site_name}} by {{inviter}}.
-
-You may accept this invitation at this url:
-{{action_url|safe}}
-{% endblock %}
