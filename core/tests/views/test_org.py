@@ -57,20 +57,6 @@ def test_org_switch_inactive_unauthorized(client, user, org):
     assert response.wsgi_request.session["org_slug"] == org.slug
 
 
-def test_org_detail(client, user, org):
-    """Org detail page shows members"""
-    client.force_login(user)
-    assert user.default_org == org
-    other_user = factories.user_create()
-    org.users.add(other_user)
-
-    response = client.get(reverse("org_detail"))
-    assert response.status_code == 200
-    assert user.name in str(response.content)
-    assert "Owner" in str(response.content)
-    assert other_user.name in str(response.content)
-
-
 def test_org_user_setting_permission_mixin(rf, user, org):
     """The OrgUserSettingPermissionMixin is a mixin that requires a given OrgUserSetting to be True."""
     org_user_setting = services.org_user_setting_create(
