@@ -23,12 +23,11 @@ class Command(BaseCommand):
         )
 
         # -- Orgs -- #
-        # Create an additional Org for the user with the user as the owner.
-        plan = services.plan_create(name="Other Plan")
+        # Create an Org for the user with the user as the owner.
+        plan = services.plan_create(name="Default Plan", is_default=True)
         services.org_create(
             name="Example LLC",
             owner=user,
-            is_personal=False,
             primary_plan=plan,
             default_plan=plan,
         )

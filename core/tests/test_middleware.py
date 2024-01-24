@@ -1,9 +1,9 @@
-import logging
 from freezegun import freeze_time
 from django.test import override_settings
 from django.utils import timezone
 from django.urls import reverse
 from django.test import Client
+from django.conf import settings
 from . import factories
 from .. import services
 
@@ -74,21 +74,27 @@ def test_host_urlconf_middleware():
     assert response.wsgi_request.urlconf == "core.urls"  # Directly use core.urls
 
 
-def test_org_middleware_no_org_in_session(client, user, org):
+@override_settings(MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"])
+def test_org_middleware_no_org_in_session(client, user):
     """If there's no org in the session, set the org to the most recently accessed, active org."""
-    client.force_login(user)
-    personal = user.personal_org
-    personal_ou = personal.org_users.get(user=user)
-    ou = org.org_users.get(user=user)
+    org1 = factories.org_create()
+    org2 = factories.org_create()
+    ou1 = services.org_user_create(
+        org=org1, user=user
+    )  # last_accessed_at set automatically
+    ou2 = services.org_user_create(
+        org=org2, user=user
+    )  # last_accessed_at set automatically
+    assert ou2.last_accessed_at > ou1.last_accessed_at
 
-    assert ou.last_accessed_at > personal_ou.last_accessed_at
+    client.force_login(user)
 
     response = client.get(reverse("index"))
-    assert response.wsgi_request.org == org
+    assert response.wsgi_request.org == org2
 
-    # More recently access the personal org
-    services.org_user_update(instance=personal_ou, last_accessed_at=timezone.now())
-    assert ou.last_accessed_at < personal_ou.last_accessed_at
+    # More recently access the first org
+    services.org_user_update(instance=ou1, last_accessed_at=timezone.now())
+    assert ou2.last_accessed_at < ou1.last_accessed_at
 
     session = client.session
     session.clear()
@@ -96,10 +102,10 @@ def test_org_middleware_no_org_in_session(client, user, org):
     client.force_login(user)
 
     response = client.get(reverse("index"))
-    assert response.wsgi_request.org == personal
+    assert response.wsgi_request.org == org1
 
-    # Deactivate the personal Org
-    services.org_update(instance=personal, is_active=False)
+    # Deactivate the first Org
+    services.org_update(instance=org1, is_active=False)
 
     session = client.session
     session.clear()
@@ -107,15 +113,15 @@ def test_org_middleware_no_org_in_session(client, user, org):
     client.force_login(user)
 
     response = client.get(reverse("index"))
-    assert response.wsgi_request.org == org
+    assert response.wsgi_request.org == org2
 
 
+@override_settings(MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"])
 def test_org_middleware_org_in_session(client, user):
     """If there's an org in the session, set request.org to that org."""
     client.force_login(user)
     other_org = factories.org_create(
         owner=user,
-        is_personal=False,
         is_active=True,
     )
     session = client.session
@@ -126,12 +132,12 @@ def test_org_middleware_org_in_session(client, user):
     assert response.wsgi_request.org == other_org
 
 
+@override_settings(MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"])
 def test_org_middleware_org_in_session_bad(client, user):
     """If there's an org in the session, but it doesn't match the user, don't use it."""
     client.force_login(user)
     other_org = factories.org_create(
         owner=factories.user_create(),
-        is_personal=False,
         is_active=True,
     )
     session = client.session
@@ -140,17 +146,23 @@ def test_org_middleware_org_in_session_bad(client, user):
 
     response = client.get(reverse("index"))
     assert response.wsgi_request.org != other_org
+    # FIXME: Need to decide what to do if user has no org.
+    assert response.wsgi_request.org is not None
 
 
+@override_settings(MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"])
 def test_org_middleware_ou_last_accessed(client, user, org):
+    """Accessing an org should update the last_accessed_at field on the OrgUser."""
     client.force_login(user)
-    assert user.default_org == org
+    org2 = factories.org_create(
+        owner=user,
+        is_active=True,
+    )
+    assert user.default_org == org2
 
     with freeze_time("2023-03-16 12:00:00Z") as frozen_dt:
         response = client.get(reverse("index"))
-        assert response.wsgi_request.org == org
-        ou = org.org_users.get(user=user)
+        assert response.wsgi_request.org == org2
+        ou = org2.org_users.get(user=user)
         assert ou.last_accessed_at == timezone.now()
-        assert (
-            user.org_users.get(org=user.personal_org).last_accessed_at != timezone.now()
-        )
+        assert user.org_users.get(org=org).last_accessed_at != timezone.now()

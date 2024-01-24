@@ -146,7 +146,6 @@ class OrgAdmin(BaseModelAdmin):
         "slug",
         "is_active",
         "owner",
-        "is_personal",
         "primary_plan",
         "current_period_end",
         "created_at",
@@ -154,7 +153,6 @@ class OrgAdmin(BaseModelAdmin):
     )
     list_filter = (
         "is_active",
-        "is_personal",
         "primary_plan",
     )
     readonly_fields = ("created_at", "updated_at")

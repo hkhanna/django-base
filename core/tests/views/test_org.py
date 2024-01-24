@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.test import override_settings
+import pytest
 from django.urls import reverse
 
 from .. import factories
@@ -6,44 +9,54 @@ from ..assertions import assertMessageContains
 from ... import views, permissions, services, selectors, constants
 
 
+@pytest.fixture(autouse=True)
+def org_middleware():
+    with override_settings(
+        MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"]
+    ):
+        yield
+
+
 def test_org_switch(client, user, org):
     """Switching an org simply sets request.org and persists that information to the session."""
+    new_org = factories.org_create(owner=user)
+
     client.force_login(user)
     response = client.get(reverse("index"))
-    assert response.wsgi_request.org == org
+    assert response.wsgi_request.org == new_org
 
-    response = client.post(reverse("org_switch"), {"slug": user.personal_org.slug})
-    assert response.wsgi_request.org == user.personal_org
-    assert response.wsgi_request.session["org_slug"] == user.personal_org.slug
+    response = client.post(reverse("org_switch"), {"slug": org.slug})
+    assert response.wsgi_request.org == org
+    assert response.wsgi_request.session["org_slug"] == org.slug
 
 
 def test_org_switch_inactive(client, user, org):
     """A user may not switch to an inactive org"""
-    personal = user.personal_org
-    services.org_update(instance=personal, is_active=False)
-
     client.force_login(user)
     response = client.get(reverse("index"))
     assert response.wsgi_request.org == org
 
-    response = client.post(reverse("org_switch"), {"slug": personal.slug})
+    new_org = factories.org_create(owner=user)
+    services.org_update(instance=new_org, is_active=False)
+
+    response = client.post(reverse("org_switch"), {"slug": new_org.slug})
     assert response.status_code == 404
     assert response.wsgi_request.org == org
     assert response.wsgi_request.session["org_slug"] == org.slug
 
 
-def test_org_switch_inactive_unauthorized(client, user):
+def test_org_switch_inactive_unauthorized(client, user, org):
     """A user may not switch to an org that they don't belong to."""
-    org = factories.org_create()  # Different owner
+    other_org = factories.org_create()  # Different owner
 
     client.force_login(user)
     response = client.get(reverse("index"))
-    assert response.wsgi_request.org == user.personal_org
+    assert response.wsgi_request.org == org
 
-    response = client.post(reverse("org_switch"), {"slug": org.slug})
+    response = client.post(reverse("org_switch"), {"slug": other_org.slug})
     assert response.status_code == 404
-    assert response.wsgi_request.org == user.personal_org
-    assert response.wsgi_request.session["org_slug"] == user.personal_org.slug
+    assert response.wsgi_request.org == org
+    assert response.wsgi_request.session["org_slug"] == org.slug
 
 
 def test_org_detail(client, user, org):

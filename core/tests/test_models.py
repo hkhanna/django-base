@@ -45,54 +45,6 @@ def test_exists_model_list():
                 assert hasattr(selectors, f"{snake_name}_list")
 
 
-def test_one_org(user):
-    """A user must belong to at least one Org."""
-    user.orgs.clear()
-    with assertRaisesMessage(
-        ValidationError, "A user must belong to at least one organization."
-    ):
-        user.full_clean()
-
-
-def test_auto_create_org():
-    """Creating a user creates their personal organization"""
-    assert models.Org.objects.count() == 0
-    user = services.user_create(
-        first_name="First", last_name="Last", email="first@example.com"
-    )
-
-    assert models.Org.objects.count() == 1
-    org = models.Org.objects.first()
-    assert org.owner == user
-    assert org.is_personal is True
-    assert org.is_active is True
-    assert list(org.users.all()) == [user]
-
-
-def test_maximum_personal(user):
-    """User can have a maximum of 1 personal, active org."""
-    # A user doesn't necessarily have to have a personal org.
-    # Think a corporate rank-and-file employee who was invited by their company admin.
-    assert models.Org.objects.filter(owner=user, is_personal=True).count() == 1
-
-    factories.org_create(owner=user, is_personal=False, name=user.name)  # OK
-    factories.org_create(
-        owner=user, is_personal=True, is_active=False, name=user.name
-    )  # OK
-
-    with assertRaisesMessage(ValidationError, "unique_personal_active_org"):
-        factories.org_create(owner=user, is_personal=True, name=user.name)
-
-
-def test_change_user_name_org_name(user):
-    """Changing a user's name should change the name of the user's personal org."""
-    user.first_name = "Kipp"
-    user.full_clean()
-    user.save()
-
-    assert user.personal_org.name == user.name
-
-
 def test_org_setting_boolean(org):
     """OrgSettings of type bool may only have a value of true or false."""
     org_setting = services.org_setting_create(
