@@ -162,7 +162,10 @@ Avoid making changes directly to the `core` directory to avoid merge conflicts w
 
 ## Organizations
 
-The concept of organizations (`Org`) is available for use, but not required. To use the organizations functionality, you'll need to add `core.middleware.OrgMiddleware` to the middleware.
+The concept of organizations (`Org`) is available for use, but not required. To use the organizations functionality, you'll need to add `core.middleware.OrgMiddleware` to the middleware. In addition to the various settings infrastucture (below), you have a couple other goodies you can use:
+
+- `core.services.org_switch()` which is a function to switch the active org for the current request. It should be used with an org switcher widget on the frontend.
+- `OrgUserSettingPermissionMixin(UserPassesTestMixin)` for testing OrgUserSettings before allowing access to a view
 
 If you create a model that relies on the `Org` model or other of the other models related to `Org`, you'll need to handle the case that there is no active org. This can happen:
 
@@ -207,7 +210,7 @@ I recommend writing a test for each answer to the foregoing quetions.
 
 One approach to help answer these questions is to create the concept of a "personal org". This adds some complexity because that org would be treated differently in many cases. For example, if a personal org is named after the owner, should changing the owner's name change the name of the personal org? If a user is created because they were invited to an org, does it make sense to create a personal org too? And if a user leaves their last org and doesn't have a personal org, perhaps it should create one. In a lot of applications, the concept of a personal org would not make sense. But in primarily consumer-facing ones, it might.
 
-Another approach might be the concept of a single "default" org that a user gets added to if they don't have another one. This is simpler, but runs the risk of users seeing each others' data, depending on which models are linked to the `Org` model.
+Another approach might be the concept of a single "default" org that a user gets added to if they don't have another one. This is simpler, but runs the risk of users seeing each others' data, depending on which models are linked to the `Org` model. For example, it should not be possible for users to see the list of members in the default org.
 
 A third approach might simply be to prevent a user from accessing any org-required views until they create an org. Perhaps something they could do on signup if they didn't join via an invitation from an org.
 

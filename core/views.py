@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.tokens import default_token_generator
-from django.utils import timezone
 from django.contrib.auth import (
     update_session_auth_hash,
     get_user_model,
@@ -24,8 +23,6 @@ from django.contrib.auth.views import (
 )
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
-from django.core.exceptions import ObjectDoesNotExist
 from django import forms
 from django.http import Http404, JsonResponse
 from django.http.response import HttpResponse as HttpResponse
@@ -35,9 +32,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import (
-    CreateView,
-    DeleteView,
-    DetailView,
     TemplateView,
     View,
     FormView,
@@ -48,11 +42,9 @@ from django.utils.http import urlsafe_base64_encode
 from django.http import HttpResponseRedirect
 
 
-from . import models, selectors, services, utils
-from .exceptions import ApplicationError, ApplicationWarning
-from .permissions import OrgUserSettingPermissionMixin
+from . import selectors, services, utils
+from .exceptions import ApplicationError
 from .tasks import email_message_webhook_process as email_message_webhook_process_task
-from .types import UserType
 
 User = get_user_model()
 
@@ -86,16 +78,6 @@ def permission_denied(request, exception):
         url = settings.PERMISSION_DENIED_REDIRECT
 
     return redirect(url)
-
-
-class OrgSwitchView(LoginRequiredMixin, View):
-    def post(self, request):
-        try:
-            services.org_switch(request=request, slug=request.POST.get("slug"))
-        except models.Org.DoesNotExist as e:
-            logger.exception(e)
-            raise Http404()
-        return redirect("index")
 
 
 @csrf_exempt

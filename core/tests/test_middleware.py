@@ -166,3 +166,9 @@ def test_org_middleware_ou_last_accessed(client, user, org):
         ou = org2.org_users.get(user=user)
         assert ou.last_accessed_at == timezone.now()
         assert user.org_users.get(org=org).last_accessed_at != timezone.now()
+
+
+# FIXME
+"""Set the session org to request.org"""
+
+"""Remove the session org if request.org is None"""
