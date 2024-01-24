@@ -20,7 +20,7 @@ import mimetypes
 import traceback
 from datetime import datetime, timedelta
 from importlib import import_module
-from typing import IO, Any, AnyStr, Dict, List, Optional, Type, Literal
+from typing import IO, AnyStr, List, Optional, Type, Literal
 from uuid import uuid4
 import pytz
 import requests
@@ -33,17 +33,17 @@ from django.core.files.storage import storages
 from django.core.mail.message import EmailMultiAlternatives, sanitize_address
 from django.core.management import call_command
 from django.db import models, transaction
-from django.db.models import Model, QuerySet
+from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.urls import reverse
-from django import forms
 
 from . import constants, selectors, utils
 from .exceptions import *
 from .models import (
+    BaseModel,
     EmailMessage,
     EmailMessageAttachment,
     EmailMessageWebhook,
@@ -60,7 +60,7 @@ from .models import (
     PlanOrgSetting,
 )
 from .tasks import email_message_send as email_message_send_task
-from .types import BaseModelType, UserType
+from .types import BaseModelType, DjangoModelType, UserType
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -782,7 +782,7 @@ def org_user_setting_default_update(
     return model_update(instance=instance, **kwargs)
 
 
-def model_update(*, instance: BaseModelType, save=True, **kwargs) -> BaseModelType:
+def model_update(*, instance: DjangoModelType, save=True, **kwargs) -> DjangoModelType:
     """Update a model instance with the provided data and return the instance. This does not
     reset any fields on the instance, so if updates have already been made to the instance, they
     will stick unless overriden by the data."""
@@ -815,7 +815,16 @@ def model_update(*, instance: BaseModelType, save=True, **kwargs) -> BaseModelTy
 
     if save:
         instance.full_clean()
-        instance._allow_save = True
+
+        # UserModel doesn't have _allow_save.
+        if isinstance(instance, BaseModel):
+            instance._allow_save = True
+        else:
+            # It must either be an instance of BaseModel or User.
+            assert isinstance(
+                instance, User
+            ), "Non-BaseModels must be Users in model_update."
+
         instance.save()
     elif len(m2m_data) > 0:
         raise RuntimeError(
@@ -1006,48 +1015,7 @@ def user_update(*, instance: UserType, save=True, **kwargs) -> UserType:
         if kwargs.get("email") and kwargs["email"] not in instance.email_history:
             instance.email_history.append(kwargs["email"])
 
-    # The below is very much based on model_update.
-    # We've needed to reproduce it to avoid typing errors because
-    # User isn't a subclass of BaseModel.
-    m2m_data = {}
-    model_fields = {field.name: field for field in instance._meta.get_fields()}
-
-    for field in kwargs:
-        # If field is not an actual model field, raise an error
-        model_field = model_fields.get(field)
-
-        assert (
-            model_field is not None
-        ), f"{field} is not part of {instance.__class__.__name__} fields."
-
-        # We disallow updating a m2o field this way because, somewhat obviously,
-        # it will as a side-effect reassign the fk relationship.
-        # If there's ever a use case for doing that, remove this check.
-        if isinstance(model_field, models.ManyToOneRel):
-            raise ApplicationError(
-                "Cannot update a ManyToOneRel field via user_update."
-            )
-
-        # If we have m2m field, handle differently
-        if isinstance(model_field, (models.ManyToManyField, models.ManyToOneRel)):
-            m2m_data[field] = kwargs[field]
-            continue
-
-        setattr(instance, field, kwargs[field])
-
-    if save:
-        instance.full_clean()
-        instance.save()
-    elif len(m2m_data) > 0:
-        raise RuntimeError(
-            "Cannot save m2m data without saving the instance. Set save=True."
-        )
-
-    for field_name, value in m2m_data.items():
-        related_manager = getattr(instance, field_name)
-        related_manager.set(value)
-
-    return instance
+    return model_update(instance=instance, save=save, **kwargs)
 
 
 def set_timezone(*, request: HttpRequest, detected_tz: str) -> None:
