@@ -630,17 +630,6 @@ class GoogleOAuthService:
             raise ApplicationError("Could not obtain Google access_token from code")
 
 
-def org_get_recent_for_user(user: UserType) -> Org:
-    """Return the most recently accessed Org for a user"""
-    ou = (
-        user.org_users.filter(org__is_active=True).order_by("-last_accessed_at").first()
-    )
-    if ou:
-        return ou.org
-
-    raise Org.DoesNotExist
-
-
 def org_switch(*, request: HttpRequest, slug: str) -> None:
     """Switch a user to a different Org."""
     org = selectors.org_list(slug=slug, users=request.user, is_active=True).get()

@@ -1,12 +1,12 @@
-from django.http import HttpResponse
 from freezegun import freeze_time
-from django.test import override_settings, modify_settings
+from django.test import override_settings
 from django.utils import timezone
 from django.urls import reverse, path, clear_url_caches
 from django.test import Client
 from django.conf import settings
+
 from . import factories
-from .. import services
+from .. import services, selectors
 
 
 def test_request_id_middleware_user(client, caplog, user):
@@ -158,7 +158,7 @@ def test_org_middleware_ou_last_accessed(client, user, org):
         owner=user,
         is_active=True,
     )
-    assert services.org_get_recent_for_user(user) == org2
+    assert selectors.org_get_recent_for_user(user) == org2
 
     with freeze_time("2023-03-16 12:00:00Z") as frozen_dt:
         response = client.get(reverse("index"))

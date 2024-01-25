@@ -176,11 +176,11 @@ class OrgMiddleware:
                     request.org = org
 
             if request.org is None:
-                import core.services
+                import core.selectors
 
                 # Otherwise, use the user's default org, if any.
                 try:
-                    request.org = core.services.org_get_recent_for_user(request.user)
+                    request.org = core.selectors.org_get_recent_for_user(request.user)
                 except Org.DoesNotExist:
                     pass  # Leave request.org as None if the user has no orgs.
 

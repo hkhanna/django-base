@@ -95,3 +95,14 @@ def user_list(**kwargs) -> QuerySet[UserType]:
 
 def model_list(*, klass: Type[BaseModelType], **kwargs) -> QuerySet:
     return klass._default_manager.filter(**kwargs)
+
+
+def org_get_recent_for_user(user: UserType) -> Org:
+    """Return the most recently accessed Org for a user"""
+    ou = (
+        user.org_users.filter(org__is_active=True).order_by("-last_accessed_at").first()
+    )
+    if ou:
+        return ou.org
+
+    raise Org.DoesNotExist
