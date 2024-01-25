@@ -1,4 +1,3 @@
-import django.views.defaults
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import include, path
@@ -7,7 +6,6 @@ from django.contrib.auth.views import LogoutView
 
 from . import views
 
-page_not_found = lambda request: django.views.defaults.page_not_found(request, None)
 
 user_patterns = [
     path("login/", views.LoginView.as_view(), name="login"),
@@ -61,14 +59,10 @@ urlpatterns = [
         name="email_message_webhook",
     ),
     path(
-        "400/", lambda request: django.views.defaults.bad_request(request, Exception())
-    ),
-    path("404/", page_not_found),
-    path("500/", django.views.defaults.server_error),
-    path(
         "robots.txt",
         views.TemplateView.as_view(
             template_name="core/robots.txt", content_type="text/plain"
         ),
     ),
+    path("error/<int:status_code>/", views.ErrorTestView.as_view()),
 ]

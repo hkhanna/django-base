@@ -64,22 +64,6 @@ def render_template_with_params(request, template):
     return django_render(request, template, context)
 
 
-def permission_denied(request, exception):
-    """When a PermissionDenied exception is raised, redirect with a message."""
-    try:
-        message = str(exception.args[0])
-    except IndexError:
-        message = "Permission denied."
-    messages.warning(request, message)
-
-    try:
-        url = exception.args[1]
-    except IndexError:
-        url = settings.PERMISSION_DENIED_REDIRECT
-
-    return redirect(url)
-
-
 @csrf_exempt
 @require_http_methods(["POST"])
 def email_message_webhook_view(request):
@@ -559,3 +543,36 @@ class PrivacyPolicyView(TemplateView):
             "core/PrivacyPolicy",
             props={},
         )
+
+
+class ErrorView(View):
+    status_code = None
+    support_email = settings.SITE_CONFIG["contact_email"]
+
+    def get(self, request, *args, **kwargs):
+        response = utils.inertia_render(
+            request,
+            "core/Error",
+            props={
+                "status_code": self.status_code or 500,
+                "support_email": self.support_email,
+            },
+            template_data={"html_class": "h-full", "body_class": "h-full"},
+        )
+        response.status_code = self.status_code or 500
+        return response
+
+
+class ErrorTestView(View):
+    def get(self, request, status_code):
+        from django.core.exceptions import SuspiciousOperation, PermissionDenied
+
+        match status_code:
+            case 400:
+                raise SuspiciousOperation("400 test")
+            case 403:
+                raise PermissionDenied("403 test")
+            case 404:
+                raise Http404("404 test")
+            case _:
+                raise Exception(f"{status_code} test")

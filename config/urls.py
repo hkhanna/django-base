@@ -16,9 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.urls import path, include
+from core.views import ErrorView
 
 
-handler403 = "core.views.permission_denied"
+handler403 = ErrorView.as_view(status_code=403)
+handler404 = ErrorView.as_view(status_code=404)
+handler500 = ErrorView.as_view(status_code=500)
 
 urlpatterns = [
     path(

@@ -196,7 +196,6 @@ LOGIN_REDIRECT_URL = "/user/settings/profile/"
 LOGOUT_REDIRECT_URL = "/user/login/"
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 SESSION_COOKIE_AGE = 15_552_000  # 180 days
-PERMISSION_DENIED_REDIRECT = LOGIN_REDIRECT_URL
 
 # Google OAuth
 SOCIAL_AUTH_GOOGLE_ENABLED = False
