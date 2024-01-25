@@ -56,6 +56,6 @@ jobs:
       #   env:
       #     deploy_url_web: ${{ secrets.RENDER_DEPLOY_HOOK_URL_WEB }}
       #     deploy_url_celery: ${{ secrets.RENDER_DEPLOY_HOOK_URL_CELERY }}
-      #     run: |
-      #       curl "$deploy_url_web"
-      #       curl "$deploy_url_celery"
+      #   run: |
+      #     curl "$deploy_url_web"
+      #     curl "$deploy_url_celery"
