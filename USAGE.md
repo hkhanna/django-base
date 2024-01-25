@@ -81,6 +81,9 @@ Then, generate the access key and secret key and hold onto it for the deploy to 
 1. Make any changes to `render.yaml`. Look at the comments in the file.
 1. Make sure the "Log Stream" is setup in your Render account settings. Right now, all services have to share 1 log stream, which is not ideal. It seems like that will change eventually and we will be able to have 1 Log Stream per service or service group.
 1. Create a new "Blueprint" in the Render interface, and connect the repo. This will prompt you to set environment variables that are set to sync: false.
+1. Make sure auto-deploys are OFF in the Render dashboard, because you'll want to only deploy after CI passes.
+1. Uncomment the `Deploy to Render` step in the Github Actions workflow. Tweak based on whether there's a separate celery service.
+1. Add `RENDER_DEPLOY_HOOK_URL_{WEB,CELERY}` to the Github Secrets. Get the url from the Render dashboard.
 1. Using the Render shell on the dashboard:
    - Make sure there aren't any obvious issues in production. `python manage.py check --deploy`
    - Create the first superuser on production: `python manage.py createsuperuser`
