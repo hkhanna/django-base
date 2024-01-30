@@ -16,6 +16,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 - Copy `.env.example` to `.env` and make any appropriate changes.
 - If you have a database running, from within the repo directory, run `make all`.
 - If you do not have a local database running but you do have Docker running, run `make all-docker`.
+- The initial superuser account is `admin@localhost` with password `admin`.
 
 ### Running Locally
 

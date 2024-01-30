@@ -15,12 +15,12 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         # -- Users -- #
-        # Create just one user for now that is a superuser
-        email = input("Superuser email address: ")
-        password = getpass.getpass()
+        email = "admin@localhost"
+        password = "admin"
         user = services.user_create(
             email=email, password=password, is_staff=True, is_superuser=True
         )
+        print(f"\n**--> Created superuser {email} with password {password} <--**\n")
 
         # -- Orgs -- #
         # Create an Org for the user with the user as the owner.
