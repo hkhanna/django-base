@@ -14,12 +14,6 @@ import uuid
 
 
 class Migration(migrations.Migration):
-    replaces = [
-        ("core", "0001_initial"),
-        ("core", "0002_alter_user_options_remove_user_date_joined_and_more"),
-        ("core", "0003_remove_orginvitation_created_by_and_more"),
-    ]
-
     initial = True
 
     dependencies = [
