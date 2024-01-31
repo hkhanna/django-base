@@ -119,7 +119,7 @@ class Command(BaseCommand):
         }
 
         for wh in (delivery_wh, open_wh, bounce_wh, spam_wh):
-            url = reverse("email_message_webhook")
+            url = reverse("email-message-webhook")
             Client(SERVER_NAME="localhost").post(
                 url, json.dumps(wh), content_type="application/json"
             )

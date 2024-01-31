@@ -46,7 +46,7 @@ def test_event_emit_view_insecure(client):
 
 def test_receive_webhook_view(client):
     """A EmailMessageWebhook is received and processed."""
-    url = reverse("email_message_webhook")
+    url = reverse("email-message-webhook")
     body = json.dumps(
         {
             "RecordType": "some_type",

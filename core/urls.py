@@ -42,12 +42,12 @@ urlpatterns = [
     path(
         "terms/",
         views.TermsOfUseView.as_view(),
-        name="terms_of_use",
+        name="terms-of-use",
     ),
     path(
         "privacy/",
         views.PrivacyPolicyView.as_view(),
-        name="privacy_policy",
+        name="privacy-policy",
     ),
     path("event/emit/", views.event_emit_view, name="event_emit"),
     path(
@@ -59,7 +59,7 @@ urlpatterns = [
     path(
         settings.EMAIL_MESSAGE_WEBHOOK_PATH,
         views.email_message_webhook_view,
-        name="email_message_webhook",
+        name="email-message-webhook",
     ),
     path(
         "robots.txt",
