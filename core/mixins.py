@@ -1,5 +1,5 @@
 import typing
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect
 
@@ -29,6 +29,11 @@ class OrgUserSettingPermissionMixin(UserPassesTestMixin):
 class OrgRequiredMixin(UserPassesTestMixin):
     """If the request does not have an org, redirect to a page that
     explains that a user needs an org to access the page."""
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if not any(issubclass(base, LoginRequiredMixin) for base in cls.__mro__[1:]):
+            raise TypeError(f"OrgRequiredMixin must be mixed with LoginRequiredMixin")
 
     def test_func(self):
         assert hasattr(self.request, "org"), "Did you forget to use the OrgMiddleware?"

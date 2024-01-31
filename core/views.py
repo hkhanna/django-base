@@ -527,7 +527,7 @@ class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
         )
 
 
-class OrgRequiredView(TemplateView):
+class OrgRequiredView(LoginRequiredMixin, TemplateView):
     def render_to_response(self, context, *args, **kwargs):
         return utils.inertia_render(
             self.request,
