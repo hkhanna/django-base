@@ -165,8 +165,9 @@ The concept of organizations (`Org`) is available for use, but not required. To 
 
 - `core.services.org_switch()` which is a function to switch the active org for the current request. It should be used with an org switcher widget on the frontend.
 - `OrgUserSettingPermissionMixin(UserPassesTestMixin)` for testing OrgUserSettings before allowing access to a view
+- `OrgRequiredMixin` for testing whether a user is in an org before allowing access to a view. If there's no org, it redirects the user to a view that renders a component defined by `settings.ORG_REQUIRED_INERTIA_COMPONENT`. This is a good place to display either an explanation, or potentially allow the use to create an org if that workflow makes sense for your application.
 
-If you create a model that relies on the `Org` model or other of the other models related to `Org`, you'll need to handle the case that there is no active org. This can happen:
+If you create a model that relies on the `Org` model or other of the other models related to `Org`, you'll need to handle the case that there is no active org, such as by using the `OrgRequiredMixin`. A user might not have an org in the following situations:
 
 - when a user initially signs up;
 - a User is removed from or leaves an org; or

@@ -527,6 +527,15 @@ class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
         )
 
 
+class OrgRequiredView(TemplateView):
+    def render_to_response(self, context, *args, **kwargs):
+        return utils.inertia_render(
+            self.request,
+            settings.ORG_REQUIRED_INERTIA_COMPONENT,
+            props={"contact_email": settings.SITE_CONFIG["contact_email"]},
+        )
+
+
 class TermsOfUseView(TemplateView):
     def render_to_response(self, context, *args, **kwargs):
         return utils.inertia_render(

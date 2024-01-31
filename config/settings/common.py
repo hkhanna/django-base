@@ -197,6 +197,8 @@ LOGOUT_REDIRECT_URL = "/user/login/"
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 SESSION_COOKIE_AGE = 15_552_000  # 180 days
 
+ORG_REQUIRED_INERTIA_COMPONENT = "core/OrgRequired"
+
 # Google OAuth
 SOCIAL_AUTH_GOOGLE_ENABLED = False
 SOCIAL_AUTH_GOOGLE_CLIENT_ID = env("SOCIAL_AUTH_GOOGLE_CLIENT_ID", default=None)
