@@ -17,6 +17,7 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 1. Grep for the string `django-base` (excluding this file) and either replace that string with the project name or take the other described action.
 1. Do the "Local Installation" in the README.
 1. Update `SITE_CONFIG`.
+1. If you're using Orgs, add `core.middleware.OrgMiddleware` to the `MIDDLEWARE` setting.
 1. Update the README file as appropriate.
 1. Delete this file, if desired, once deployed to production.
 

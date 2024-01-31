@@ -184,6 +184,9 @@ class OrgMiddleware:
                 except Org.DoesNotExist:
                     pass  # Leave request.org as None if the user has no orgs.
 
+        # Add org prop to all inertia pages
+        inertia_share(request, org=lambda: request.org)
+
         response = self.get_response(request)
 
         # If there's no longer a user (e.g., on logout or user delete),
