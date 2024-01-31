@@ -1,5 +1,5 @@
 import React from "react";
-import Head from "@/components/Head";
+import { Head } from "@/components/Head";
 import {
   Field,
   Label,
@@ -10,8 +10,8 @@ import { Input } from "@/components/catalyst/input";
 import { useForm, usePage } from "@inertiajs/react";
 import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
-import Layout from "@/components/Layout";
-import Logo from "@/components/Logo";
+import { Layout } from "@/components/Layout";
+import { Logo } from "@/components/Logo";
 
 export default function PasswordResetConfirm({
   validlink,

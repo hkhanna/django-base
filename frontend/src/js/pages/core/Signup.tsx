@@ -1,5 +1,5 @@
 import React from "react";
-import Head from "@/components/Head";
+import { Head } from "@/components/Head";
 import {
   Field,
   Label,
@@ -10,9 +10,9 @@ import {
 import { Input } from "@/components/catalyst/input";
 import { useForm } from "@inertiajs/react";
 import { TextLink } from "@/components/catalyst/text";
-import Logo from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/catalyst/button";
-import Layout from "@/components/Layout";
+import { Layout } from "@/components/Layout";
 import { ContinueWithGoogle } from "@/components/SocialAuth";
 
 type SocialAuth = {

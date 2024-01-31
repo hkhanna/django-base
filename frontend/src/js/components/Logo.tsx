@@ -1,7 +1,7 @@
 import React from "react";
 import { Text } from "@/components/catalyst/text";
 
-export default function Logo() {
+export function Logo() {
   return (
     <div className="flex flex-col items-center text-zinc-900 dark:text-white">
       <svg

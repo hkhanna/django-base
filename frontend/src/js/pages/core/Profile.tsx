@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import Head from "@/components/Head";
+import React from "react";
+import { Head } from "@/components/Head";
 import { SettingsLayout } from "@/components/SettingsLayout";
 import {
   Field,
@@ -10,8 +10,8 @@ import {
   Description,
 } from "@/components/catalyst/fieldset";
 import { Input } from "@/components/catalyst/input";
-import { useForm, usePage } from "@inertiajs/react";
-import { Text, TextLink } from "@/components/catalyst/text";
+import { useForm } from "@inertiajs/react";
+import { Text } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
 import { Separator } from "@/components/shadcn/separator";
 

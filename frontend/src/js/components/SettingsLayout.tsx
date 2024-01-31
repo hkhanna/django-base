@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
-import Layout from "@/components/Layout";
+import { Layout } from "@/components/Layout";
 import { Separator } from "@/components/shadcn/separator";
 import { cn } from "@/lib/shadcn";
 

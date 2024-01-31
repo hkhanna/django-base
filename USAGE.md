@@ -241,3 +241,8 @@ Avoid making changes directly to the `core` directory to avoid merge conflicts w
 ### Messages Framework
 
 If the `extra_tags` parameter to `messages.add_message` is passed, the `extra_tags` parameter becomes the title, and the text of the message is the description.
+
+### Recommended Coding Conventions
+
+- Use PascalCase for `tsx/jsx` files unless they come from a UI kit, in which case use the filename convension from the UI kit for that particular file.
+- Use named exports for everything other than Inertia page components, which need to be the default export to work properly.

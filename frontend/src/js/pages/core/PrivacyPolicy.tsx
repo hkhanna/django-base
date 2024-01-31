@@ -1,5 +1,5 @@
-import Layout from "@/components/Layout";
-import Logo from "@/components/Logo";
+import { Layout } from "@/components/Layout";
+import { Logo } from "@/components/Logo";
 import markdownit from "markdown-it";
 
 const md = markdownit();
