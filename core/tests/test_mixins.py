@@ -1,4 +1,4 @@
-from .. import permissions, services, selectors, constants
+from .. import mixins, services, selectors, constants
 
 
 def test_org_user_setting_permission_mixin(rf, user, org):
@@ -9,7 +9,7 @@ def test_org_user_setting_permission_mixin(rf, user, org):
         default="false",
         owner_value="true",
     )
-    mixin = permissions.OrgUserSettingPermissionMixin()
+    mixin = mixins.OrgUserSettingPermissionMixin()
     mixin.org_user_setting = "test_setting"
     request = rf.post("/test")
     request.user = user
