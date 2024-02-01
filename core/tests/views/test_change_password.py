@@ -1,6 +1,12 @@
+import pytest
 from django.urls import reverse
 
-from .. import factories
+
+# Override user fixture to auto-create an org for the user in case
+# other projects want to require orgs for this view.
+@pytest.fixture
+def user(org):
+    return org.owner
 
 
 def test_change_password_happy(client, user):

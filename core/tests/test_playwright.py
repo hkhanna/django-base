@@ -1,11 +1,8 @@
-from datetime import timedelta
 from urllib import request
 
-import freezegun
 import pytest
 from django.conf import settings
 from django.urls import reverse
-from django.utils import timezone
 from playwright.sync_api import Page, expect
 
 from .. import selectors
@@ -37,6 +34,9 @@ pytestmark = pytest.mark.skipif(
 @pytest.fixture
 def user(page: Page, live_server):
     user = factories.user_create(is_staff=True, is_superuser=True)
+    factories.org_create(
+        owner=user
+    )  # Create an org for the user in case other proejcts protect these views.
     url = live_server.url + reverse("user:login")
     page.goto(url)
     page.get_by_label("Email address").click()
@@ -59,7 +59,7 @@ def test_login(page: Page, live_server):
     page.get_by_label("Password").click()
     page.get_by_label("Password").fill("goodpass")
     page.get_by_role("button", name="Sign in").click()
-    expect(page).to_have_url(live_server.url + reverse("user:profile"))
+    expect(page).not_to_have_url(live_server.url + reverse("user:login"))
     expect(page.get_by_label("Email")).to_have_value(user.email)
 
 
@@ -78,7 +78,7 @@ def test_signup(page: Page, live_server):
     page.get_by_label("Password").fill("new@example.com")
     page.get_by_role("button", name="Create account").click()
 
-    expect(page).to_have_url(live_server.url + reverse("user:profile"))
+    expect(page).not_to_have_url(live_server.url + reverse("user:signup"))
     user = selectors.user_list(email="new@example.com").get()
     assert user.first_name == "Example First"
     assert user.last_name == "Example Last"
