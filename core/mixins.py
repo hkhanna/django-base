@@ -26,7 +26,7 @@ class OrgUserSettingPermissionMixin(UserPassesTestMixin):
         )
 
 
-class OrgRequiredMixin(UserPassesTestMixin):
+class OrgRequiredMixin:
     """If the request does not have an org, redirect to a page that
     explains that a user needs an org to access the page."""
 
@@ -35,9 +35,8 @@ class OrgRequiredMixin(UserPassesTestMixin):
         if not any(issubclass(base, LoginRequiredMixin) for base in cls.__mro__[1:]):
             raise TypeError(f"OrgRequiredMixin must be mixed with LoginRequiredMixin")
 
-    def test_func(self):
-        assert hasattr(self.request, "org"), "Did you forget to use the OrgMiddleware?"
-        return self.request.org is not None
-
-    def handle_no_permission(self):
-        return redirect("org-required")
+    def dispatch(self, request, *args, **kwargs):
+        assert hasattr(request, "org"), "Did you forget to use the OrgMiddleware?"
+        if request.org is None:
+            return redirect("org-required")
+        return super().dispatch(request, *args, **kwargs)
