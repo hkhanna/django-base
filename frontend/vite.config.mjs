@@ -34,8 +34,7 @@ export default defineConfig({
     target: "es2017",
     rollupOptions: {
       input: {
-        main: resolve("./src/js/main.js"),
-        react: resolve("./src/js/react.tsx"),
+        inertia: resolve("./src/js/inertia.tsx"),
       },
       output: {
         chunkFileNames: undefined,
