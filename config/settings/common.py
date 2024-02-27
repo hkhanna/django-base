@@ -42,9 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "inertia",
-    "heroicons",
     "django_extensions",
-    "django_web_components",
     "django_vite",
     # Non-core apps should come before core so layouts can be overriden.
     # core must come before admin because it overrides an admin template
@@ -83,10 +81,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-            ],
-            "builtins": [
-                "django_web_components.templatetags.components",
-                "core.templatetags.core",
             ],
         },
     },
