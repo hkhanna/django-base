@@ -2,14 +2,11 @@ import { resolve } from "path";
 import { loadEnv } from "vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import svgLoader from "vite-svg-loader";
 
 process.env = { ...process.env, ...loadEnv(null, process.cwd() + "/../") };
 
-// HACK: Remove svgloader once Heroicons aren't loaded via Alpine in any projects that use this.
-
 export default defineConfig({
-  plugins: [react(), svgLoader({ defaultImport: "raw" })],
+  plugins: [react()],
   root: resolve("./src/"),
   base: "/static/",
   server: {
