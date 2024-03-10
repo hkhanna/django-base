@@ -23,7 +23,6 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 
 ## Deploy to Production
 
-1. Add to `ALLOWED_HOSTS` in production settings whatever the domain is going to be.
 1. Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
 1. Update `SENTRY_DSN` in `frontend/src/js/react.tsx` if you want to track errors in the frontend. This will only be used in prod.
 
@@ -83,6 +82,7 @@ Note that an AWS lifecycle rule ("Prune Backups") will expire backups after appr
 
 ### Deploy to Render
 
+1. Add to `ALLOWED_HOSTS` in production settings whatever the domain is going to be.
 1. Make any changes to `render.yaml`. Look at the comments in the file.
 1. Make sure the "Log Stream" is setup in your Render account settings. Right now, all services have to share 1 log stream, which is not ideal. It seems like that will change eventually and we will be able to have 1 Log Stream per service or service group.
 1. Create a new "Blueprint" in the Render interface, and connect the repo. This will prompt you to set environment variables that are set to sync: false.
@@ -122,7 +122,6 @@ Note that an AWS lifecycle rule ("Prune Backups") will expire backups after appr
 1. Add papertrail via the Heroku interface.
 1. Create a Postmark server if using email.
 1. Create the first superuser on production: `heroku run python manage.py createsuperuser --app <app_name>`
-1. If you're using social auth, add the appropriate `Social Applications`.
 
 #### Heroku - Production Environment Variables
 
