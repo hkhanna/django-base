@@ -1,11 +1,14 @@
 {% extends 'admin/base.html' %}
+{% load core %}
 
 {% block extrastyle %}
-  {% if ENVIRONMENT == 'production' %}
-    <style>
-    #header {
-      background: #15803d
-    }
-    </style>
-  {% endif %}
+  {% with ENVIRONMENT=environment %}
+    {% if ENVIRONMENT == 'production' %}
+      <style>
+      #header {
+        background: #15803d
+      }
+      </style>
+    {% endif %}
+  {% endwith %}
 {% endblock extrastyle %}

@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.conf import settings
 from django.urls import path, include
@@ -24,11 +25,7 @@ handler404 = ErrorView.as_view(status_code=404)
 handler500 = ErrorView.as_view(status_code=500)
 
 urlpatterns = [
-    path(
-        settings.ADMIN_URL_PATH,
-        admin.site.urls,
-        {"extra_context": {"ENVIRONMENT": settings.ENVIRONMENT}},
-    ),
+    path(settings.ADMIN_URL_PATH, admin.site.urls),
     path("", include("core.urls")),
 ]
 
