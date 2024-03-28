@@ -2,13 +2,9 @@
 {% load core %}
 
 {% block extrastyle %}
-  {% with ENVIRONMENT=environment %}
-    {% if ENVIRONMENT == 'production' %}
-      <style>
-      #header {
-        background: #15803d
-      }
-      </style>
-    {% endif %}
-  {% endwith %}
+    <style>
+    #header {
+      background: {% admin_environment_color %}
+    }
+    </style>
 {% endblock extrastyle %}

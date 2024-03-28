@@ -5,5 +5,8 @@ register = template.Library()
 
 
 @register.simple_tag
-def environment():
-    return settings.ENVIRONMENT
+def admin_environment_color():
+    if settings.ENVIRONMENT == "production":
+        return "#15803d"
+    else:
+        return "#417690"
