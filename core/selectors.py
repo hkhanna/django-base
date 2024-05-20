@@ -94,7 +94,11 @@ def user_list(**kwargs) -> QuerySet[UserType]:
 
 
 def model_list(*, klass: Type[BaseModelType], **kwargs) -> QuerySet:
-    return klass._default_manager.filter(**kwargs)
+    q = kwargs.pop("q", None)
+    if q:
+        return klass._default_manager.filter(q, **kwargs)
+    else:
+        return klass._default_manager.filter(**kwargs)
 
 
 def org_get_recent_for_user(user: UserType) -> Org:
