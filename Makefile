@@ -9,7 +9,7 @@ run:
 	(make vite & make app & wait)
 
 app:
-	source .venv/bin/activate && python manage.py runserver_plus ${WEB_PORT}
+	source .venv/bin/activate && python manage.py runserver_plus 127.0.0.1:${WEB_PORT}
 
 vite:
 	npm run dev --prefix frontend/
