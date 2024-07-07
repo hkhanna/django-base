@@ -21,6 +21,7 @@
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "framer-motion": "^11.2.13",
     "heroicons": "^2.1.4",
     "markdown-it": "^14.1.0",
     "next-themes": "^0.3.0",

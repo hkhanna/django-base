@@ -1,20 +1,20 @@
-import { DataInteractive as HeadlessDataInteractive } from "@headlessui/react";
+import * as Headless from "@headlessui/react";
 import { Link as InertiaLink, type InertiaLinkProps } from "@inertiajs/react";
-import React from "react";
+import React, { forwardRef } from "react";
 
-export const Link = React.forwardRef(function Link(
-  { refresh, ...props }: InertiaLinkProps & { refresh?: boolean },
+export const Link = forwardRef(function Link(
+  { noInertia, ...props }: InertiaLinkProps & { noInertia?: boolean },
   ref: React.ForwardedRef<HTMLAnchorElement>
 ) {
   return (
-    <HeadlessDataInteractive>
-      {refresh ? (
+    <Headless.DataInteractive>
+      {noInertia ? (
         <a href={props.href} className={props.className} ref={ref}>
           {props.children}
         </a>
       ) : (
         <InertiaLink {...props} ref={ref} />
       )}
-    </HeadlessDataInteractive>
+    </Headless.DataInteractive>
   );
 });

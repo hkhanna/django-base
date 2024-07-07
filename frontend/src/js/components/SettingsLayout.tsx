@@ -44,7 +44,7 @@ function SettingsSidebarNav({ active }: { active?: string }) {
       {sidebarItems.map((item) => (
         <Button
           plain
-          nocenter
+          className="!justify-start"
           key={item.name}
           href={item.href}
           data-active={item.href === active ? true : undefined}

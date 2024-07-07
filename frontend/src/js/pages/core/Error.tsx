@@ -35,7 +35,7 @@ export default function Error({
               Go back home
             </Button>
             {support_email && (
-              <Button refresh plain href={`mailto:${support_email}`}>
+              <Button noInertia plain href={`mailto:${support_email}`}>
                 Email support <span aria-hidden="true">&rarr;</span>
               </Button>
             )}

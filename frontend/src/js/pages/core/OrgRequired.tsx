@@ -36,7 +36,7 @@ export default function OrgRequired({
               Sign out
             </Button>
             {contact_email && (
-              <Button refresh plain href={`mailto:${contact_email}`}>
+              <Button noInertia plain href={`mailto:${contact_email}`}>
                 Email support <span aria-hidden="true">&rarr;</span>
               </Button>
             )}
