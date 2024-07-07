@@ -2,8 +2,7 @@ import React from "react";
 import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
 import { Layout } from "@/components/Layout";
-import { Separator } from "@/components/shadcn/separator";
-import { cn } from "@/lib/shadcn";
+import { Divider } from "@/components/catalyst/divider";
 
 const sidebarItems = [
   { name: "Profile", href: "/user/settings/profile/" },
@@ -26,7 +25,7 @@ export function SettingsLayout({
           </h2>
           <Text>Manage your account settings and set e-mail preferences.</Text>
         </div>
-        <Separator className="my-6" />
+        <Divider />
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
           <aside className="-mx-4 lg:w-1/5">
             <SettingsSidebarNav active={active} />
@@ -40,7 +39,7 @@ export function SettingsLayout({
 
 function SettingsSidebarNav({ active }: { active?: string }) {
   return (
-    <nav className={cn("flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1")}>
+    <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
       {sidebarItems.map((item) => (
         <Button
           plain

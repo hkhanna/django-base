@@ -12,7 +12,7 @@ import { Input } from "@/components/catalyst/input";
 import { useForm } from "@inertiajs/react";
 import { Text, TextLink } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
-import { Separator } from "@/components/shadcn/separator";
+import { Divider } from "@/components/catalyst/divider";
 
 export default function PasswordChange({
   has_password,
@@ -49,7 +49,7 @@ export default function PasswordChange({
             <Text>Set a password.</Text>
           )}
         </div>
-        <Separator />
+        <Divider />
         <form onSubmit={handleSubmit}>
           <Fieldset aria-label="Password change form">
             <FieldGroup>

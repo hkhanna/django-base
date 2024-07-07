@@ -13,7 +13,7 @@ import { Input } from "@/components/catalyst/input";
 import { useForm } from "@inertiajs/react";
 import { Text } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
-import { Separator } from "@/components/shadcn/separator";
+import { Divider } from "@/components/catalyst/divider";
 
 export default function Profile({
   initial,
@@ -52,7 +52,7 @@ export default function Profile({
           </h3>
           <Text>This is how others will see you on the site.</Text>
         </div>
-        <Separator />
+        <Divider />
         <form onSubmit={handleSubmit}>
           <Fieldset aria-label="Profile form">
             <FieldGroup>
