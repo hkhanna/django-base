@@ -31,7 +31,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 ### Updating Packages
 
-- `pip list --outdated` but you need to basically install every environment first because you can't point that command at specific requirements files.
+- `pip-outdated <requirements file>` for every requirements file to see what's outdated. Fix them all.
 
 ## Merging upstream "base" changes
 
