@@ -12,7 +12,7 @@ const SENTRY_DSN = ""; // If set, will only be used in prod.
 if (import.meta.env.PROD && SENTRY_DSN) {
   Sentry.init({
     dsn: SENTRY_DSN,
-    integrations: [new Sentry.Replay()],
+    integrations: [Sentry.replayIntegration()],
     // Capture Replay for 10% of all sessions,
     // plus for 100% of sessions with an error
     replaysSessionSampleRate: 0.1,
