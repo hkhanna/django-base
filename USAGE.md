@@ -71,7 +71,7 @@ Make a note of the access key and the secret key, and hold onto it for the produ
 ## Enable AWS for backups if desired
 
 1. Generate a passphrase and store it safely in 1Password.
-1. Uncomment common.py and production.py STORAGES["backup"]
+1. Uncomment local.py, test.py, and production.py STORAGES["backup"]
 1. Uncomment python-gnupg in requirements/common.txt
 1. Set ENABLE_DATABASE_BACKUPS to True in common.py
 1. This will automatically enable the celery job contained in core.tasks.

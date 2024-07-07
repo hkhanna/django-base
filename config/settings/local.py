@@ -15,6 +15,25 @@ DATABASES = {
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": BASE_DIR / ".media/",
+        },
+    },
+    # "backups": {
+    #     "BACKEND": "django.core.files.storage.FileSystemStorage",
+    #     "OPTIONS": {
+    #         "location": BASE_DIR / ".backups/",
+    #     },
+    # },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+
 # django-debug-toolbar
 INSTALLED_APPS.append("debug_toolbar")
 MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")

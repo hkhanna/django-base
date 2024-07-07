@@ -16,6 +16,19 @@ DATABASES = {
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.InMemoryStorage",
+    },
+    # "backups": {
+    #     "BACKEND": "django.core.files.storage.InMemoryStorage",
+    # },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+
 # This shouldn't be necessary since testing will substitute out the postmark
 # backend for locmem, but this is just a precaution.
 POSTMARK_TEST_MODE = True

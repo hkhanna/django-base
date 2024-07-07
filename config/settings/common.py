@@ -227,23 +227,6 @@ INERTIA_LAYOUT = "core/layouts/inertia.html"
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-        "OPTIONS": {
-            "location": BASE_DIR / ".media/",
-        },
-    },
-    # "backups": {
-    #     "BACKEND": "django.core.files.storage.FileSystemStorage",
-    #     "OPTIONS": {
-    #         "location": BASE_DIR / ".backups/",
-    #     },
-    # },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
 
 # Automated backups
 ENABLE_DATABASE_BACKUPS = False
