@@ -3,9 +3,12 @@ import { Link as InertiaLink, type InertiaLinkProps } from "@inertiajs/react";
 import React, { forwardRef } from "react";
 
 export const Link = forwardRef(function Link(
-  { noInertia, ...props }: InertiaLinkProps & { noInertia?: boolean },
+  props: InertiaLinkProps,
   ref: React.ForwardedRef<HTMLAnchorElement>
 ) {
+  const noInertia =
+    props.href.startsWith("http") || props.href.startsWith("mailto");
+
   return (
     <Headless.DataInteractive>
       {noInertia ? (

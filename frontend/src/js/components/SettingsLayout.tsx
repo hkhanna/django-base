@@ -1,7 +1,7 @@
 import React from "react";
-import { Text, TextLink } from "@/components/catalyst/text";
+import { Text } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
-import { Layout } from "@/components/Layout";
+import { ApplicationLayout } from "@/components/Layout";
 import { Divider } from "@/components/catalyst/divider";
 
 const sidebarItems = [
@@ -17,8 +17,8 @@ export function SettingsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Layout>
-      <div className="space-y-6 p-10 pb-16">
+    <ApplicationLayout>
+      <div className="space-y-6 pb-16">
         <div className="space-y-0.5">
           <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
             Settings
@@ -33,7 +33,7 @@ export function SettingsLayout({
           <div className="flex-1 lg:max-w-2xl">{children}</div>
         </div>
       </div>
-    </Layout>
+    </ApplicationLayout>
   );
 }
 
