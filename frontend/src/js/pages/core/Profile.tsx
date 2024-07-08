@@ -1,6 +1,7 @@
 import React from "react";
 import { Head } from "@/components/Head";
 import { SettingsLayout } from "@/components/SettingsLayout";
+import { Heading } from "@/components/catalyst/heading";
 import {
   Field,
   Label,
@@ -47,9 +48,7 @@ export default function Profile({
       <Head title="Profile Settings" />
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
-            Profile
-          </h3>
+          <Heading>Profile</Heading>
           <Text>This is how others will see you on the site.</Text>
         </div>
         <Divider />

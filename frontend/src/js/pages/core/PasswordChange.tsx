@@ -1,6 +1,7 @@
 import React from "react";
 import { Head } from "@/components/Head";
 import { SettingsLayout } from "@/components/SettingsLayout";
+import { Heading } from "@/components/catalyst/heading";
 import {
   Field,
   Label,
@@ -10,7 +11,7 @@ import {
 } from "@/components/catalyst/fieldset";
 import { Input } from "@/components/catalyst/input";
 import { useForm } from "@inertiajs/react";
-import { Text, TextLink } from "@/components/catalyst/text";
+import { Text } from "@/components/catalyst/text";
 import { Button } from "@/components/catalyst/button";
 import { Divider } from "@/components/catalyst/divider";
 
@@ -40,9 +41,7 @@ export default function PasswordChange({
       <Head title="Account Settings" />
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
-            Password
-          </h3>
+          <Heading>Password</Heading>
           {has_password ? (
             <Text>Change your password.</Text>
           ) : (
