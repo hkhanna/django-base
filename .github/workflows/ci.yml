@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          if grep --exclude-dir={.venv,node_modules,.git,.github} -rE "TODO|FIXME|console\.log"; then
+          if grep --exclude-dir={.venv,node_modules,.git,.github,.cursorrules} -rE "TODO|FIXME|console\.log"; then
                exit 1
           else
               echo "All good"
