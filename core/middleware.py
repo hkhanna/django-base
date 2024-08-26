@@ -209,7 +209,7 @@ class OrgMiddleware:
 
 
 class InertiaUserMiddleware:
-    """Provide the user to all Inertia templates.""" ""
+    """Provide the user and org, if set, to all Inertia templates.""" ""
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -218,4 +218,9 @@ class InertiaUserMiddleware:
         inertia_share(
             request, user=lambda: request.user.is_authenticated and request.user or None
         )
+
+        # If OrgMiddleware is used, there will be an org attribute on the request.
+        if hasattr(request, "org"):
+            inertia_share(request, org=lambda: request.org)
+
         return self.get_response(request)
