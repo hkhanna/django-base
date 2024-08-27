@@ -166,6 +166,8 @@ class OrgMiddleware:
 
         # Only assign Orgs for authenticated users
         if request.user.is_authenticated:
+            import core.selectors
+
             # If there's an org in the session and it's not invalid, use it.
             slug = request.session.get("org_slug")
             if slug:
@@ -176,16 +178,24 @@ class OrgMiddleware:
                     request.org = org
 
             if request.org is None:
-                import core.selectors
-
                 # Otherwise, use the user's default org, if any.
                 try:
                     request.org = core.selectors.org_get_recent_for_user(request.user)
                 except Org.DoesNotExist:
                     pass  # Leave request.org as None if the user has no orgs.
 
-        # Add org prop to all inertia pages
-        inertia_share(request, org=lambda: request.org)
+            # Add org and available_orgs props to all inertia pages
+            inertia_share(request, org=lambda: request.org)
+            inertia_share(
+                request,
+                available_orgs=lambda: core.selectors.org_list(
+                    users=request.user, is_active=True
+                ).exclude(slug=request.org.slug),
+            )
+        else:
+            # Make sure the props are set for the client even if the user is not authenticated.
+            inertia_share(request, org=lambda: None)
+            inertia_share(request, available_orgs=lambda: [])
 
         response = self.get_response(request)
 
@@ -218,9 +228,5 @@ class InertiaUserMiddleware:
         inertia_share(
             request, user=lambda: request.user.is_authenticated and request.user or None
         )
-
-        # If OrgMiddleware is used, there will be an org attribute on the request.
-        if hasattr(request, "org"):
-            inertia_share(request, org=lambda: request.org)
 
         return self.get_response(request)
