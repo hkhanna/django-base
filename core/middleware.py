@@ -186,11 +186,13 @@ class OrgMiddleware:
 
             # Add org and available_orgs props to all inertia pages
             inertia_share(request, org=lambda: request.org)
+
+            available_orgs = core.selectors.org_list(users=request.user, is_active=True)
+            if request.org:
+                available_orgs = available_orgs.exclude(slug=request.org.slug)
             inertia_share(
                 request,
-                available_orgs=lambda: core.selectors.org_list(
-                    users=request.user, is_active=True
-                ).exclude(slug=request.org.slug),
+                available_orgs=lambda: available_orgs,
             )
         else:
             # Make sure the props are set for the client even if the user is not authenticated.
