@@ -533,6 +533,10 @@ class OrgRequiredView(LoginRequiredMixin, TemplateView):
             self.request,
             settings.ORG_REQUIRED_INERTIA_COMPONENT,
             props={"contact_email": settings.SITE_CONFIG["contact_email"]},
+            template_data={
+                "html_class": "h-full",
+                "body_class": "h-full",
+            },
         )
 
 
