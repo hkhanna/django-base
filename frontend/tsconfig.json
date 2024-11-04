@@ -16,10 +16,10 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/js/*"]
+      "@/*": ["./src/*"]
     },
     "types": ["vite/client"]
   },
-  "include": ["src/js/**/*.ts", "src/js/**/*.tsx", "src/js/**/*.jsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.jsx"],
   "exclude": ["node_modules"]
 }

@@ -15,7 +15,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     {% vite_hmr_client %}
     {% vite_react_refresh %}
-    {% block vite_assets %}{% vite_asset 'js/inertia.tsx' %}{% endblock vite_assets %}
+    {% block vite_assets %}{% vite_asset './inertia.tsx' %}{% endblock vite_assets %}
   </head>
 
   <body {% if body_class %}class="{{body_class}}"{% endif %}>
