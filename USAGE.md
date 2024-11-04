@@ -24,7 +24,7 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 ## Deploy to Production
 
 1. Update the **production** `SENTRY_DSN` setting if using Sentry. Leave as `None` to keep Sentry off.
-1. Update `SENTRY_DSN` in `frontend/src/js/react.tsx` if you want to track errors in the frontend. This will only be used in prod.
+1. Update `SENTRY_DSN` in `frontend/src/inertia.tsx` if you want to track errors in the frontend. This will only be used in prod.
 
 ### Set up AWS S3 for media
 

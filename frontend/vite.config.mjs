@@ -23,7 +23,7 @@ export default defineConfig({
   resolve: {
     extensions: [".js", ".json", ".ts", ".jsx", ".tsx"],
     alias: {
-      "@": path.resolve("./src/js/"),
+      "@": path.resolve("./src/"),
     },
   },
   build: {
@@ -34,7 +34,7 @@ export default defineConfig({
     target: "es2017",
     rollupOptions: {
       input: {
-        inertia: path.resolve("./src/js/inertia.tsx"),
+        inertia: path.resolve("./src/inertia.tsx"),
       },
       output: {
         chunkFileNames: undefined,
