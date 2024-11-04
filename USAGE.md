@@ -18,6 +18,7 @@ Generally, you'll want to avoid making too many changes to the `core` app to avo
 1. Do the "Local Installation" in the README.
 1. Update `SITE_CONFIG`.
 1. If you're using Orgs, add `core.middleware.OrgMiddleware` to the `MIDDLEWARE` setting.
+1. In `frontend/components.json`, consider updating `tailwind.baseColor`. If you do, delete all of the shadcn files in `frontend/src/components/ui/` and re-add them according to the instructions at `ui.shadcn.com/docs`.
 1. Update the README file as appropriate.
 1. Delete this file, if desired, once deployed to production.
 

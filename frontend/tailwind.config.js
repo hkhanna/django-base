@@ -6,10 +6,9 @@
  */
 
 const defaultTheme = require("tailwindcss/defaultTheme");
-const colors = require("tailwindcss/colors");
 
 module.exports = {
-  darkMode: "class",
+  darkMode: ["class"],
   content: [
     /**
      * HTML. Paths to Django template files that will contain Tailwind CSS classes.
@@ -52,6 +51,12 @@ module.exports = {
         sans: ["Inter var", ...defaultTheme.fontFamily.sans],
         logo: ["Roboto Slab", ...defaultTheme.fontFamily.mono],
       },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      colors: {},
     },
   },
   plugins: [
@@ -63,5 +68,6 @@ module.exports = {
     require("@tailwindcss/forms"),
     require("@tailwindcss/typography"),
     require("@tailwindcss/aspect-ratio"),
+    require("tailwindcss-animate"),
   ],
 };
