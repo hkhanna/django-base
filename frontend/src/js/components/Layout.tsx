@@ -1,9 +1,7 @@
 import React from "react";
 import { usePage } from "@inertiajs/react";
 import { useEffect } from "react";
-import { toast } from "sonner";
 import { User } from "@/types/User";
-import { Toaster } from "@/components/shadcn/sonner";
 import { Navbar } from "@/components/catalyst/navbar";
 import { Avatar } from "@/components/catalyst/avatar";
 import {
@@ -40,16 +38,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }[];
   }>();
 
+  {
+    /* 
   useEffect(() => {
     page.props.messages.forEach((message) =>
       toast[message.level](message.title, { description: message.description })
     );
   }, [page.props.messages]);
+  FIXME */
+  }
 
   return (
     <>
       <main>{children}</main>
-      <Toaster richColors />
+      {/* <Toaster richColors /> FIXME */}
     </>
   );
 }
