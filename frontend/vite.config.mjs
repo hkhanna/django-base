@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import path from "path";
 import { loadEnv } from "vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
@@ -7,7 +7,7 @@ process.env = { ...process.env, ...loadEnv(null, process.cwd() + "/../") };
 
 export default defineConfig({
   plugins: [react()],
-  root: resolve("./src/"),
+  root: path.resolve("./src/"),
   base: "/static/",
   server: {
     host: "localhost",
@@ -23,18 +23,18 @@ export default defineConfig({
   resolve: {
     extensions: [".js", ".json", ".ts", ".jsx", ".tsx"],
     alias: {
-      "@": resolve("./src/js/"),
+      "@": path.resolve("./src/js/"),
     },
   },
   build: {
-    outDir: resolve("./dist/"),
+    outDir: path.resolve("./dist/"),
     assetsDir: "",
     manifest: "manifest.json",
     emptyOutDir: true,
     target: "es2017",
     rollupOptions: {
       input: {
-        inertia: resolve("./src/js/inertia.tsx"),
+        inertia: path.resolve("./src/js/inertia.tsx"),
       },
       output: {
         chunkFileNames: undefined,
