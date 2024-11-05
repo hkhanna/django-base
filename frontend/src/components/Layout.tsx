@@ -1,7 +1,9 @@
 import React from "react";
-import { usePage } from "@inertiajs/react";
+import { usePage, router } from "@inertiajs/react";
 import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { User } from "@/types/User";
+import { Toaster } from "@/components/ui/toaster";
 
 /**
  * This is the layout for application pages. It can include things like a sidebar or navbar.
@@ -25,20 +27,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }[];
   }>();
 
-  {
-    /* 
+  const { toast, dismiss } = useToast();
+
+  // Show toast messages
   useEffect(() => {
     page.props.messages.forEach((message) =>
-      toast[message.level](message.title, { description: message.description })
+      toast({
+        title: message.title,
+        description: message.description,
+        variant: message.level === "error" ? "destructive" : "default",
+      })
     );
   }, [page.props.messages]);
-  FIXME */
-  }
+
+  // Dismiss toast messages on navigation
+  useEffect(() => {
+    const unsubscribe = router.on("navigate", () => {
+      dismiss();
+    });
+
+    return unsubscribe;
+  }, [dismiss]);
 
   return (
     <>
       <main>{children}</main>
-      {/* <Toaster richColors /> FIXME */}
+      <Toaster />
     </>
   );
 }
