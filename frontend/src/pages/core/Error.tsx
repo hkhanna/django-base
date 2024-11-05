@@ -1,4 +1,4 @@
-import { Button } from "@/components/catalyst/button";
+import { Button } from "@/components/ui/button";
 
 export default function Error({
   status_code,
@@ -31,12 +31,14 @@ export default function Error({
             {description}
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button href="/" color="zinc">
-              Go back home
+            <Button asChild>
+              <a href="/">Go back home</a>
             </Button>
             {support_email && (
-              <Button plain href={`mailto:${support_email}`}>
-                Email support <span aria-hidden="true">&rarr;</span>
+              <Button asChild variant="ghost">
+                <a href={`mailto:${support_email}`}>
+                  Email support <span aria-hidden="true">&rarr;</span>
+                </a>
               </Button>
             )}
           </div>
