@@ -1,5 +1,5 @@
 import { router } from "@inertiajs/react";
-import { Button } from "@/components/catalyst/button";
+import { Button } from "@/components/ui/button";
 
 export default function OrgRequired({
   user,
@@ -32,12 +32,17 @@ export default function OrgRequired({
           </p>
 
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button outline onClick={() => router.post("/user/logout/")}>
+            <Button
+              variant="outline"
+              onClick={() => router.post("/user/logout/")}
+            >
               Sign out
             </Button>
             {contact_email && (
-              <Button plain href={`mailto:${contact_email}`}>
-                Email support <span aria-hidden="true">&rarr;</span>
+              <Button variant="ghost" asChild>
+                <a href={`mailto:${contact_email}`}>
+                  Email support <span aria-hidden="true">&rarr;</span>
+                </a>
               </Button>
             )}
           </div>

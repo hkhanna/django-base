@@ -1,6 +1,5 @@
 import React from "react";
 import { Head } from "@/components/Head";
-import { Text } from "@/components/catalyst/text";
 import { Layout } from "@/components/Layout";
 import { Logo } from "@/components/Logo";
 
@@ -16,7 +15,7 @@ export default function SignupDisabled() {
           </h2>
         </div>
 
-        <Text className="text-center">Come back another time.</Text>
+        <p className="text-center">Come back another time.</p>
       </div>
     </Layout>
   );
