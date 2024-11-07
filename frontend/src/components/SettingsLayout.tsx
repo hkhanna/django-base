@@ -1,8 +1,9 @@
 import React from "react";
-import { Text } from "@/components/catalyst/text";
-import { Button } from "@/components/catalyst/button";
+import { Button } from "@/components/ui/button";
 import { ApplicationLayout } from "@/components/Layout";
-import { Divider } from "@/components/catalyst/divider";
+import { Separator } from "@/components/ui/separator";
+import { Link as InertiaLink } from "@inertiajs/react";
+import { cn } from "@/lib/utils";
 
 const sidebarItems = [
   { name: "Profile", href: "/user/settings/profile/" },
@@ -23,9 +24,11 @@ export function SettingsLayout({
           <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
             Settings
           </h2>
-          <Text>Manage your account settings and set e-mail preferences.</Text>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Manage your account settings and set e-mail preferences.
+          </p>
         </div>
-        <Divider />
+        <Separator />
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
           <aside className="-mx-4 lg:w-1/5">
             <SettingsSidebarNav active={active} />
@@ -42,13 +45,17 @@ function SettingsSidebarNav({ active }: { active?: string }) {
     <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
       {sidebarItems.map((item) => (
         <Button
-          plain
-          className="!justify-start"
+          variant="link"
+          className={cn(
+            "!justify-start",
+            item.href === active &&
+              "bg-zinc-100 dark:bg-zinc-800 hover:no-underline"
+          )}
           key={item.name}
-          href={item.href}
+          asChild
           data-active={item.href === active ? true : undefined}
         >
-          {item.name}
+          <InertiaLink href={item.href}>{item.name}</InertiaLink>
         </Button>
       ))}
     </nav>
