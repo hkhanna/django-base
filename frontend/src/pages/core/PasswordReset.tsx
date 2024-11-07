@@ -8,7 +8,7 @@ import {
 } from "@/components/catalyst/fieldset";
 import { Input } from "@/components/catalyst/input";
 import { useForm } from "@inertiajs/react";
-import { Text, TextLink } from "@/components/catalyst/text";
+import { Link } from "@/components/Link";
 import { Button } from "@/components/catalyst/button";
 import { Layout } from "@/components/Layout";
 import { Logo } from "@/components/Logo";
@@ -40,20 +40,20 @@ export default function PasswordReset() {
           </h2>
         </div>
 
-        <Text className="text-center">
+        <p className="text-center">
           Or{" "}
-          <TextLink href="/user/login/">
+          <Link href="/user/login/">
             login if you already know your password.
-          </TextLink>
-        </Text>
+          </Link>
+        </p>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
             {success ? (
-              <Text className="font-medium">
+              <p className="font-medium">
                 If an account exists with that email address, we sent you an
                 email with a link to reset your password.
-              </Text>
+              </p>
             ) : (
               <form onSubmit={handleSubmit}>
                 <Fieldset
