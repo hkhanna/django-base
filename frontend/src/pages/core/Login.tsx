@@ -1,18 +1,12 @@
 import React from "react";
 import { Head } from "@/components/Head";
-import {
-  Field,
-  Label,
-  ErrorMessage,
-  Fieldset,
-} from "@/components/catalyst/fieldset";
-import { Input } from "@/components/catalyst/input";
 import { useForm } from "@inertiajs/react";
-import { Text, TextLink } from "@/components/catalyst/text";
-import { Button } from "@/components/catalyst/button";
+import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
 import { Logo } from "@/components/Logo";
+import { FormInput } from "@/components/Form";
 import { ContinueWithGoogle } from "@/components/SocialAuth";
+import { Link } from "@/components/Link";
 
 type SocialAuth = {
   google: boolean;
@@ -42,9 +36,9 @@ export default function Login({ social_auth }: { social_auth: SocialAuth }) {
           </h2>
         </div>
 
-        <Text className="text-center">
-          Or <TextLink href="/user/signup/">sign up for free.</TextLink>
-        </Text>
+        <p className="text-center">
+          Or <Link href="/user/signup/">sign up for free.</Link>
+        </p>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
@@ -66,61 +60,45 @@ export default function Login({ social_auth }: { social_auth: SocialAuth }) {
                 </div>
               </>
             )}
-            <form onSubmit={handleSubmit}>
-              <Fieldset aria-label="Login form" className="space-y-5">
-                <Field>
-                  <Label>Email address</Label>
-                  <Input
-                    name="username"
-                    type="email"
-                    value={data.username}
-                    onChange={(e) => setData("username", e.target.value)}
-                    required
-                    invalid={"username" in errors}
-                  />
-                  {errors.username && (
-                    <ErrorMessage>{errors.username}</ErrorMessage>
-                  )}
-                </Field>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <FormInput
+                label="Email address"
+                name="username"
+                type="email"
+                value={data.username}
+                onChange={(e) => setData("username", e.target.value)}
+                required
+                errors={errors.username}
+              />
 
-                <Field>
-                  <Label>Password</Label>
-                  <Input
-                    name="password"
-                    type="password"
-                    value={data.password}
-                    onChange={(e) => setData("password", e.target.value)}
-                    required
-                    invalid={"password" in errors}
-                  />
-                  {errors.password && (
-                    <ErrorMessage>{errors.password}</ErrorMessage>
-                  )}
-                </Field>
+              <FormInput
+                label="Password"
+                name="password"
+                type="password"
+                value={data.password}
+                onChange={(e) => setData("password", e.target.value)}
+                required
+                errors={errors.password}
+              />
 
-                {"__all__" in errors && (
-                  <Field>
-                    <ErrorMessage>
-                      {errors.__all__ as React.ReactNode}
-                    </ErrorMessage>
-                  </Field>
-                )}
+              {"__all__" in errors && (
+                <p className="text-sm text-red-500">
+                  {errors.__all__ as React.ReactNode}
+                </p>
+              )}
 
-                <div>
-                  <Button
-                    type="submit"
-                    className="flex w-full justify-center"
-                    disabled={processing}
-                  >
-                    Sign in
-                  </Button>
-                </div>
-                <Text className="flex justify-center">
-                  <TextLink href="/user/password-reset/">
-                    Forgot password?
-                  </TextLink>
-                </Text>
-              </Fieldset>
+              <div>
+                <Button
+                  type="submit"
+                  className="flex w-full justify-center"
+                  disabled={processing}
+                >
+                  Sign in
+                </Button>
+              </div>
+              <p className="text-center">
+                <Link href="/user/password-reset/">Forgot password?</Link>
+              </p>
             </form>
           </div>
         </div>
