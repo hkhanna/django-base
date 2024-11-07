@@ -11,7 +11,12 @@ import { Toaster } from "@/components/ui/toaster";
 export function ApplicationLayout({ children }: { children: React.ReactNode }) {
   const page = usePage<{ user: User }>();
 
-  return <Layout>{children}</Layout>;
+  return (
+    <Layout>
+      {/* Enclosing div with padding can be removed once sidebar etc is added */}
+      <div className="p-8">{children}</div>
+    </Layout>
+  );
 }
 
 /**
