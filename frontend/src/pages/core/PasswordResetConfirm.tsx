@@ -1,17 +1,10 @@
 import React from "react";
 import { Head } from "@/components/Head";
-import {
-  Field,
-  Label,
-  ErrorMessage,
-  Fieldset,
-} from "@/components/catalyst/fieldset";
-import { Input } from "@/components/catalyst/input";
 import { useForm, usePage } from "@inertiajs/react";
-import { Text, TextLink } from "@/components/catalyst/text";
-import { Button } from "@/components/catalyst/button";
+import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
 import { Logo } from "@/components/Logo";
+import { FormInput } from "@/components/Form";
 
 export default function PasswordResetConfirm({
   validlink,
@@ -44,74 +37,51 @@ export default function PasswordResetConfirm({
 
         {validlink ? (
           <>
-            <Text className="text-center">Please choose a new password.</Text>
+            <p className="text-center">Please choose a new password.</p>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
               <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
-                <form onSubmit={handleSubmit}>
-                  <Fieldset
-                    aria-label="Password reset form"
-                    className="space-y-5"
-                  >
-                    <Field>
-                      <Label>New password</Label>
-                      <Input
-                        name="new_password1"
-                        type="password"
-                        value={data.new_password1}
-                        onChange={(e) =>
-                          setData("new_password1", e.target.value)
-                        }
-                        required
-                        invalid={"new_password1" in errors}
-                      />
-                      {errors.new_password1 && (
-                        <ErrorMessage>{errors.new_password1}</ErrorMessage>
-                      )}
-                    </Field>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <FormInput
+                    label="New password"
+                    name="new_password1"
+                    type="password"
+                    value={data.new_password1}
+                    onChange={(e) => setData("new_password1", e.target.value)}
+                    required
+                    errors={errors.new_password1}
+                  />
+                  <FormInput
+                    label="New password (again)"
+                    name="new_password2"
+                    type="password"
+                    value={data.new_password2}
+                    onChange={(e) => setData("new_password2", e.target.value)}
+                    required
+                    errors={errors.new_password2}
+                  />
 
-                    <Field>
-                      <Label>New password (again)</Label>
-                      <Input
-                        name="new_password2"
-                        type="password"
-                        value={data.new_password2}
-                        onChange={(e) =>
-                          setData("new_password2", e.target.value)
-                        }
-                        required
-                        invalid={"new_password2" in errors}
-                      />
-                      {errors.new_password2 && (
-                        <ErrorMessage>{errors.new_password2}</ErrorMessage>
-                      )}
-                    </Field>
-                    {"__all__" in errors && (
-                      <Field>
-                        <ErrorMessage>
-                          {errors.__all__ as React.ReactNode}
-                        </ErrorMessage>
-                      </Field>
-                    )}
+                  {"__all__" in errors && (
+                    <p className="text-sm text-red-500">
+                      {errors.__all__ as React.ReactNode}
+                    </p>
+                  )}
 
-                    <div>
-                      <Button
-                        type="submit"
-                        className="flex w-full justify-center"
-                        disabled={processing}
-                      >
-                        Confirm new password
-                      </Button>
-                    </div>
-                  </Fieldset>
+                  <div>
+                    <Button
+                      type="submit"
+                      className="flex w-full justify-center"
+                      disabled={processing}
+                    >
+                      Confirm new password
+                    </Button>
+                  </div>
                 </form>
               </div>
             </div>
           </>
         ) : (
-          <Text className="text-center">
-            This password reset link is invalid.
-          </Text>
+          <p className="text-center">This password reset link is invalid.</p>
         )}
       </div>
     </Layout>

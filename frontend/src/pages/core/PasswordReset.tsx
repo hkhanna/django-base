@@ -1,12 +1,11 @@
 import React from "react";
 import { Head } from "@/components/Head";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useForm } from "@inertiajs/react";
 import { Link } from "@/components/Link";
 import { Layout } from "@/components/Layout";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { FormInput } from "@/components/Form";
 
 export default function PasswordReset() {
   const { data, setData, post, processing, errors } = useForm({
@@ -51,27 +50,15 @@ export default function PasswordReset() {
               </p>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="email"
-                    className={errors.email && "text-red-500"}
-                  >
-                    Email address
-                  </Label>
-                  <Input
-                    name="email"
-                    type="email"
-                    value={data.email}
-                    onChange={(e) => setData("email", e.target.value)}
-                    className={
-                      errors.email && "border-red-500 ring-2 ring-red-500"
-                    }
-                    required
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-red-500">{errors.email}</p>
-                  )}
-                </div>
+                <FormInput
+                  label="Email address"
+                  name="email"
+                  type="email"
+                  value={data.email}
+                  onChange={(e) => setData("email", e.target.value)}
+                  errors={errors.email}
+                  required
+                />
                 {"__all__" in errors && (
                   <p className="text-sm text-red-500">
                     {errors.__all__ as React.ReactNode}

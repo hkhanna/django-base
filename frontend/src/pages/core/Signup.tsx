@@ -1,19 +1,12 @@
 import React from "react";
 import { Head } from "@/components/Head";
-import {
-  Field,
-  Label,
-  ErrorMessage,
-  Fieldset,
-  FieldGroup,
-} from "@/components/catalyst/fieldset";
-import { Input } from "@/components/catalyst/input";
 import { useForm } from "@inertiajs/react";
-import { TextLink } from "@/components/catalyst/text";
 import { Logo } from "@/components/Logo";
-import { Button } from "@/components/catalyst/button";
+import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
+import { FormInput } from "@/components/Form";
 import { ContinueWithGoogle } from "@/components/SocialAuth";
+import { Link } from "@/components/Link";
 
 type SocialAuth = {
   google: boolean;
@@ -66,104 +59,72 @@ export default function Signup({ social_auth }: { social_auth: SocialAuth }) {
             </>
           )}
           <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
-            <form onSubmit={handleSubmit}>
-              <Fieldset aria-label="Signup form" className="space-y-5">
-                <FieldGroup>
-                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-4">
-                    <Field>
-                      <Label>First name</Label>
-                      <Input
-                        name="first_name"
-                        value={data.first_name}
-                        onChange={(e) => setData("first_name", e.target.value)}
-                        required
-                        invalid={"first_name" in errors}
-                      />
-                      {errors.first_name && (
-                        <ErrorMessage>{errors.first_name}</ErrorMessage>
-                      )}
-                    </Field>
-                    <Field className="noteworthy">
-                      <Label>Middle initial</Label>
-                      <Input
-                        name="middle_initial"
-                        value={data.middle_initial}
-                        onChange={(e) =>
-                          setData("middle_initial", e.target.value)
-                        }
-                        invalid={"middle_initial" in errors}
-                      />
-                      {errors.middle_initial && (
-                        <ErrorMessage>{errors.middle_initial}</ErrorMessage>
-                      )}
-                    </Field>
-                    <Field>
-                      <Label>Last name</Label>
-                      <Input
-                        name="last_name"
-                        value={data.last_name}
-                        onChange={(e) => setData("last_name", e.target.value)}
-                        required
-                        invalid={"last_name" in errors}
-                      />
-                      {errors.last_name && (
-                        <ErrorMessage>{errors.last_name}</ErrorMessage>
-                      )}
-                    </Field>
-                  </div>
-                  <Field>
-                    <Label>Email address</Label>
-                    <Input
-                      name="email"
-                      type="email"
-                      value={data.email}
-                      onChange={(e) => setData("email", e.target.value)}
-                      required
-                      invalid={"email" in errors}
-                    />
-                    {errors.email && (
-                      <ErrorMessage>{errors.email}</ErrorMessage>
-                    )}
-                  </Field>
-                  <Field>
-                    <Label>Password</Label>
-                    <Input
-                      name="password"
-                      type="password"
-                      value={data.password}
-                      onChange={(e) => setData("password", e.target.value)}
-                      required
-                      invalid={"password" in errors}
-                    />
-                    {errors.password && (
-                      <ErrorMessage>{errors.password}</ErrorMessage>
-                    )}
-                  </Field>
-
-                  {"__all__" in errors && (
-                    <Field>
-                      <ErrorMessage>
-                        {errors.__all__ as React.ReactNode}
-                      </ErrorMessage>
-                    </Field>
-                  )}
-
-                  <Button
-                    type="submit"
-                    className="flex w-full justify-center"
-                    disabled={processing}
-                  >
-                    Create account
-                  </Button>
-                  <p className="text-sm sm:text-xs text-zinc-500 dark:text-zinc-400">
-                    By clicking "Continue with Google" above or by creating an
-                    account with your email address, you acknowledge that you
-                    have read and understood, and agree to the{" "}
-                    <TextLink href="/terms">Terms of Use</TextLink> and{" "}
-                    <TextLink href="/privacy">Privacy Policy</TextLink>.
-                  </p>
-                </FieldGroup>
-              </Fieldset>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-4">
+                <FormInput
+                  label="First name"
+                  name="first_name"
+                  value={data.first_name}
+                  onChange={(e) => setData("first_name", e.target.value)}
+                  required
+                  errors={errors.first_name}
+                />
+                <FormInput
+                  label="Middle initial"
+                  className="noteworthy"
+                  name="middle_initial"
+                  value={data.middle_initial}
+                  onChange={(e) => setData("middle_initial", e.target.value)}
+                  errors={errors.middle_initial}
+                />
+                <FormInput
+                  label="Last name"
+                  name="last_name"
+                  value={data.last_name}
+                  onChange={(e) => setData("last_name", e.target.value)}
+                  required
+                  errors={errors.last_name}
+                />
+                <FormInput
+                  label="Email address"
+                  name="email"
+                  type="email"
+                  value={data.email}
+                  onChange={(e) => setData("email", e.target.value)}
+                  required
+                  errors={errors.email}
+                  className="col-span-2"
+                />
+                <FormInput
+                  label="Password"
+                  name="password"
+                  type="password"
+                  value={data.password}
+                  onChange={(e) => setData("password", e.target.value)}
+                  required
+                  errors={errors.password}
+                  className="col-span-2"
+                />
+              </div>
+              {"__all__" in errors && (
+                <p className="text-red-500">
+                  {errors.__all__ as React.ReactNode}
+                </p>
+              )}
+              <Button
+                type="submit"
+                className="flex w-full justify-center"
+                disabled={processing}
+              >
+                Create account
+              </Button>
+              <p className="text-sm sm:text-xs text-zinc-500 dark:text-zinc-400">
+                By clicking "Continue with Google" above or by creating an
+                account with your email address, you acknowledge that you have
+                read and understood, and agree to the{" "}
+                <Link href="/terms">Terms of Use</Link> and{" "}
+                <Link href="/privacy">Privacy Policy</Link>.
+              </p>
             </form>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { Button } from "./catalyst/button";
+import { Button } from "@/components/ui/button";
 
 export function ContinueWithGoogle({
   authorizationUri,
@@ -12,7 +12,7 @@ export function ContinueWithGoogle({
     : authorizationUri;
   return (
     <form action={formAction} method="POST">
-      <Button color="white" type="submit" className="w-full space-x-4">
+      <Button type="submit" className="w-full space-x-4">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
