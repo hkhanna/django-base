@@ -5,8 +5,6 @@
  * https://unpkg.com/browse/tailwindcss@latest/stubs/defaultConfig.stub.js
  */
 
-const defaultTheme = require("tailwindcss/defaultTheme");
-
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -47,10 +45,6 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["Inter var", ...defaultTheme.fontFamily.sans],
-        logo: ["Roboto Slab", ...defaultTheme.fontFamily.mono],
-      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -59,15 +53,5 @@ module.exports = {
       colors: {},
     },
   },
-  plugins: [
-    /**
-     * '@tailwindcss/forms' is the forms plugin that provides a minimal styling
-     * for forms. If you don't like it or have own styling for forms,
-     * comment the line below to disable '@tailwindcss/forms'.
-     */
-    require("@tailwindcss/forms"),
-    require("@tailwindcss/typography"),
-    require("@tailwindcss/aspect-ratio"),
-    require("tailwindcss-animate"),
-  ],
+  plugins: [require("tailwindcss-animate")],
 };
