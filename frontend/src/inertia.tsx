@@ -1,5 +1,4 @@
 import "@/css/styles.css";
-import "@/css/fonts.css";
 
 import React from "react";
 import axios from "axios";

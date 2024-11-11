@@ -5,8 +5,6 @@
  * https://unpkg.com/browse/tailwindcss@latest/stubs/defaultConfig.stub.js
  */
 
-const defaultTheme = require("tailwindcss/defaultTheme");
-
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -47,10 +45,6 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["Inter var", ...defaultTheme.fontFamily.sans],
-        logo: ["Roboto Slab", ...defaultTheme.fontFamily.mono],
-      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
