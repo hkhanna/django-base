@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import * as React from "react";
@@ -21,11 +23,15 @@ const FormInput = ({
   className?: string;
   inputClassName?: string;
 } & InputProps) => {
+  const id = useId();
+
   return (
     <div className={cn("space-y-2", className)}>
-      <Label htmlFor={name}>{label}</Label>
+      <Label htmlFor={id}>{label}</Label>
       <Input
         {...props}
+        id={id}
+        name={name}
         className={cn(
           errors && "border-red-500 ring-2 ring-red-500",
           inputClassName
