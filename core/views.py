@@ -39,7 +39,7 @@ from django.views.generic import (
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseNotAllowed
 
 
 from . import selectors, services, utils
@@ -420,6 +420,8 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
         return self.request.path
 
     def render_to_response(self, context, *args, **kwargs):
+        return HttpResponseNotAllowed(permitted_methods=["POST"])
+
         return utils.inertia_render(
             self.request,
             "core/PasswordChange",
@@ -587,5 +589,7 @@ class ErrorTestView(View):
                 raise PermissionDenied("403 test")
             case 404:
                 raise Http404("404 test")
+            case 405:
+                return HttpResponseNotAllowed(permitted_methods=["POST"])
             case _:
                 raise Exception(f"{status_code} test")
