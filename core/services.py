@@ -605,7 +605,8 @@ class GoogleOAuthService:
             f"scope=https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile&"
             f"response_type=code&"
             f"redirect_uri={self.redirect_uri}&"
-            f"client_id={settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID}"
+            f"client_id={settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID}&"
+            f"prompt=select_account"
         )
 
     def _get_google_user_info(self, code: str) -> dict:

@@ -306,6 +306,11 @@ class GoogleSignupCallbackView(RedirectURLMixin, View):
                     request=request, code=code, detected_tz=detected_tz
                 )
                 if user:
+                    messages.info(
+                        self.request,
+                        "We logged you in.",
+                        extra_tags="You already have an account.",
+                    )
                     return redirect(self.get_success_url())
                 else:
                     user = oauth_service.signup_from_user_info(user_info)
