@@ -184,12 +184,15 @@ class GoogleLoginCallbackView(RedirectURLMixin, View):
                         "This account does not exist.",
                         extra_tags="Please sign up.",
                     )
-                    return redirect("user:login")
+                    return redirect("user:signup")
 
         except ApplicationError as e:
             logger.exception(e)
             messages.error(request, str(e))
             return redirect("user:login")
+
+        messages.error(request, "Unrecognized request to Google login callback")
+        return redirect("user:login")
 
 
 class SignupView(RedirectURLMixin, FormView):
@@ -319,6 +322,9 @@ class GoogleSignupCallbackView(RedirectURLMixin, View):
             messages.error(request, str(e))
             return redirect("user:signup")
 
+        messages.error(request, "Unrecognized request to Google signup callback")
+        return redirect("user:signup")
+
 
 class ProfileView(LoginRequiredMixin, FormView):
     class ProfileForm(forms.Form):
@@ -420,7 +426,6 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
         return self.request.path
 
     def render_to_response(self, context, *args, **kwargs):
-        return HttpResponseNotAllowed(permitted_methods=["POST"])
 
         return utils.inertia_render(
             self.request,

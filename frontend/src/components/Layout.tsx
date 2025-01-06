@@ -47,7 +47,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   // Dismiss toast messages on navigation
   useEffect(() => {
-    const unsubscribe = router.on("navigate", () => {
+    const unsubscribe = router.on("success", () => {
       dismiss();
     });
 
