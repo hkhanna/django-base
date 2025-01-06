@@ -64,7 +64,10 @@ Make a note of the access key and the secret key, and hold onto it for the produ
 ## Enable Google Authentication if desired
 
 1. Create a Google OAuth2 client ID and secret at https://console.cloud.google.com/apis/credentials
-1. Create separate client IDs for local development and production.
+   1. You may want to create a separate Google Project for this.
+   1. Create separate client IDs for local development and production.
+   1. The "Authorized Javascript Origins" should be the base URL of the application. For local development, that would be http://localhost:PORT and http://127.0.0.1:PORT. (Replace PORT with the actual port of the local application.)
+   1. The "Authorized redirect URIs" should be the base URL of the application plus `/user/google/login/callback/` and `/user/google/signup/callback/`.
 1. Add the local development client ID and secret to the appropriate `.env` files.
 1. Make a note of the production client ID and secret and hold onto it for the production deploy.
 1. In `settings/common.py` set `SOCIAL_AUTH_GOOGLE_ENABLED` = True
