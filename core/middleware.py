@@ -207,6 +207,12 @@ class OrgMiddleware:
             request.org = None
             request.session["org_slug"] = None
 
+        # If there's no longer an org user (e.g., the org user was deleted),
+        # remove the org
+        if request.org and not request.org.org_users.filter(user=request.user).exists():
+            request.org = None
+            request.session["org_slug"] = None
+
         if request.org is not None:
             # Set it on the session
             request.session["org_slug"] = request.org.slug

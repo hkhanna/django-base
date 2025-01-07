@@ -6,8 +6,8 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 ### Prerequisites
 
-- PostgreSQL 15 (or Docker)
-- Python 3.11
+- PostgreSQL 16 (or Docker)
+- Python 3.13
 - `libtidy-dev` (e.g., `apt install libtidy-dev` or `brew install tidy-html5`)
 
 ### Local Installation
