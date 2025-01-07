@@ -24,6 +24,7 @@ def test_owner_org_user(user):
     org = services.org_create(
         name="Example Org",
         owner=user,
+        domain="example.com",
         primary_plan=factories.plan_create(),
         default_plan=factories.plan_create(),
     )
@@ -63,7 +64,7 @@ def test_org_switch_inactive_unauthorized(req, user, org):
 def test_org_create_default_plan(user):
     """Creating an org with a missing primary_plan or default_plan will use or create a default plan"""
     assert selectors.plan_list().count() == 0
-    org = services.org_create(name="Example Org", owner=user)
+    org = services.org_create(name="Example Org", owner=user, domain="example.com")
 
     assert selectors.plan_list().count() == 1
     plan = selectors.plan_list().first()

@@ -144,19 +144,19 @@ class OrgAdmin(BaseModelAdmin):
     list_display = (
         "name",
         "slug",
+        "domain",
         "is_active",
         "owner",
         "primary_plan",
         "current_period_end",
         "created_at",
-        "updated_at",
     )
     list_filter = (
         "is_active",
         "primary_plan",
     )
     readonly_fields = ("created_at", "updated_at")
-    search_fields = ("name", "slug")
+    search_fields = ("name", "slug", "domain")
     prepopulated_fields = {"slug": ["name"]}
     date_hierarchy = "created_at"
     inlines = [

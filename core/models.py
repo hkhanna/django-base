@@ -201,6 +201,11 @@ class Org(BaseModel):
         unique=True,
         help_text="The name in all lowercase, suitable for URL identification",
     )
+    # If we implement multi-tenant architecture, we would want to make domain
+    # it's own model (OrgDomain) to avoid the risk that two orgs on the same domain are on different tenants.
+    domain = models.CharField(
+        max_length=254, help_text="The domain used to access the org on the web."
+    )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="owned_orgs"
     )

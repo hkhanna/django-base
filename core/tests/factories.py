@@ -66,6 +66,7 @@ def org_create(**kwargs):
     defaults = dict(
         name=fake.company(),
         owner=user_create(),
+        domain="example.com",
         primary_plan=plan_create(),
         default_plan=plan_create(),
         current_period_end=timezone.now() + timedelta(days=10),

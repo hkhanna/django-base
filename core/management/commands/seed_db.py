@@ -24,6 +24,7 @@ class Command(BaseCommand):
         plan = core.services.plan_create(name="Default Plan", is_default=True)
         core.services.org_create(
             name="Example Organization",
+            domain="localhost",
             owner=user,
             primary_plan=plan,
             default_plan=plan,
