@@ -119,7 +119,7 @@ def test_org_middleware_no_org_in_session(client, user):
 
 @override_settings(MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"])
 def test_org_middleware_org_in_session(client, user):
-    """If there's an org in the session, set request.org to that org."""
+    """If there's an org in the session on the same domain, set request.org to that org."""
     client.force_login(user)
     other_org = factories.org_create(
         owner=user,
@@ -131,6 +131,25 @@ def test_org_middleware_org_in_session(client, user):
 
     response = client.get(reverse("index"))
     assert response.wsgi_request.org == other_org
+
+
+@override_settings(MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"])
+def test_org_middleware_in_session_on_different_domain(client, user, org):
+    """If there's an org in the session on a different domain, ignore it."""
+    client.force_login(user)
+    other_org = factories.org_create(
+        owner=user,
+        is_active=True,
+        domain="otherdomain.example.com",
+    )
+    session = client.session
+    session["org_slug"] = other_org.slug
+    session.save()
+
+    response = client.get(reverse("index"))
+    assert response.wsgi_request.org == org
+    session = client.session
+    assert session["org_slug"] == org.slug
 
 
 @override_settings(MIDDLEWARE=settings.MIDDLEWARE + ["core.middleware.OrgMiddleware"])
@@ -158,7 +177,7 @@ def test_org_middleware_ou_last_accessed(client, user, org):
         owner=user,
         is_active=True,
     )
-    assert selectors.org_get_recent_for_user(user) == org2
+    assert selectors.org_get_recent_for_user(user, org2.domain) == org2
 
     with freeze_time("2023-03-16 12:00:00Z") as frozen_dt:
         response = client.get(reverse("index"))

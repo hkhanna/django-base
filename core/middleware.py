@@ -155,7 +155,11 @@ class HostUrlconfMiddleware:
 
 
 class OrgMiddleware:
-    """If there's no org in the session, set the org to the user's most recently accessed org."""
+    """Assign the org to the request based on the domain."""
+
+    # If the org in the session matches the domain, use that org.
+    # If the org in the session does not match the domain, act like there is no org in the session.
+    # If there's no org in the session use the most recently accessed org that matches the domain.
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -168,11 +172,14 @@ class OrgMiddleware:
         if request.user.is_authenticated:
             import core.selectors
 
-            # If there's an org in the session and it's not invalid, use it.
+            domain = request.get_host()
+
+            # If there's an org in the session and it matches the domain, use it.
+            # If the org in the session does not match the domain, we ignore the org in the session.
             slug = request.session.get("org_slug")
             if slug:
                 org = Org.objects.filter(
-                    slug=slug, users=request.user, is_active=True
+                    slug=slug, users=request.user, is_active=True, domain=domain
                 ).first()
                 if org:
                     request.org = org
@@ -180,7 +187,9 @@ class OrgMiddleware:
             if request.org is None:
                 # Otherwise, use the user's default org, if any.
                 try:
-                    request.org = core.selectors.org_get_recent_for_user(request.user)
+                    request.org = core.selectors.org_get_recent_for_user(
+                        request.user, domain
+                    )
                 except Org.DoesNotExist:
                     pass  # Leave request.org as None if the user has no orgs.
 
