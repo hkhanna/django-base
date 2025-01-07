@@ -36,8 +36,9 @@ user_patterns = [
 urlpatterns = [
     path("user/", include((user_patterns, "user"))),
     path(
-        "no-organization-found/", views.OrgRequiredView.as_view(), name="org-required"
+        "no-organization-found/", views.OrgRequiredView.as_view(), name="org_required"
     ),
+    path("org/<slug:slug>/switch/", views.OrgSwitchView.as_view(), name="org_switch"),
     path("", RedirectView.as_view(url=settings.LOGIN_URL), name="index"),
     path(
         "terms/",

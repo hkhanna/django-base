@@ -631,12 +631,15 @@ class GoogleOAuthService:
             raise ApplicationError("Could not obtain Google access_token from code")
 
 
-def org_switch(*, request: HttpRequest, slug: str) -> None:
-    """Switch a user to a different Org."""
+def org_switch(*, request: HttpRequest, slug: str) -> str:
+    """Switch a user to a different Org and return the url to redirect to."""
     org = selectors.org_list(slug=slug, users=request.user, is_active=True).get()
 
     assert hasattr(request, "org"), "org is always set on request in the middleware"
     request.org = org
+
+    redirect_url = f"https://{org.domain}" + settings.LOGIN_REDIRECT_URL
+    return redirect_url
 
 
 def org_user_create(*, org: Org, user: UserType, **kwargs) -> OrgUser:

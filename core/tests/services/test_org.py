@@ -31,12 +31,12 @@ def test_owner_org_user(user):
     assert org.org_users.filter(user=user, org=org).exists()
 
 
-def test_org_switch(req, user):
-    """Switching an org simply sets request.org.
-    It will be persisted to the session by the middleware."""
-    new_org = factories.org_create(owner=user)
-    services.org_switch(request=req, slug=new_org.slug)
+def test_org_switch(req, user, settings):
+    """Switching an org sets request.org and returns the redirect url."""
+    new_org = factories.org_create(owner=user, domain="newdomain.example.com")
+    redirect_url = services.org_switch(request=req, slug=new_org.slug)
     assert req.org == new_org
+    assert redirect_url == f"https://{new_org.domain}" + settings.LOGIN_REDIRECT_URL
 
 
 def test_org_switch_inactive(req, user, org):

@@ -38,5 +38,5 @@ class OrgRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         assert hasattr(request, "org"), "Did you forget to use the OrgMiddleware?"
         if request.org is None:
-            return redirect("org-required")
+            return redirect("org_required")
         return super().dispatch(request, *args, **kwargs)

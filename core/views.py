@@ -24,8 +24,6 @@ from django.contrib.auth.views import (
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
-from django.http import Http404, JsonResponse
-from django.http.response import HttpResponse as HttpResponse
 from django.shortcuts import redirect, render as django_render
 from django.urls import reverse, reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
@@ -39,10 +37,15 @@ from django.views.generic import (
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from django.http import HttpResponseRedirect, HttpResponseNotAllowed
+from django.http import (
+    Http404,
+    JsonResponse,
+    HttpResponseRedirect,
+    HttpResponseNotAllowed,
+)
 
 
-from . import selectors, services, utils
+from . import selectors, services, utils, mixins
 from .exceptions import ApplicationError
 from .tasks import email_message_webhook_process as email_message_webhook_process_task
 
@@ -537,6 +540,27 @@ class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
                 "body_class": "h-full dark:bg-zinc-900",
             },
         )
+
+
+class OrgSwitchView(LoginRequiredMixin, mixins.OrgRequiredMixin, View):
+    def post(self, request, slug):
+        # Get the list of orgs the user is a member of
+        org = request.user.orgs.filter(is_active=True, slug=slug).first()
+
+        if not org:
+            # Return 404 if the org doesn't exist or the user is not a member
+            return Http404()
+
+        # Switch the active org
+        redirect_url = services.org_switch(request=request, slug=org.slug)
+
+        messages.success(
+            request,
+            f"You switched to {org.name}.",
+            extra_tags=org.name,
+        )
+
+        return redirect(redirect_url)
 
 
 class OrgRequiredView(LoginRequiredMixin, TemplateView):
