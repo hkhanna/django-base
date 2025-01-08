@@ -6,7 +6,7 @@ django-environ==0.11.2
 django-extensions==3.2.3
 django-storages==1.14.4
 django-vite==3.0.6
-inertia-django==0.6.0
+inertia-django==1.0.0
 # python-gnupg==0.5.3
 python-postmark==0.6.0
 pytz==2024.2

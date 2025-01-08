@@ -43,6 +43,7 @@ from django.http import (
     HttpResponseRedirect,
     HttpResponseNotAllowed,
 )
+from inertia import location as external_redirect
 
 
 from . import selectors, services, utils, mixins
@@ -104,14 +105,6 @@ def event_emit_view(request):
     services.event_emit(type=type, data=payload)
 
     return JsonResponse({"detail": "Created"}, status=201)
-
-
-class HttpInertiaExternalRedirect(HttpResponseRedirect):
-    status_code = 409
-
-    def __init__(self, redirect_to: str, *args: Any, **kwargs: Any) -> None:
-        super().__init__(redirect_to, *args, **kwargs)
-        self["X-Inertia-Location"] = self["Location"]
 
 
 class LoginView(DjangoLoginView):
@@ -560,7 +553,7 @@ class OrgSwitchView(LoginRequiredMixin, mixins.OrgRequiredMixin, View):
             extra_tags=org.name,
         )
 
-        return redirect(redirect_url)
+        return external_redirect(redirect_url)
 
 
 class OrgRequiredView(LoginRequiredMixin, TemplateView):

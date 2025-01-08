@@ -638,7 +638,7 @@ def org_switch(*, request: HttpRequest, slug: str) -> str:
     assert hasattr(request, "org"), "org is always set on request in the middleware"
     request.org = org
 
-    redirect_url = f"https://{org.domain}" + settings.LOGIN_REDIRECT_URL
+    redirect_url = f"{request.scheme}://{org.domain}" + settings.LOGIN_REDIRECT_URL
     return redirect_url
 
 

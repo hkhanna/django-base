@@ -23,8 +23,25 @@ class Command(BaseCommand):
         # Create an Org for the user with the user as the owner.
         plan = core.services.plan_create(name="Default Plan", is_default=True)
         core.services.org_create(
-            name="Example Organization",
-            domain="localhost",
+            name="Example Organization 1",
+            domain="127.0.0.1:8020",
+            owner=user,
+            primary_plan=plan,
+            default_plan=plan,
+        )
+
+        core.services.org_create(
+            name="Example Organization 2",
+            domain="127.0.0.1:8020",
+            owner=user,
+            primary_plan=plan,
+            default_plan=plan,
+        )
+
+        # Note this org has a different domain than the other two.
+        core.services.org_create(
+            name="Example Organization 3",
+            domain="localhost:8020",
             owner=user,
             primary_plan=plan,
             default_plan=plan,
