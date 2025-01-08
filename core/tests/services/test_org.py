@@ -36,7 +36,9 @@ def test_org_switch(req, user, settings):
     new_org = factories.org_create(owner=user, domain="newdomain.example.com")
     redirect_url = services.org_switch(request=req, slug=new_org.slug)
     assert req.org == new_org
-    assert redirect_url == f"https://{new_org.domain}" + settings.LOGIN_REDIRECT_URL
+    assert (
+        redirect_url == f"{req.scheme}://{new_org.domain}" + settings.LOGIN_REDIRECT_URL
+    )
 
 
 def test_org_switch_inactive(req, user, org):

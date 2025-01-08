@@ -46,7 +46,7 @@ clean:
 
 build:
 	@echo "Building python virtual environment"
-	python3.11 -m venv .venv
+	python3.13 -m venv .venv
 	source .venv/bin/activate && pip install --upgrade pip
 	source .venv/bin/activate && pip install -r requirements/local.txt
 	@echo "Installing vite node dependencies"
