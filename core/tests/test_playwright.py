@@ -34,8 +34,9 @@ pytestmark = pytest.mark.skipif(
 @pytest.fixture
 def user(page: Page, live_server):
     user = factories.user_create(is_staff=True, is_superuser=True)
+    domain = live_server.url.split("://")[1]
     factories.org_create(
-        owner=user
+        owner=user, domain=domain
     )  # Create an org for the user in case other proejcts protect these views.
     url = live_server.url + reverse("user:login")
     page.goto(url)
@@ -52,8 +53,9 @@ def user(page: Page, live_server):
 def test_login(page: Page, live_server):
     """User can login."""
     user = factories.user_create(is_staff=True, is_superuser=True)
+    domain = live_server.url.split("://")[1]
     factories.org_create(
-        owner=user
+        owner=user, domain=domain
     )  # Create an org for the user in case other proejcts protect these views.
     url = live_server.url + reverse("user:login")
     page.goto(url)
