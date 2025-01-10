@@ -10,9 +10,8 @@ export default defineConfig({
   root: path.resolve("./src/"),
   base: "/static/",
   server: {
-    host: "localhost",
+    host: true,
     port: process.env.VITE_PORT,
-    origin: "http://localhost:" + process.env.VITE_PORT,
     strictPort: true,
     open: false,
     watch: {
