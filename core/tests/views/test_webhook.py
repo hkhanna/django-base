@@ -18,7 +18,7 @@ from ...models import Event
 
 def test_event_emit_view(client, settings):
     """POST hook to emit event with good secret"""
-    settings.EVENT_HANDLERS["default"] = "core.services.event_noop"
+    settings.EVENT_HANDLERS["default"] = "core.services.event_log"
     response = client.post(
         reverse("event_emit"),
         data={"type": "example_evt", "hello": "world"},

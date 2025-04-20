@@ -199,7 +199,7 @@ SOCIAL_AUTH_GOOGLE_CLIENT_ID = env("SOCIAL_AUTH_GOOGLE_CLIENT_ID", default=None)
 SOCIAL_AUTH_GOOGLE_CLIENT_SECRET = env("SOCIAL_AUTH_GOOGLE_CLIENT_SECRET", default=None)
 
 # Event Handlers
-EVENT_HANDLERS = {"default": "core.services.event_noop"}
+EVENT_HANDLERS = {"default": "core.services.event_log"}
 EVENT_SECRET = env("EVENT_SECRET", default="insecure")
 
 # Celery

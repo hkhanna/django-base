@@ -113,8 +113,6 @@ def event_emit(
         occurred_at = timezone.now()
     event = event_create(type=type, data=data, occurred_at=occurred_at)
 
-    logger.info(f"Event.uuid={event.uuid} Event.type={event.type} emitted.")
-
     handler_str = utils.get_value_from_subtyped_keys(settings.EVENT_HANDLERS, type)
     if not handler_str:
         handler_str = settings.EVENT_HANDLERS["default"]
@@ -127,8 +125,13 @@ def event_emit(
     return event
 
 
-def event_noop(event: Event) -> None:
-    pass
+def event_log(event: Event) -> None:
+    logger_name = event.data.get("logger", __name__)
+    logger = logging.getLogger(logger_name)
+    event_data_str = " ".join(
+        f"{k}={v}" for k, v in event.data.items() if k != "logger"
+    )
+    logger.info("event=%s event_uuid=%s %s", event.type, event.uuid, event_data_str)
 
 
 def event_create(**kwargs) -> Event:

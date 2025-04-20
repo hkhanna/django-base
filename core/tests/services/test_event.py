@@ -8,13 +8,13 @@ from ...models import Event
 
 @pytest.fixture(autouse=True)
 def default_handler(settings):
-    settings.EVENT_HANDLERS["default"] = "core.services.event_noop"
+    settings.EVENT_HANDLERS["default"] = "core.services.event_log"
 
 
 def test_event_emit(settings, caplog, monkeypatch):
     """Emitting an event creates an Event, logs a message, and calls the handler."""
     settings.EVENT_HANDLERS = {
-        "default": "core.services.event_noop",
+        "default": "core.services.event_log",
         "example_evt": "core.services.event_test_handler",
     }
     mock = Mock()
@@ -23,14 +23,13 @@ def test_event_emit(settings, caplog, monkeypatch):
     event = services.event_emit(type="example_evt", data={"hello": "world"})
     assert Event.objects.count() == 1
     assert event.data == {"hello": "world"}
-    assert str(event.uuid) in caplog.text
     assert mock.call_count == 1
 
 
 def test_event_emit_default(monkeypatch):
-    """Emitting an event without a handler calls the noop handler."""
+    """Emitting an event without a handler calls the event_log handler."""
     mock = Mock()
-    monkeypatch.setattr(services, "event_noop", mock)
+    monkeypatch.setattr(services, "event_log", mock)
     services.event_emit(type="example_evt", data={"hello": "world"})
     assert mock.call_count == 1
 
@@ -39,7 +38,7 @@ def test_event_subtype(settings, monkeypatch):
     """Emitting an event with a subtype calls the handler for that subtype,
     or if none, the parent type."""
     settings.EVENT_HANDLERS = {
-        "default": "core.services.event_noop",
+        "default": "core.services.event_log",
         "example_evt": "core.services.event_test_handler",
         "example_evt.x.y": "core.services.other_event_test_handler",
     }
