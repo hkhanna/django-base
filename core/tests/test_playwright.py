@@ -32,7 +32,7 @@ pytestmark = pytest.mark.skipif(
 
 
 @pytest.fixture
-def user(page: Page, live_server):
+def user(page: Page, live_server, settings):
     user = factories.user_create(is_staff=True, is_superuser=True)
     domain = live_server.url.split("://")[1]
     factories.org_create(
@@ -45,8 +45,7 @@ def user(page: Page, live_server):
     page.get_by_label("Password").click()
     page.get_by_label("Password").fill("goodpass")
     page.get_by_role("button", name="Sign in").click()
-    expect(page).to_have_url(live_server.url + reverse("user:profile"))
-    expect(page.get_by_label("Email")).to_have_value(user.email)
+    expect(page).to_have_url(live_server.url + settings.LOGIN_REDIRECT_URL)
     return user
 
 
@@ -65,7 +64,7 @@ def test_login(page: Page, live_server):
     page.get_by_label("Password").fill("goodpass")
     page.get_by_role("button", name="Sign in").click()
     expect(page).not_to_have_url(live_server.url + reverse("user:login"))
-    expect(page.get_by_label("Email")).to_have_value(user.email)
+    expect(page).to_have_url(live_server.url + settings.LOGIN_REDIRECT_URL)
 
 
 def test_signup(page: Page, live_server):
