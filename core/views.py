@@ -372,7 +372,7 @@ class ProfileView(LoginRequiredMixin, FormView):
         services.event_emit(
             type="user.update.profile",
             data={
-                "user": str(self.request.user.uuid),
+                "user_uuid": str(self.request.user.uuid),
                 "user_email": self.request.user.email,
             },
         )
@@ -416,7 +416,7 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
         services.event_emit(
             type="user.update.password",
             data={
-                "user": str(self.request.user.uuid),
+                "user_uuid": str(self.request.user.uuid),
                 "user_email": self.request.user.email,
             },
         )
@@ -481,7 +481,7 @@ class PasswordResetView(FormView):
     def form_valid(self, form):
         form.save(request=self.request)
         services.event_emit(
-            type="user.password_reset_request",
+            type="user.anon.password_reset_request",
             data={"email": form.cleaned_data["email"]},
         )
 
@@ -512,7 +512,7 @@ class PasswordResetConfirmView(DjangoPasswordResetConfirmView):
         services.event_emit(
             type="user.update.password_reset",
             data={
-                "user": str(self.request.user.uuid),
+                "user_uuid": str(self.request.user.uuid),
                 "user_email": self.request.user.email,
             },
         )

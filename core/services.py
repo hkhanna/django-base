@@ -961,7 +961,7 @@ def user_login(
     event_emit(
         type=event_type,
         data={
-            "user": str(user.uuid),
+            "user_uuid": str(user.uuid),
             "user_email": user.email,
         },
     )
@@ -984,7 +984,7 @@ def user_create(*, event_type: str = "user.signup", **kwargs) -> UserType:
     event_emit(
         type=event_type,
         data={
-            "user": str(user.uuid),
+            "user_uuid": str(user.uuid),
             "user_email": user.email,
         },
     )
