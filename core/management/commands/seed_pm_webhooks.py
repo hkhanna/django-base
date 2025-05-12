@@ -42,7 +42,7 @@ class Command(BaseCommand):
                 "Family": "OS X 10",
             },
             "Platform": "WebMail",
-            "UserAgent": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/35.0.1916.153 Safari\/537.36",
+            "UserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36",
             "Geo": {
                 "CountryISOCode": "RS",
                 "Country": "Serbia",

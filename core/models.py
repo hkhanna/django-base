@@ -119,7 +119,7 @@ class EmailMessage(BaseModel):
 
     Status = constants.EmailMessage.Status
     status = models.CharField(
-        max_length=254, choices=Status.choices, default=Status.NEW
+        max_length=254, choices=Status.choices, default=Status.NEW  # type: ignore
     )
     error_message = models.TextField(blank=True)
 
@@ -165,7 +165,7 @@ class EmailMessageWebhook(BaseModel):
 
     Status = constants.EmailMessageWebhook.Status
     status = models.CharField(
-        max_length=127, choices=Status.choices, default=Status.NEW
+        max_length=127, choices=Status.choices, default=Status.NEW  # type: ignore
     )
 
     def __str__(self):
@@ -432,7 +432,7 @@ class OrgSetting(BaseModel):
     """An Org-wide setting definition"""
 
     slug = models.SlugField(max_length=254, unique=True)
-    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
+    type = models.CharField(max_length=127, choices=constants.SettingType.choices)  # type: ignore
     default = models.CharField(max_length=254)
 
     def __str__(self):
@@ -446,7 +446,7 @@ class OrgUserSetting(BaseModel):
     """Definitions for settings for members of an Org, i.e., OrgUsers"""
 
     slug = models.SlugField(max_length=254, unique=True)
-    type = models.CharField(max_length=127, choices=constants.SettingType.choices)
+    type = models.CharField(max_length=127, choices=constants.SettingType.choices)  # type: ignore
     default = models.CharField(max_length=254)
     owner_value = models.CharField(
         max_length=254,
@@ -467,7 +467,7 @@ class GlobalSetting(BaseModel):
     slug = models.SlugField(max_length=254, unique=True)
     type = models.CharField(
         max_length=127,
-        choices=constants.SettingType.choices,
+        choices=constants.SettingType.choices,  # type: ignore
     )
     value = models.CharField(max_length=254)
 
