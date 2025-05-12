@@ -6,14 +6,14 @@ export const Link = forwardRef(function Link(
   props: InertiaLinkProps,
   ref: React.ForwardedRef<HTMLAnchorElement>
 ) {
-  const noInertia =
-    props.href.startsWith("http") || props.href.startsWith("mailto");
+  const href = typeof props.href === "string" ? props.href : props.href.url;
+  const noInertia = href.startsWith("http") || href.startsWith("mailto");
 
   const { className, ...restProps } = props;
 
   return noInertia ? (
     <a
-      href={props.href}
+      href={href}
       className={cn(
         "font-medium text-primary underline underline-offset-4",
         className
