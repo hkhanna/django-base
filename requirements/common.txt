@@ -1,17 +1,17 @@
 # -- Begin base requirements -- #
 
-celery==5.4.0
-Django==4.2.17
-django-environ==0.11.2
-django-extensions==3.2.3
-django-storages==1.14.4
-django-vite==3.0.6
-inertia-django==1.0.0
+celery==5.5.2
+Django==5.2.1
+django-environ==0.12.0
+django-extensions==4.1
+django-storages==1.14.6
+django-vite==3.1.0
+inertia-django==1.2.0
 # python-gnupg==0.5.3
-python-postmark==0.6.0
-pytz==2024.2
-redis==5.2.1
+python-postmark==0.6.1
+pytz==2025.2
+redis==6.0.0
 requests==2.32.3
-whitenoise==6.8.2
+whitenoise==6.9.0
 
 # -- End base requirements -- #
