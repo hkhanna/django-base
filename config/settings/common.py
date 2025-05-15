@@ -204,6 +204,9 @@ EVENT_SECRET = env("EVENT_SECRET", default="insecure")
 
 # Celery
 CELERY_BROKER_URL = env("REDIS_URL", default=None)
+CELERY_BROKER_USE_SSL = {
+    "ssl_cert_reqs": None,  # ssl.CERT_NONE equivalent
+}
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_TIME_LIMIT = 60  # Raise exception after 60 seconds.
 CELERY_WORKER_TASK_LOG_FORMAT = "[%(name)s] at=%(levelname)s timestamp=%(asctime)s processName=%(processName)s task_id=%(task_id)s task_name=%(task_name)s %(message)s"

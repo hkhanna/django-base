@@ -154,7 +154,8 @@ If you're using Heroku, at a minimum, these are the environment variables that m
 1. In production settings, add `CELERY_TASK_ALWAYS_EAGER = False`.
 1. In the `Procfile`, replace the uncommented `release` entry with the commented one and uncomment the `main_worker` entry.
 1. Do a deploy.
-1. Give the celery worker one dyno: `heroku ps:scale main_worker=1 --app <app_name>`
+1. Give the celery worker one dyno: `heroku ps:scale worker=1 --app <app_name>`
+1. If you want to add Celery Beat, you will need to add as an additional dyno, i.e. don't use a main_worker with the --beat option.. The --beat option is not reliable anymore.
 
 #### Heroku - Remove Render if desired.
 
