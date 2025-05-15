@@ -236,6 +236,8 @@ BACKUP_ENCRYPTION_PASSPHRASE = env(
 )
 
 # LOGGING
+ENABLE_HEARTBEAT = False
+
 LOGLEVEL = env("LOGLEVEL", default="INFO")
 
 # See https://www.caktusgroup.com/blog/2015/01/27/Django-Logging-Configuration-logging_config-default-settings-logger/

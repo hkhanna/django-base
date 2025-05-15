@@ -36,6 +36,11 @@ def database_backup():
     database_backup()
 
 
+@app.task
+def heartbeat():
+    logger.info("django-base heartbeat (lub-dub)")
+
+
 periodic = [
     # Backup database once per week Sunday morning at 3:16am.
     {
@@ -47,5 +52,15 @@ periodic = [
             "day_of_week": "0",
         },
         "enabled": settings.ENABLE_DATABASE_BACKUPS,
-    }
+    },
+    {
+        "task": heartbeat,
+        "name": heartbeat.name,
+        "cron": {
+            "minute": "0",
+            "hour": "*",
+            "day_of_week": "*",
+        },
+        "enabled": settings.ENABLE_HEARTBEAT,
+    },
 ]
