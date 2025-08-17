@@ -1,4 +1,4 @@
-.PHONY: run app check vite all all-docker clean build mypy db clear-db migrate seed docker-db
+.PHONY: run app check vite all all-docker clean build mypy ruff tsc db clear-db migrate seed docker-db
 
 include .env
 SHELL := /bin/bash
@@ -9,28 +9,31 @@ run:
 	(make vite & make app & wait)
 
 app:
-	source .venv/bin/activate && python manage.py runserver_plus 127.0.0.1:${WEB_PORT}
+	uv run python manage.py runserver_plus 127.0.0.1:${WEB_PORT}
 
 vite:
 	npm run dev --prefix frontend/
 
-check: mypy tsc
-	source .venv/bin/activate && py.test -n auto
+check: mypy tsc ruff
+	uv run py.test -n auto
 
 mypy:
-	-source .venv/bin/activate && mypy .
+	uv run mypy .
+
+ruff:
+	uv run ruff check
 
 tsc:
 	-npm run tsc --prefix frontend/
 
 playwright:
-	source .venv/bin/activate && py.test --headed --slowmo 250 */tests/test_playwright.py
+	uv run py.test --headed --slowmo 250 */tests/test_playwright.py
 
 fmt:
 	find -name *.html -not -path "*node_modules*" -a -not -path "*.git*" -a -not -path "*.venv*" | xargs djhtml -i -t 2
 
 shell:
-	source .venv/bin/activate && python manage.py shell_plus
+	uv run && python manage.py shell_plus
 
 # BUILD STEPS #
 all: clean build db
@@ -50,18 +53,18 @@ build:
 	@echo "Installing vite node dependencies"
 	npm install --prefix frontend/
 	@echo "Installing playwright"
-	source .venv/bin/activate && playwright install
+	uv run playwright install
 
 db: clear-db migrate seed
 
 clear-db:
 # Make sure this is running on local
 # Presumes a local database is running on DATABASE_PORT
-	@source .venv/bin/activate && python manage.py shell -c "from django.conf import settings; import sys; sys.exit(0 if settings.ENVIRONMENT == 'local' else 1)"
+	@uv run python manage.py shell -c "from django.conf import settings; import sys; sys.exit(0 if settings.ENVIRONMENT == 'local' else 1)"
 	@read -p "Proceed to destroy database? (y/N): " -n 1 -r; \
 	echo; \
 	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		source .venv/bin/activate && echo "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" | python manage.py dbshell; \
+		echo "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" | uv run python manage.py dbshell; \
 	else \
 		echo "Operation cancelled."; \
 		exit 1; \
@@ -69,11 +72,11 @@ clear-db:
 
 migrate:
 	@echo "Running migrations"
-	source .venv/bin/activate && python manage.py migrate
+	uv run python manage.py migrate
 
 seed: 
 	@echo "Seeding database"
-	source .venv/bin/activate && python manage.py seed_db
+	uv run python manage.py seed_db
 
 docker-db:
 # Use docker-db to run the database in a docker container if you don't have one running locally.
