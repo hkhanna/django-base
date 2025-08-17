@@ -520,7 +520,7 @@ def email_message_webhook_process(
             instance=webhook, status=constants.EmailMessageWebhook.Status.PROCESSED
         )
         logger.debug(f"EmailMessageWebhook.id={webhook.id} processed")
-    except Exception as e:
+    except Exception:
         logger.exception(f"EmailMessageWebhook.id={webhook.id} in error state")
         email_message_webhook_update(
             instance=webhook,

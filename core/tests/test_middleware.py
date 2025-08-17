@@ -1,7 +1,7 @@
 from freezegun import freeze_time
 from django.test import override_settings
 from django.utils import timezone
-from django.urls import reverse, path, clear_url_caches
+from django.urls import reverse
 from django.test import Client
 from django.conf import settings
 

@@ -8,7 +8,7 @@ from django_celery_beat.models import IntervalSchedule, CrontabSchedule, Periodi
 
 
 class Command(BaseCommand):
-    help = f"""Setup celery beat periodic tasks."""
+    help = """Setup celery beat periodic tasks."""
 
     @transaction.atomic
     def handle(self, *args, **kwargs):

@@ -1,10 +1,8 @@
 import logging
-import secrets
 import uuid
 
-from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models

@@ -1,8 +1,6 @@
-import json
 from datetime import timedelta
 
 import pytest
-from django.urls import reverse_lazy
 from django.utils import timezone
 
 from .. import factories

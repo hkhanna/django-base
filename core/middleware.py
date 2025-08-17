@@ -47,7 +47,7 @@ class RequestIDMiddleware:
         if user:
             msg += f"User.id={user.id}"
         else:
-            msg += f"User.id=none"
+            msg += "User.id=none"
 
         logger.info(msg)
 

@@ -8,7 +8,6 @@ from ...models import (
 from ... import constants
 
 
-from ...models import Event
 
 
 # Generally, we prefer e2e tests with playwright over view integration tests.

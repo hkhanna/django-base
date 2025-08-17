@@ -2,7 +2,6 @@ from datetime import timedelta
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from faker import Faker
-from ..models import EmailMessage
 from .. import services
 
 fake = Faker()

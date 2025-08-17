@@ -4,8 +4,7 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 
-from . import factories
-from .. import services, selectors, models, constants, utils
+from .. import services, models, constants, utils
 
 User = get_user_model()
 

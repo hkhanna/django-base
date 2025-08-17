@@ -1,7 +1,7 @@
 import pytest
 
 from . import factories
-from .. import models, services
+from .. import services
 
 
 @pytest.fixture

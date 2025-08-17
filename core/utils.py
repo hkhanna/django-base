@@ -104,7 +104,7 @@ def validate_request_body_json(
     """Validate that the request body is JSON and return the parsed JSON."""
     try:
         body_json = json.loads(body)
-    except json.decoder.JSONDecodeError as e:
+    except json.decoder.JSONDecodeError:
         raise ApplicationError("Invalid payload")
 
     # Ensure all required keys

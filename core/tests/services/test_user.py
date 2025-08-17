@@ -1,7 +1,6 @@
 import pytest
 from pytest_django.asserts import assertRaisesMessage
 from unittest.mock import MagicMock
-from django.urls import reverse
 from core import services, selectors, constants
 from core.exceptions import *
 

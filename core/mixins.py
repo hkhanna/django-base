@@ -33,7 +33,7 @@ class OrgRequiredMixin:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if not any(issubclass(base, LoginRequiredMixin) for base in cls.__mro__[1:]):
-            raise TypeError(f"OrgRequiredMixin must be mixed with LoginRequiredMixin")
+            raise TypeError("OrgRequiredMixin must be mixed with LoginRequiredMixin")
 
     def dispatch(self, request, *args, **kwargs):
         assert hasattr(request, "org"), "Did you forget to use the OrgMiddleware?"
