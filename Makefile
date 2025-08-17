@@ -29,9 +29,6 @@ tsc:
 playwright:
 	uv run py.test --headed --slowmo 250 */tests/test_playwright.py
 
-fmt:
-	find -name *.html -not -path "*node_modules*" -a -not -path "*.git*" -a -not -path "*.venv*" | xargs djhtml -i -t 2
-
 shell:
 	uv run && python manage.py shell_plus
 

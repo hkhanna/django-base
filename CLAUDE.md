@@ -37,7 +37,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Other Utilities
 
 - `make shell` - Start Django shell_plus
-- `make fmt` - Format HTML templates with djhtml
 - `uv run ruff check` - Run linting checks
 - `uv run ruff check --fix` - Run linting checks and auto-fix issues
 

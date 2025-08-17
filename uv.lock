@@ -222,7 +222,6 @@ dev = [
     { name = "django-check-html-middleware" },
     { name = "django-debug-toolbar" },
     { name = "django-stubs" },
-    { name = "djhtml" },
     { name = "faker" },
     { name = "freezegun" },
     { name = "mypy" },
@@ -265,7 +264,6 @@ dev = [
     { name = "django-check-html-middleware", specifier = ">=2021.10.1" },
     { name = "django-debug-toolbar", specifier = ">=6.0.0" },
     { name = "django-stubs", specifier = ">=5.2.2" },
-    { name = "djhtml", specifier = ">=3.0.9" },
     { name = "faker", specifier = ">=37.5.3" },
     { name = "freezegun", specifier = ">=1.5.5" },
     { name = "mypy", specifier = ">=1.17.1" },
@@ -379,15 +377,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/23/fe/4be07f538bbf9bf8bf73b045552ec2a1b4fba67e3176abb30490b643368e/django_vite-3.1.0.tar.gz", hash = "sha256:8b4ffe4a9fa81ff568bfb195e74dde8694aaf13fd4b656ae60bf59cce08b85e8", size = 25434, upload-time = "2025-02-23T15:32:07.914Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/30/59/7df4b1077fa41b43b4e542696d75138dbb86a65f44248c607b3e0f1014ce/django_vite-3.1.0-py3-none-any.whl", hash = "sha256:4e46572bd6b1ce70784be129205dc2ffcbc7a3c19fea50bebfb72b327bbde5fc", size = 23579, upload-time = "2025-02-23T15:32:06.603Z" },
-]
-
-[[package]]
-name = "djhtml"
-version = "3.0.9"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/da/ad/5f36310d4306480af03a4fab7d06c2bdf94a9c35c9e2b6a1d98f2ac0036e/djhtml-3.0.9.tar.gz", hash = "sha256:b21d7e6836b5aa8fb415233eb853ad14fdc26694f19ed17158ba71c97fa23f39", size = 28351, upload-time = "2025-08-12T19:53:06.746Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d2/30/8c26e25e6bdb0dfd2c7bb3e7b0c7cd499a597cb720d1ea36f250e0692f46/djhtml-3.0.9-py3-none-any.whl", hash = "sha256:1bcde56d0d469546f391a269d84c71df4054c7df73ad5c51572b38a611156dc4", size = 26613, upload-time = "2025-08-14T07:17:53.531Z" },
 ]
 
 [[package]]
