@@ -79,35 +79,9 @@ Make a note of the access key and the secret key, and hold onto it for the produ
 1. Uncomment python-gnupg in requirements/common.txt
 1. Set ENABLE_DATABASE_BACKUPS to True in common.py
 1. This will automatically enable the celery job contained in core.tasks.
-1. If using Render: uncomment the BACKUP_ENCRYPTION_PASSPHRASE environment variable in render.yaml.
 1. If using Heroku: add the BACKUP_ENCRYPTION_PASSPHRASE environment variable to the Heroku dashboard.
 
 Note that an AWS lifecycle rule ("Prune Backups") will expire backups after approximately six months and permanently delete them approximately six months later.
-
-### Deploy to Render
-
-1. Add to `ALLOWED_HOSTS` in production settings whatever the domain is going to be.
-1. Make any changes to `render.yaml`. Look at the comments in the file.
-1. Make sure the "Log Stream" is setup in your Render account settings. Right now, all services have to share 1 log stream, which is not ideal. It seems like that will change eventually and we will be able to have 1 Log Stream per service or service group.
-1. Create a new "Blueprint" in the Render interface, and connect the repo. This will prompt you to set environment variables that are set to sync: false.
-1. Make sure auto-deploys are OFF in the Render dashboard, because you'll want to only deploy after CI passes.
-1. Uncomment the `Deploy to Render` step in the Github Actions workflow. Tweak based on whether there's a separate celery service.
-1. Add `RENDER_DEPLOY_HOOK_URL_{WEB,CELERY}` to the Github Secrets. Get the url from the Render dashboard.
-1. Using the Render shell on the dashboard:
-   - Make sure there aren't any obvious issues in production. `python manage.py check --deploy`
-   - Create the first superuser on production: `python manage.py createsuperuser`
-   - If you want to poke around, `python manage.py shell`.
-
-#### Render - Enable Celery if desired.
-
-1. Uncomment the redis and celery worker sections of `render.yaml` including the redis env var setting.
-1. In production settings, uncomment the `CELERY_BROKER_URL` setting.
-1. In production settings, add `CELERY_TASK_ALWAYS_EAGER = False`.
-1. Do a deploy.
-
-#### Render - Remove Heroku if desired.
-
-1. Delete requirements.txt, runtime.txt, Procfile, and package.json.
 
 ### Deploy to Heroku
 
@@ -156,10 +130,6 @@ If you're using Heroku, at a minimum, these are the environment variables that m
 1. Do a deploy.
 1. Give the celery worker one dyno: `heroku ps:scale worker=1 --app <app_name>`
 1. If you want to add Celery Beat, you will need to add as an additional dyno, i.e. don't use a main_worker with the --beat option.. The --beat option is not reliable anymore.
-
-#### Heroku - Remove Render if desired.
-
-1. Delete render.yaml, build-web.sh, and build-worker.sh.
 
 ---
 

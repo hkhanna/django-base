@@ -6,7 +6,6 @@ import pytz
 from inertia import share as inertia_share
 from django.apps import apps
 from django.conf import settings
-from django.urls import resolve
 from django.utils import timezone
 from django.utils.cache import add_never_cache_headers
 
@@ -69,8 +68,6 @@ class SetRemoteAddrFromForwardedFor:
     See https://docs.djangoproject.com/en/2.1/releases/1.1/#removed-setremoteaddrfromforwardedfor-middleware
     It should be fine to use with Heroku since Heroku guarantees the last IP in the list is the
     originating IP address: https://stackoverflow.com/a/37061471
-    It should also be fine to use with Render since Render guarantees the first IP in the list is the
-    originating IP address: https://feedback.render.com/features/p/send-the-correct-xforwardedfor
     """
 
     def __init__(self, get_response):
@@ -84,19 +81,9 @@ class SetRemoteAddrFromForwardedFor:
             # that we're not in prod.
             if settings.ENVIRONMENT == "production":
                 request.META["REMOTE_ADDR"] = None
-
-                # Render's health check doesn't provide this header but that's okay,
-                # so don't log an error.
-                if resolve(request.path_info).url_name != "health_check":
-                    logger.error("X-Forwarded-For header not provided in prod.")
+                logger.error("X-Forwarded-For header not provided in prod.")
         else:
-            if settings.RENDER:
-                # We use the first IP in this list since in theory that should be
-                # the client IP. And it appears that Render guarantees that it is
-                # accurate.
-                real_ip = real_ip.split(",")[0].strip()
-                request.META["REMOTE_ADDR"] = real_ip
-            elif settings.HEROKU:
+            if settings.HEROKU:
                 # We use the last IP because it's the only reliable one since
                 # its the one Heroku sets.
                 # In theory the first one (element 0) should be the client IP,

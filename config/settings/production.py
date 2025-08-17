@@ -10,26 +10,15 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 
 DEBUG = env("DJANGO_DEBUG", default=False)
 
-# Production should be on one of Heroku or Render
-RENDER = env("RENDER", default=False)
-HEROKU = not RENDER
+HEROKU = True
 
 if HEROKU:
     # See https://devcenter.heroku.com/articles/http-request-id
     REQUEST_ID_HEADER = "X-Request-Id"  # type: ignore
     ALLOWED_HOSTS = ["*"]
-elif RENDER:
-    REQUEST_ID_HEADER = None
-    ALLOWED_HOSTS = [
-        "localhost"
-    ]  # Add the custom domains in use here. Localhost is required by render during build to avoid a Sentry error.
-    # Render doesn't provide an external hostname in, e.g., cron jobs.
-    RENDER_EXTERNAL_HOSTNAME = env("RENDER_EXTERNAL_HOSTNAME", default=None)
-    if RENDER_EXTERNAL_HOSTNAME:
-        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 else:
-    raise ImproperlyConfigured("Production should be on Heroku or Render.")
+    raise ImproperlyConfigured("Production should be on Heroku.")
 
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")

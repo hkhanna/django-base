@@ -129,7 +129,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # My Additions
 # ---------------------
 ENVIRONMENT = env.str("DJANGO_SETTINGS_MODULE").split(".")[-1]
-RENDER = False
 HEROKU = False
 
 # This is a good article for how to build custom users with the email as username
@@ -140,8 +139,6 @@ ATOMIC_REQUESTS = False
 
 ADMIN_URL_PATH = env("ADMIN_URL_PATH", default="admin/")
 
-# If someday Render passes us a request id, we can use it in the request
-# logging middleware.
 REQUEST_ID_HEADER = None
 
 # EMAIL
@@ -179,7 +176,7 @@ SITE_CONFIG = {
 
 # Host-based alternate urlconfs.
 # If the host matches one of these, use the alternate urlconf. Otherwise, use the ROOT_URLCONF.
-# Every urlconf listed here must have a health_check endpoint for Render to deploy it.
+# Every urlconf listed here SHOULD have a health_check endpoint.
 # Every urlconf listed here must also have an "index" page to avoid infinite errors when rendering the 404 page.
 ROOT_URLCONF = "config.urls"
 HOST_URLCONFS: dict[str, str] = {}

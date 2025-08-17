@@ -82,7 +82,7 @@ docker-db:
 # Use docker-db to run the database in a docker container if you don't have one running locally.
 # The port is forwarded from the standard postgres port (5432) to one that hopefully has no conflicts on the host.
 # `-d` detaches the terminal from the container.
-# `postgres:16` is intended to mirror the version of postgres available on Render / Heroku.
+# `postgres:16` is intended to mirror the version of postgres available on Heroku.
 
 	@echo "Destroying postgres docker container"
 	docker rm -f ${DB_NAME} || true

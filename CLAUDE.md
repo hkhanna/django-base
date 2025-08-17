@@ -150,7 +150,6 @@ Complex hierarchical settings system:
 
 ### Deployment
 
-- Render.com deployment via `render.yaml`
 - Heroku-compatible with `Procfile` and build scripts
 - Auto-deploy on push to `origin/main`
 - Static files handled by Django with Vite build integration
