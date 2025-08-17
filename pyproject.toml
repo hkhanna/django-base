@@ -1,7 +1,7 @@
 [project]
 name = "django-base"
 version = "0.1.0"
-description = "Add your description here"
+description = "This repository is used as a template repository that can be cloned for any new Django project."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
