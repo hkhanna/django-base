@@ -126,12 +126,12 @@ def test_reset_email_from(client, user, mailoutbox, settings):
     """Password reset emails use the account_from_email"""
     settings.SITE_CONFIG["account_from_name"] = "Support"
     settings.SITE_CONFIG["account_from_email"] = "support@example.com"
-    settings.SITE_CONFIG[
-        "default_from_name"
-    ] = "Something Else"  # This should be ignored.
-    settings.SITE_CONFIG[
-        "default_from_email"
-    ] = "somethingelse@example.com"  # This should be ignored.
+    settings.SITE_CONFIG["default_from_name"] = (
+        "Something Else"  # This should be ignored.
+    )
+    settings.SITE_CONFIG["default_from_email"] = (
+        "somethingelse@example.com"  # This should be ignored.
+    )
 
     client.post(reverse("user:password-reset"), {"email": user.email}, follow=True)
     assert len(mailoutbox) == 1

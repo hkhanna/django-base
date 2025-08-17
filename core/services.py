@@ -790,9 +790,9 @@ def model_update(*, instance: DjangoModelType, save=True, **kwargs) -> DjangoMod
         # If field is not an actual model field, raise an error
         model_field = model_fields.get(field)
 
-        assert (
-            model_field is not None
-        ), f"{field} is not part of {instance.__class__.__name__} fields."
+        assert model_field is not None, (
+            f"{field} is not part of {instance.__class__.__name__} fields."
+        )
 
         # We disallow updating a m2o field this way because, somewhat obviously,
         # it will as a side-effect reassign the fk relationship.
@@ -817,9 +817,9 @@ def model_update(*, instance: DjangoModelType, save=True, **kwargs) -> DjangoMod
             instance._allow_save = True
         else:
             # It must either be an instance of BaseModel or User.
-            assert isinstance(
-                instance, User
-            ), "Non-BaseModels must be Users in model_update."
+            assert isinstance(instance, User), (
+                "Non-BaseModels must be Users in model_update."
+            )
 
         instance.save()
     elif len(m2m_data) > 0:

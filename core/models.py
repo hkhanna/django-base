@@ -119,7 +119,9 @@ class EmailMessage(BaseModel):
 
     Status = constants.EmailMessage.Status
     status = models.CharField(
-        max_length=254, choices=Status.choices, default=Status.NEW  # type: ignore
+        max_length=254,
+        choices=Status.choices,
+        default=Status.NEW,  # type: ignore
     )
     error_message = models.TextField(blank=True)
 
@@ -165,7 +167,9 @@ class EmailMessageWebhook(BaseModel):
 
     Status = constants.EmailMessageWebhook.Status
     status = models.CharField(
-        max_length=127, choices=Status.choices, default=Status.NEW  # type: ignore
+        max_length=127,
+        choices=Status.choices,
+        default=Status.NEW,  # type: ignore
     )
 
     def __str__(self):

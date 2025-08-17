@@ -1,4 +1,5 @@
 """Tests related to settings for Orgs, OrgUsers, and Plans."""
+
 import pytest
 from ...models import (
     OrgUserSetting,

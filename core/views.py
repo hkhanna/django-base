@@ -427,7 +427,6 @@ class PasswordChangeView(LoginRequiredMixin, FormView):
         return self.request.path
 
     def render_to_response(self, context, *args, **kwargs):
-
         return utils.inertia_render(
             self.request,
             "core/PasswordChange",

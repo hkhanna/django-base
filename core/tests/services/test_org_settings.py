@@ -1,4 +1,5 @@
 """Tests related to settings for Orgs, OrgUsers, and Plans."""
+
 import pytest
 from datetime import timedelta
 from freezegun import freeze_time

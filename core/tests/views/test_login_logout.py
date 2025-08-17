@@ -82,9 +82,7 @@ def test_login_weird_email(client):
 
 def test_session_length(client, org):
     """Session should last for the expected amount of time."""
-    user = (
-        org.owner
-    )  # Tie the user to an org in case a different project requires an org for the profile view.
+    user = org.owner  # Tie the user to an org in case a different project requires an org for the profile view.
 
     expected_session_length = 15_552_000  # 180 days
 

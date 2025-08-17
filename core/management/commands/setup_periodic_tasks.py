@@ -37,7 +37,7 @@ class Command(BaseCommand):
         PeriodicTask.objects.all().delete()
 
         for periodic_task in periodic_specs:
-            print(f'Setting up {periodic_task["task"].name}')
+            print(f"Setting up {periodic_task['task'].name}")
 
             cron, _ = CrontabSchedule.objects.get_or_create(**periodic_task["cron"])
 
