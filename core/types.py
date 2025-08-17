@@ -2,9 +2,8 @@ from typing import TypeVar
 
 from django.db import models
 
-from .models import (
-    User as UserType,
-)  # mypy: Can't use get_user_model because of https://github.com/typeddjango/django-stubs/issues/599
+# Can't use get_user_model because of https://github.com/typeddjango/django-stubs/issues/599
+from .models import User as UserType  # noqa: F401
 
 from .models import BaseModel
 

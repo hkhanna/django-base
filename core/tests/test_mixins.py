@@ -19,7 +19,7 @@ def test_org_user_setting_permission_mixin(rf, user, org):
 
     # Now, give the user the permission.
     org_user = selectors.org_user_list(org=org, user=user).get()
-    org_user_org_user_setting = services.org_user_org_user_setting_create(
+    _org_user_org_user_setting = services.org_user_org_user_setting_create(
         org_user=org_user, setting=org_user_setting, value="true"
     )
     assert mixin.test_func() is True

@@ -179,7 +179,7 @@ def test_org_middleware_ou_last_accessed(client, user, org):
     )
     assert selectors.org_get_recent_for_user(user, org2.domain) == org2
 
-    with freeze_time("2023-03-16 12:00:00Z") as frozen_dt:
+    with freeze_time("2023-03-16 12:00:00Z"):
         response = client.get(reverse("index"))
         assert response.wsgi_request.org == org2
         ou = org2.org_users.get(user=user)

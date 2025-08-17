@@ -439,7 +439,7 @@ def email_message_webhook_create_from_request(
 ) -> EmailMessageWebhook:
     """Create an EmailMessageWebhook from a request object."""
     payload = utils.validate_request_body_json(body=body)
-    if type(payload) != dict:
+    if not isinstance(payload, dict):
         raise ApplicationError("Invalid payload")
 
     headers_processed = {}

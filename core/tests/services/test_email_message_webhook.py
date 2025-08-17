@@ -31,7 +31,7 @@ def test_email_message_webhook_process_type_recorded():
 def test_email_message_webhook_process_linked():
     """An EmailMessageWebhook is linked to its related EmailMessage"""
     linked = factories.email_message_create(message_id="id-abc123")
-    notlinked = factories.email_message_create(message_id="other-id")
+    _notlinked = factories.email_message_create(message_id="other-id")
 
     services.email_message_webhook_process(
         email_message_webhook=factories.email_message_webhook_create()
