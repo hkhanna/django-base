@@ -46,9 +46,7 @@ clean:
 
 build:
 	@echo "Building python virtual environment"
-	python3.13 -m venv .venv
-	source .venv/bin/activate && pip install --upgrade pip
-	source .venv/bin/activate && pip install -r requirements/local.txt
+	uv sync
 	@echo "Installing vite node dependencies"
 	npm install --prefix frontend/
 	@echo "Installing playwright"

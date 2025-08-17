@@ -31,7 +31,7 @@ See [Usage](./USAGE.md) for instructions on how to use this repository.
 
 ### Updating Packages
 
-- `pip-outdated <requirements file>` for every requirements file to see what's outdated. Fix them all.
+- `uv sync --upgrade`
 
 ## Merging upstream "base" changes
 
