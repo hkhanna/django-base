@@ -30,7 +30,7 @@ export default defineConfig({
     assetsDir: "",
     manifest: "manifest.json",
     emptyOutDir: true,
-    target: "es2017",
+    target: "baseline-widely-available",
     rollupOptions: {
       input: {
         inertia: path.resolve("./src/inertia.tsx"),
