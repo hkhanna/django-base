@@ -42,9 +42,9 @@ export default function PasswordReset() {
         </p>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
-          <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
+          <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow-sm sm:rounded-lg sm:px-12">
             {success ? (
-              <p className="leading-7 [&:not(:first-child)]:mt-6">
+              <p className="leading-7 not-first:mt-6">
                 If an account exists with that email address, we sent you an
                 email with a link to reset your password.
               </p>

@@ -41,7 +41,7 @@ export default function Login({ social_auth }: { social_auth: SocialAuth }) {
         </p>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
-          <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
+          <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow-sm sm:rounded-lg sm:px-12">
             {social_auth.google && (
               <>
                 <ContinueWithGoogle

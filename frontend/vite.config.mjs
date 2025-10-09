@@ -2,11 +2,12 @@ import path from "path";
 import { loadEnv } from "vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 process.env = { ...process.env, ...loadEnv(null, process.cwd() + "/../") };
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [tailwindcss(), react()],
   root: path.resolve("./src/"),
   base: "/static/",
   server: {

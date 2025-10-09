@@ -47,7 +47,7 @@ function SettingsSidebarNav({ active }: { active?: string }) {
         <Button
           variant="link"
           className={cn(
-            "!justify-start",
+            "justify-start!",
             item.href === active &&
               "bg-zinc-100 dark:bg-zinc-800 hover:no-underline"
           )}

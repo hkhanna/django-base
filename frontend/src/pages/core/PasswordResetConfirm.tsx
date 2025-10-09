@@ -40,7 +40,7 @@ export default function PasswordResetConfirm({
             <p className="text-center">Please choose a new password.</p>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[480px]">
-              <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
+              <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow-sm sm:rounded-lg sm:px-12">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <FormInput
                     label="New password"

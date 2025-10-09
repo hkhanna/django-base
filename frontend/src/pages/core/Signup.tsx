@@ -58,7 +58,7 @@ export default function Signup({ social_auth }: { social_auth: SocialAuth }) {
               </div>
             </>
           )}
-          <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow sm:rounded-lg sm:px-12">
+          <div className="bg-white dark:bg-zinc-900 dark:border dark:border-white/10 px-6 py-10 shadow-sm sm:rounded-lg sm:px-12">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-4">
                 <FormInput
