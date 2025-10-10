@@ -1,9 +1,9 @@
 import React from "react";
 import { usePage, router } from "@inertiajs/react";
 import { useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { User } from "@/types/User";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 
 /**
  * This is the layout for application pages. It can include things like a sidebar or navbar.
@@ -32,27 +32,40 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }[];
   }>();
 
-  const { toast, dismiss } = useToast();
-
   // Show toast messages
   useEffect(() => {
-    page.props.messages.forEach((message) =>
-      toast({
-        title: message.title,
-        description: message.description,
-        variant: message.level === "error" ? "destructive" : "default",
-      })
-    );
+    page.props.messages.forEach((message) => {
+      const toastMessage = message.description
+        ? `${message.title}\n${message.description}`
+        : message.title;
+
+      switch (message.level) {
+        case "success":
+          toast.success(toastMessage);
+          break;
+        case "error":
+          toast.error(toastMessage);
+          break;
+        case "warning":
+          toast.warning(toastMessage);
+          break;
+        case "info":
+          toast.info(toastMessage);
+          break;
+        default:
+          toast(toastMessage);
+      }
+    });
   }, [page.props.messages]);
 
   // Dismiss toast messages on navigation
   useEffect(() => {
     const unsubscribe = router.on("success", () => {
-      dismiss();
+      toast.dismiss();
     });
 
     return unsubscribe;
-  }, [dismiss]);
+  }, []);
 
   return (
     <>
