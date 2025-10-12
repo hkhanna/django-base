@@ -196,28 +196,25 @@ name = "django-base"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "boto3" },
     { name = "celery" },
     { name = "django" },
     { name = "django-environ" },
     { name = "django-extensions" },
     { name = "django-storages" },
     { name = "django-vite" },
+    { name = "gunicorn" },
     { name = "inertia-django" },
-    { name = "psycopg" },
+    { name = "psycopg", extra = ["binary"] },
     { name = "python-postmark" },
     { name = "pytz" },
     { name = "redis" },
     { name = "requests" },
+    { name = "sentry-sdk" },
     { name = "whitenoise" },
 ]
 
 [package.dev-dependencies]
-deploy = [
-    { name = "boto3" },
-    { name = "gunicorn" },
-    { name = "psycopg", extra = ["c"] },
-    { name = "sentry-sdk" },
-]
 dev = [
     { name = "django-check-html-middleware" },
     { name = "django-debug-toolbar" },
@@ -225,7 +222,6 @@ dev = [
     { name = "faker" },
     { name = "freezegun" },
     { name = "mypy" },
-    { name = "psycopg", extra = ["binary"] },
     { name = "pytest" },
     { name = "pytest-django" },
     { name = "pytest-playwright" },
@@ -238,28 +234,25 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "boto3", specifier = ">=1.40.11" },
     { name = "celery", specifier = ">=5.5.3" },
     { name = "django", specifier = ">=5.2.5" },
     { name = "django-environ", specifier = ">=0.12.0" },
     { name = "django-extensions", specifier = ">=4.1" },
     { name = "django-storages", specifier = ">=1.14.6" },
     { name = "django-vite", specifier = ">=3.1.0" },
+    { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "inertia-django", specifier = ">=1.2.0" },
-    { name = "psycopg", specifier = ">=3.2.9" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.2.9" },
     { name = "python-postmark", specifier = ">=0.6.1" },
     { name = "pytz", specifier = ">=2025.2" },
     { name = "redis", specifier = ">=6.4.0" },
     { name = "requests", specifier = ">=2.32.4" },
+    { name = "sentry-sdk", specifier = ">=2.35.0" },
     { name = "whitenoise", specifier = ">=6.9.0" },
 ]
 
 [package.metadata.requires-dev]
-deploy = [
-    { name = "boto3", specifier = ">=1.40.11" },
-    { name = "gunicorn", specifier = ">=23.0.0" },
-    { name = "psycopg", extras = ["c"], specifier = ">=3.2.9" },
-    { name = "sentry-sdk", specifier = ">=2.35.0" },
-]
 dev = [
     { name = "django-check-html-middleware", specifier = ">=2021.10.1" },
     { name = "django-debug-toolbar", specifier = ">=6.0.0" },
@@ -267,7 +260,6 @@ dev = [
     { name = "faker", specifier = ">=37.5.3" },
     { name = "freezegun", specifier = ">=1.5.5" },
     { name = "mypy", specifier = ">=1.17.1" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.2.9" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "pytest-django", specifier = ">=4.11.1" },
     { name = "pytest-playwright", specifier = ">=0.7.0" },
@@ -640,9 +632,6 @@ wheels = [
 binary = [
     { name = "psycopg-binary", marker = "implementation_name != 'pypy'" },
 ]
-c = [
-    { name = "psycopg-c", marker = "implementation_name != 'pypy'" },
-]
 
 [[package]]
 name = "psycopg-binary"
@@ -661,12 +650,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/45/6b/6f1164ea1634c87956cdb6db759e0b8c5827f989ee3cdff0f5c70e8331f2/psycopg_binary-3.2.9-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:f0d5b3af045a187aedbd7ed5fc513bd933a97aaff78e61c3745b330792c4345b", size = 3477477, upload-time = "2025-05-13T16:08:51.166Z" },
     { url = "https://files.pythonhosted.org/packages/7b/1d/bf54cfec79377929da600c16114f0da77a5f1670f45e0c3af9fcd36879bc/psycopg_binary-3.2.9-cp313-cp313-win_amd64.whl", hash = "sha256:2290bc146a1b6a9730350f695e8b670e1d1feb8446597bed0bbe7c3c30e0abcb", size = 2928009, upload-time = "2025-05-13T16:08:53.67Z" },
 ]
-
-[[package]]
-name = "psycopg-c"
-version = "3.2.9"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/83/7f/6147cb842081b0b32692bf5a0fdf58e9ac95418ebac1184d4431ec44b85f/psycopg_c-3.2.9.tar.gz", hash = "sha256:8c9f654f20c6c56bddc4543a3caab236741ee94b6732ab7090b95605502210e2", size = 609538, upload-time = "2025-05-13T16:11:19.856Z" }
 
 [[package]]
 name = "pyee"
