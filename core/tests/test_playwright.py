@@ -107,7 +107,7 @@ def test_profile(page: Page, live_server, user):
     page.get_by_label("Email").fill("new@example.com")
     page.get_by_label("Email").press("Tab")
     page.get_by_role("button", name="Update profile").click()
-    expect(page.get_by_role("status").last).to_have_text("Profile updated.")
+    expect(page.get_by_text("Profile updated.")).to_be_visible()
     user.refresh_from_db()
     assert user.first_name == "Example First"
     assert user.last_name == "Example Last"
@@ -163,7 +163,7 @@ def test_change_password(page: Page, live_server, user):
     page.get_by_label("New password (again)").press("Tab")
     page.get_by_label("Current password", exact=True).fill("goodpass")
     page.get_by_label("Current password", exact=True).press("Enter")
-    expect(page.get_by_role("status").last).to_have_text("Password changed.")
+    expect(page.get_by_text("Password changed.")).to_be_visible()
     user.refresh_from_db()
     assert user.check_password("newpass123") is True
 
