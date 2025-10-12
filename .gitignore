@@ -5,6 +5,7 @@ __pycache__/
 *$py.class
 .venv/
 .playwright/
+.playwright-mcp/
 .media/
 .backups/
 
