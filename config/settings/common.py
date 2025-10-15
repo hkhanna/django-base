@@ -273,3 +273,23 @@ logging.config.dictConfig(
         },
     }
 )
+
+# Org and OrgUser Setting Defaults
+# When an OrgSetting or OrgUserSetting is accessed but does not exist in the database,
+# it will be auto-created. These dictionaries define the defaults to use for specific settings.
+# If a setting is not found here, it will fall back to type="bool" and default="false".
+#
+# Example OrgSetting:
+# ORG_SETTING_DEFAULTS = {
+#     "feature_x_enabled": {"type": "bool", "default": "true"},
+#     "max_team_members": {"type": "int", "default": "10"},
+# }
+#
+# Example OrgUserSetting:
+# ORG_USER_SETTING_DEFAULTS = {
+#     "can_invite_users": {"type": "bool", "default": "false", "owner_value": "true"},
+# }
+
+ORG_SETTING_DEFAULTS: dict[str, dict[str, str]] = {}
+
+ORG_USER_SETTING_DEFAULTS: dict[str, dict[str, str]] = {}

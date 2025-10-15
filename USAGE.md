@@ -158,7 +158,22 @@ They are related to` Orgs`, `OrgUsers` and `Plans` in different ways.
 - If a `Plan` is queried for an `OrgSetting`, and that `OrgSetting` is not set on the `Plan`, it will materialize the setting on the `Plan` with the `OrgSetting`'s default.
 - `OrgUserSettings` should have defaults set by the `Org`. If an `Org` is accessed for an `OrgUserSetting` default and it's not there, it will materialize it on the `Org`.
   - We set an `owner_value` on the base `OrgUserSetting` that is always used for the `Org` owner, who is kind of a superuser.
-- If an `OrgSetting` or `OrgUserSetting` does not exist but is queried, that setting will autocreate with a default of `False` and an owner_value of `True`.
+- If an `OrgSetting` or `OrgUserSetting` does not exist but is queried, that setting will autocreate using the following priority:
+  1. First, it checks the `ORG_SETTING_DEFAULTS` or `ORG_USER_SETTING_DEFAULTS` dictionary in `config/settings/common.py`
+  2. If not found in settings, it falls back to autocreating with `type="bool"`, `default="false"`, and for OrgUserSettings, `owner_value="true"`
+
+To customize defaults for your project, add them to `config/settings/common.py`:
+
+```python
+ORG_SETTING_DEFAULTS = {
+    "feature_x_enabled": {"type": "bool", "default": "true"},
+    "max_team_members": {"type": "int", "default": "10"},
+}
+
+ORG_USER_SETTING_DEFAULTS = {
+    "can_invite_users": {"type": "bool", "default": "false", "owner_value": "true"},
+}
+```
 
 #### Development Notes:
 

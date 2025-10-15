@@ -855,9 +855,15 @@ def org_get_setting_value(*, org: Org, slug: str) -> bool | int | str:
     try:
         setting = selectors.org_setting_list(slug=slug).get()
     except OrgSetting.DoesNotExist:
-        setting = org_setting_create(
-            slug=slug, type=constants.SettingType.BOOL, default="false"
-        )
+        # Check if there's a default configuration in settings
+        default_config = settings.ORG_SETTING_DEFAULTS.get(slug)
+        if default_config:
+            setting = org_setting_create(slug=slug, **default_config)
+        else:
+            # Fall back to hardcoded default
+            setting = org_setting_create(
+                slug=slug, type=constants.SettingType.BOOL, default="false"
+            )
 
     try:
         overridden_org_setting = selectors.overridden_org_setting_list(
@@ -883,12 +889,18 @@ def org_user_get_setting_value(*, org_user: OrgUser, slug: str) -> bool | int | 
     try:
         setting = selectors.org_user_setting_list(slug=slug).get()
     except OrgUserSetting.DoesNotExist:
-        setting = org_user_setting_create(
-            slug=slug,
-            type=constants.SettingType.BOOL,
-            default="false",
-            owner_value="true",
-        )
+        # Check if there's a default configuration in settings
+        default_config = settings.ORG_USER_SETTING_DEFAULTS.get(slug)
+        if default_config:
+            setting = org_user_setting_create(slug=slug, **default_config)
+        else:
+            # Fall back to hardcoded default
+            setting = org_user_setting_create(
+                slug=slug,
+                type=constants.SettingType.BOOL,
+                default="false",
+                owner_value="true",
+            )
 
     # Short-circuit if the OrgUser is the Org owner.
     if org_user.org.owner == org_user.user:

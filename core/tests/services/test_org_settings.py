@@ -2,9 +2,11 @@
 
 import pytest
 from datetime import timedelta
+from django.test import override_settings
 from freezegun import freeze_time
 from ...models import (
     OrgSetting,
+    OrgUserSetting,
     PlanOrgSetting,
     OverriddenOrgSetting,
 )
@@ -108,3 +110,117 @@ def test_org_get_setting_plan_never_expires(org, org_setting):
     services.org_update(instance=org, current_period_end=None)
     result = services.org_get_setting_value(org=org, slug="for-test")
     assert result == 10
+
+
+@override_settings(
+    ORG_SETTING_DEFAULTS={
+        "custom_feature": {"type": "bool", "default": "true"},
+        "max_items": {"type": "int", "default": "100"},
+    }
+)
+def test_org_get_setting_from_defaults(org):
+    """org_get_setting() will use ORG_SETTING_DEFAULTS when a setting doesn't exist"""
+    assert OrgSetting.objects.count() == 0  # No OrgSettings yet.
+
+    # Test boolean setting from defaults
+    result = services.org_get_setting_value(org=org, slug="custom_feature")
+    settings = OrgSetting.objects.filter(slug="custom_feature")
+    assert len(settings) == 1
+    setting = settings.first()
+    assert setting.slug == "custom_feature"
+    assert setting.default == "true"
+    assert setting.type == "bool"
+    assert result is True
+
+    # Test integer setting from defaults
+    result = services.org_get_setting_value(org=org, slug="max_items")
+    settings = OrgSetting.objects.filter(slug="max_items")
+    assert len(settings) == 1
+    setting = settings.first()
+    assert setting.slug == "max_items"
+    assert setting.default == "100"
+    assert setting.type == "int"
+    assert result == 100
+
+    # Test fallback to hardcoded default when not in ORG_SETTING_DEFAULTS
+    result = services.org_get_setting_value(org=org, slug="unknown_setting")
+    settings = OrgSetting.objects.filter(slug="unknown_setting")
+    assert len(settings) == 1
+    setting = settings.first()
+    assert setting.slug == "unknown_setting"
+    assert setting.default == "false"
+    assert setting.type == constants.SettingType.BOOL
+    assert result is False
+
+
+@override_settings(
+    ORG_USER_SETTING_DEFAULTS={
+        "can_export": {
+            "type": "bool",
+            "default": "false",
+            "owner_value": "true",
+        },
+        "max_exports": {
+            "type": "int",
+            "default": "10",
+            "owner_value": "100",
+        },
+    }
+)
+def test_org_user_get_setting_from_defaults(org):
+    """org_user_get_setting_value() will use ORG_USER_SETTING_DEFAULTS when a setting doesn't exist"""
+    # Create a new user for testing (not the org owner)
+    new_user = services.user_create(email="testuser@example.com", password="testpass")
+    org_user = services.org_user_create(org=org, user=new_user)
+    assert OrgUserSetting.objects.count() == 0  # No OrgUserSettings yet.
+
+    # Test boolean setting from defaults
+    result = services.org_user_get_setting_value(org_user=org_user, slug="can_export")
+    settings = OrgUserSetting.objects.filter(slug="can_export")
+    assert len(settings) == 1
+    setting = settings.first()
+    assert setting.slug == "can_export"
+    assert setting.default == "false"
+    assert setting.owner_value == "true"
+    assert setting.type == "bool"
+    assert result is False  # User is not the owner
+
+    # Test integer setting from defaults
+    result = services.org_user_get_setting_value(
+        org_user=org_user, slug="max_exports"
+    )
+    settings = OrgUserSetting.objects.filter(slug="max_exports")
+    assert len(settings) == 1
+    setting = settings.first()
+    assert setting.slug == "max_exports"
+    assert setting.default == "10"
+    assert setting.owner_value == "100"
+    assert setting.type == "int"
+    assert result == 10  # User is not the owner
+
+    # Test owner_value for org owner (owner's OrgUser already exists from org creation)
+    from core import selectors
+
+    owner_org_user = selectors.org_user_list(org=org, user=org.owner).get()
+    result = services.org_user_get_setting_value(
+        org_user=owner_org_user, slug="can_export"
+    )
+    assert result is True  # Owner gets owner_value
+
+    result = services.org_user_get_setting_value(
+        org_user=owner_org_user, slug="max_exports"
+    )
+    assert result == 100  # Owner gets owner_value
+
+    # Test fallback to hardcoded default when not in ORG_USER_SETTING_DEFAULTS
+    result = services.org_user_get_setting_value(
+        org_user=org_user, slug="unknown_setting"
+    )
+    settings = OrgUserSetting.objects.filter(slug="unknown_setting")
+    assert len(settings) == 1
+    setting = settings.first()
+    assert setting.slug == "unknown_setting"
+    assert setting.default == "false"
+    assert setting.owner_value == "true"
+    assert setting.type == constants.SettingType.BOOL
+    assert result is False
